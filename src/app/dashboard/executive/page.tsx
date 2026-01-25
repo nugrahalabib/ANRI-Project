@@ -88,15 +88,20 @@ export default function ExecutiveDashboard() {
     }
 
     const kpiData = {
-        mttd: { value: stats?.kpis.mttd || 2.3, unit: 'min', trend: { direction: 'down' as const, value: '42%', period: 'vs last month' }, description: 'Mean Time to Detection', sparkline: [8, 6, 5, 4, 3.5, 3, 2.3] },
-        compliance: { value: stats?.kpis.complianceRate || 94.2, unit: '%', trend: { direction: 'up' as const, value: '2.1%', period: 'vs last month' }, description: 'Policy Compliance Rate', sparkline: [88, 89, 91, 92, 93, 94, 94.2] },
-        anomalyAccuracy: { value: stats?.kpis.anomalyAccuracy || 87.5, unit: '%', trend: { direction: 'up' as const, value: '3.1%', period: 'vs last month' }, description: 'AI Detection Accuracy', sparkline: [82, 84, 85, 86, 87, 87.5] },
+        mttd: { value: Math.round(stats?.kpis.mttd || 2), unit: 'min', trend: { direction: 'down' as const, value: '42%', period: 'vs last month' }, description: 'Mean Time to Detection', sparkline: [8, 6, 5, 4, 4, 3, 2] },
+        compliance: { value: Math.round(stats?.kpis.complianceRate || 94), unit: '%', trend: { direction: 'up' as const, value: '2%', period: 'vs last month' }, description: 'Policy Compliance Rate', sparkline: [88, 89, 91, 92, 93, 94, 94] },
+        anomalyAccuracy: { value: Math.round(stats?.kpis.anomalyAccuracy || 88), unit: '%', trend: { direction: 'up' as const, value: '3%', period: 'vs last month' }, description: 'AI Detection Accuracy', sparkline: [82, 84, 85, 86, 87, 88] },
         activeAlerts: { value: stats?.alerts.open || 0, unit: '', trend: { direction: 'stable' as const, value: '0', period: 'no change' }, description: 'Open Alerts Requiring Review', sparkline: [12, 9, 8, 7, 9, 8, stats?.alerts.open || 7] },
         documentIncident: { value: 23, unit: '%', trend: { direction: 'down' as const, value: '23%', period: 'vs last quarter' }, description: 'Penurunan Insiden Dokumen', sparkline: [45, 42, 38, 35, 30, 28, 25] },
         auditReadiness: { value: 96, unit: '%', trend: { direction: 'up' as const, value: '4%', period: 'vs last month' }, description: 'Kesiapan Audit & Pelaporan', sparkline: [85, 88, 90, 92, 94, 95, 96] },
     };
 
-    const riskPosture = stats?.riskPosture || { overallScore: 42, documentRisk: 35, digitalRisk: 52, complianceRisk: 18 };
+    const riskPosture = {
+        overallScore: Math.round(stats?.riskPosture?.overallScore || 42),
+        documentRisk: Math.round(stats?.riskPosture?.documentRisk || 35),
+        digitalRisk: Math.round(stats?.riskPosture?.digitalRisk || 52),
+        complianceRisk: Math.round(stats?.riskPosture?.complianceRisk || 18),
+    };
 
     return (
         <DashboardLayout title="Executive Overview" subtitle="Ringkasan Postur Risiko Organisasi">
