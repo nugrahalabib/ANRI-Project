@@ -52,6 +52,11 @@ export default function NSOCTacticalTerminal() {
     const [selectedAlert, setSelectedAlert] = useState<string | null>(null);
     const [showProtocolModal, setShowProtocolModal] = useState(false);
 
+    // Infrastructure search and filter state
+    const [readerSearch, setReaderSearch] = useState('');
+    const [readerTypeFilter, setReaderTypeFilter] = useState<string>('ALL');
+    const [readerStatusFilter, setReaderStatusFilter] = useState<string>('ALL');
+
     useEffect(() => {
         async function fetchData() {
             try {
@@ -93,6 +98,19 @@ export default function NSOCTacticalTerminal() {
         if (pct >= 40) return 'warning';
         return 'normal';
     };
+
+    // Filter readers based on search and filters
+    const filteredReaders = readers.filter(reader => {
+        const matchesSearch = readerSearch === '' ||
+            reader.name.toLowerCase().includes(readerSearch.toLowerCase()) ||
+            reader.readerId.toLowerCase().includes(readerSearch.toLowerCase()) ||
+            reader.zone?.name?.toLowerCase().includes(readerSearch.toLowerCase());
+        const matchesType = readerTypeFilter === 'ALL' || reader.type === readerTypeFilter;
+        const matchesStatus = readerStatusFilter === 'ALL' ||
+            (readerStatusFilter === 'ONLINE' && reader.isOnline) ||
+            (readerStatusFilter === 'OFFLINE' && !reader.isOnline);
+        return matchesSearch && matchesType && matchesStatus;
+    });
 
     // Generate activity data from current hour
     const activityData = Array.from({ length: 24 }, (_, i) => ({
@@ -298,45 +316,91 @@ export default function NSOCTacticalTerminal() {
                             </div>
                         </div>
                     </section>
-
-                    {/* RFID Infrastructure Intelligence */}
-                    <section className={styles.rfidSection}>
-                        <div className={styles.sectionHeader}>
-                            <h2>Infrastructure Intelligence</h2>
-                            <span className={styles.onlineCount}>{onlineReaders} Online</span>
-                        </div>
-                        <div className={styles.readerGrid}>
-                            {readers.slice(0, 6).map((reader) => (
-                                <div
-                                    key={reader.id}
-                                    className={`${styles.readerCard} ${!reader.isOnline ? styles.offline : ''}`}
-                                >
-                                    <div className={styles.readerHeader}>
-                                        <div className={`${styles.signalPulse} ${reader.isOnline ? styles.active : ''}`}>
-                                            <div className={styles.pulseRing} />
-                                            <div className={styles.pulseCore} />
-                                        </div>
-                                        <div className={styles.readerInfo}>
-                                            <span className={styles.readerName}>{reader.name}</span>
-                                            <code className={styles.readerId}>{reader.readerId}</code>
-                                        </div>
-                                    </div>
-                                    <div className={styles.readerZone}>{reader.zone?.name || 'Unknown Zone'}</div>
-                                    <div className={styles.readerMetrics}>
-                                        <div className={styles.metricItem}>
-                                            <span className={styles.metricLabel}>Status</span>
-                                            <span className={styles.metricValue}>{reader.isOnline ? 'ONLINE' : 'OFFLINE'}</span>
-                                        </div>
-                                        <div className={styles.metricItem}>
-                                            <span className={styles.metricLabel}>Type</span>
-                                            <span className={styles.metricValue}>{reader.type}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </section>
                 </div>
+
+                {/* Infrastructure Intelligence - Separate Section */}
+                <section className={styles.infrastructureSection}>
+                    <div className={styles.sectionHeader}>
+                        <h2>Infrastructure Intelligence</h2>
+                        <span className={styles.onlineCount}>{onlineReaders}/{readers.length} Online</span>
+                    </div>
+
+                    {/* Search and Filter Bar */}
+                    <div className={styles.infraFilters}>
+                        <div className={styles.searchBox}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            <input
+                                type="text"
+                                placeholder="Search reader, zone..."
+                                value={readerSearch}
+                                onChange={(e) => setReaderSearch(e.target.value)}
+                                className={styles.searchInput}
+                            />
+                        </div>
+                        <select
+                            value={readerTypeFilter}
+                            onChange={(e) => setReaderTypeFilter(e.target.value)}
+                            className={styles.filterSelect}
+                        >
+                            <option value="ALL">All Types</option>
+                            <option value="PORTAL">Portal</option>
+                            <option value="FIXED">Fixed</option>
+                            <option value="MOBILE">Mobile</option>
+                        </select>
+                        <select
+                            value={readerStatusFilter}
+                            onChange={(e) => setReaderStatusFilter(e.target.value)}
+                            className={styles.filterSelect}
+                        >
+                            <option value="ALL">All Status</option>
+                            <option value="ONLINE">Online</option>
+                            <option value="OFFLINE">Offline</option>
+                        </select>
+                    </div>
+
+                    {/* Scrollable Reader List */}
+                    <div className={styles.readerListContainer}>
+                        <div className={styles.readerList}>
+                            {filteredReaders.length === 0 ? (
+                                <div className={styles.noResults}>No readers match your filters</div>
+                            ) : (
+                                filteredReaders.map((reader) => (
+                                    <div
+                                        key={reader.id}
+                                        className={`${styles.readerCard} ${!reader.isOnline ? styles.offline : ''}`}
+                                    >
+                                        <div className={styles.readerHeader}>
+                                            <div className={`${styles.signalPulse} ${reader.isOnline ? styles.active : ''}`}>
+                                                <div className={styles.pulseRing} />
+                                                <div className={styles.pulseCore} />
+                                            </div>
+                                            <div className={styles.readerInfo}>
+                                                <span className={styles.readerName}>{reader.name}</span>
+                                                <code className={styles.readerId}>{reader.readerId}</code>
+                                            </div>
+                                        </div>
+                                        <div className={styles.readerZone}>{reader.zone?.name || 'Unknown Zone'}</div>
+                                        <div className={styles.readerMetrics}>
+                                            <div className={styles.metricItem}>
+                                                <span className={styles.metricLabel}>Status</span>
+                                                <span className={`${styles.metricValue} ${reader.isOnline ? styles.online : styles.offlineText}`}>
+                                                    {reader.isOnline ? 'ONLINE' : 'OFFLINE'}
+                                                </span>
+                                            </div>
+                                            <div className={styles.metricItem}>
+                                                <span className={styles.metricLabel}>Type</span>
+                                                <span className={styles.metricValue}>{reader.type}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </section>
 
                 {/* Command Strip */}
                 <footer className={styles.commandStrip}>

@@ -1120,3 +1120,241 @@
     border: 1px solid rgba(16, 185, 129, 0.3);
     border-radius: 12px;
 }
+
+/* Infrastructure Intelligence Section */
+.infrastructureSection {
+    position: relative;
+    z-index: 10;
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.85) 100%);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+}
+
+/* Search and Filter Bar */
+.infraFilters {
+    display: flex;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+    flex-wrap: wrap;
+}
+
+.searchBox {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-md);
+}
+
+.searchBox svg {
+    width: 18px;
+    height: 18px;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.searchInput {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #f1f5f9;
+    font-size: 14px;
+    outline: none;
+}
+
+.searchInput::placeholder {
+    color: #64748b;
+}
+
+.filterSelect {
+    padding: var(--space-2) var(--space-3);
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: var(--radius-md);
+    color: #f1f5f9;
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+    min-width: 120px;
+}
+
+.filterSelect:focus {
+    border-color: #3b82f6;
+}
+
+.filterSelect option {
+    background: #1e293b;
+    color: #f1f5f9;
+}
+
+/* Scrollable Reader List */
+.readerListContainer {
+    max-height: 400px;
+    overflow-y: auto;
+    border-radius: var(--radius-md);
+    scrollbar-width: thin;
+    scrollbar-color: rgba(59, 130, 246, 0.3) transparent;
+}
+
+.readerListContainer::-webkit-scrollbar {
+    width: 6px;
+}
+
+.readerListContainer::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.readerListContainer::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 3px;
+}
+
+.readerList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: var(--space-3);
+}
+
+.noResults {
+    grid-column: 1 / -1;
+    padding: 40px;
+    text-align: center;
+    color: #64748b;
+    font-size: 14px;
+}
+
+/* Reader Card */
+.readerCard {
+    background: rgba(30, 41, 59, 0.6);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+    transition: all 0.2s ease;
+}
+
+.readerCard:hover {
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.readerCard.offline {
+    opacity: 0.7;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+.readerHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+}
+
+.signalPulse {
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+.signalPulse .pulseRing {
+    position: absolute;
+    inset: 0;
+    border: 2px solid rgba(100, 116, 139, 0.5);
+    border-radius: 50%;
+}
+
+.signalPulse .pulseCore {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 12px;
+    height: 12px;
+    transform: translate(-50%, -50%);
+    background: #64748b;
+    border-radius: 50%;
+}
+
+.signalPulse.active .pulseRing {
+    border-color: rgba(16, 185, 129, 0.5);
+    animation: pulseRing 2s ease-out infinite;
+}
+
+.signalPulse.active .pulseCore {
+    background: #10b981;
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+@keyframes pulseRing {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+.readerInfo {
+    flex: 1;
+}
+
+.readerName {
+    display: block;
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    color: #f1f5f9;
+}
+
+.readerId {
+    font-size: 11px;
+    color: #64748b;
+    font-family: var(--font-mono);
+}
+
+.readerZone {
+    font-size: 13px;
+    color: #94a3b8;
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-3);
+    border-bottom: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.readerMetrics {
+    display: flex;
+    gap: var(--space-4);
+}
+
+.metricItem {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.metricLabel {
+    font-size: 10px;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metricValue {
+    font-size: 12px;
+    font-weight: var(--font-weight-medium);
+    color: #cbd5e1;
+}
+
+.metricValue.online {
+    color: #10b981;
+}
+
+.metricValue.offlineText {
+    color: #ef4444;
+}
