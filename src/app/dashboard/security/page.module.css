@@ -1096,3 +1096,27 @@
         justify-content: space-between;
     }
 }
+
+/* Loading State */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    font-size: 18px;
+    color: #60a5fa;
+    background: rgba(15, 23, 42, 0.8);
+    border-radius: 12px;
+}
+
+/* No Alerts State */
+.noAlerts {
+    grid-column: 1 / -1;
+    padding: 60px 40px;
+    text-align: center;
+    font-size: 18px;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 12px;
+}
