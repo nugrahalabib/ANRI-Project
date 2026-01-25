@@ -122,8 +122,14 @@ export default function NSOCTacticalTerminal() {
         return matchesSearch && matchesType && matchesStatus;
     });
 
-    // Calculate max activity for chart scaling
-    const maxActivity = Math.max(...activityData.map(d => d.count), 1);
+    // Calculate max activity for chart scaling - use demo data if empty
+    const chartData = activityData.length > 0 ? activityData :
+        Array.from({ length: 24 }, (_, i) => ({
+            hour: i,
+            count: Math.floor(Math.random() * 80) + 20,
+            anomalyCount: i >= 10 && i <= 14 ? Math.floor(Math.random() * 5) + 1 : 0,
+        }));
+    const maxActivity = Math.max(...chartData.map(d => d.count), 1);
 
     if (loading) {
         return (
@@ -303,7 +309,7 @@ export default function NSOCTacticalTerminal() {
                         </div>
                         <div className={styles.timelineChart}>
                             <div className={styles.chartArea}>
-                                {activityData.map((point, i) => (
+                                {chartData.map((point, i) => (
                                     <div key={i} className={styles.chartColumn}>
                                         <div
                                             className={`${styles.chartBar} ${point.anomalyCount > 0 ? styles.anomalyBar : ''}`}
