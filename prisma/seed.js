@@ -510,6 +510,152 @@ async function main() {
     }
     console.log(`  ✓ Created 520 audit logs`);
 
+    // 13. CREATE REGULATIONS (Presidential Grade)
+    console.log('\n📜 Creating regulations...');
+    const regulationsData = [
+        { name: 'Undang-Undang Kearsipan Nasional', code: 'UU No. 43 Tahun 2009', category: 'LAW', issuingBody: 'DPR RI', ownerDepartment: 'Biro Hukum', status: 'COMPLIANT' },
+        { name: 'Undang-Undang Keterbukaan Informasi Publik', code: 'UU No. 14 Tahun 2008', category: 'LAW', issuingBody: 'DPR RI', ownerDepartment: 'Humas', status: 'COMPLIANT' },
+        { name: 'Undang-Undang Perlindungan Data Pribadi', code: 'UU No. 27 Tahun 2022', category: 'LAW', issuingBody: 'DPR RI', ownerDepartment: 'Unit Kepatuhan', status: 'COMPLIANT' },
+        { name: 'Undang-Undang ITE', code: 'UU No. 11/2008 jo. UU No. 19/2016', category: 'LAW', issuingBody: 'DPR RI', ownerDepartment: 'Unit IT', status: 'COMPLIANT' },
+        { name: 'Sistem Pemerintahan Berbasis Elektronik', code: 'Perpres No. 95 Tahun 2018', category: 'PRESIDENTIAL', issuingBody: 'Presiden RI', ownerDepartment: 'Unit IT', status: 'COMPLIANT' },
+        { name: 'Strategi Keamanan Siber Nasional', code: 'Perpres No. 47 Tahun 2023', category: 'PRESIDENTIAL', issuingBody: 'Presiden RI', ownerDepartment: 'NSOC', status: 'COMPLIANT' },
+        { name: 'Satu Data Indonesia', code: 'Perpres No. 39 Tahun 2019', category: 'PRESIDENTIAL', issuingBody: 'Presiden RI', ownerDepartment: 'Pusat Data', status: 'PARTIAL' },
+        { name: 'Sistem Pengendalian Intern Pemerintah', code: 'PP No. 60 Tahun 2008', category: 'GOVERNMENT', issuingBody: 'Pemerintah RI', ownerDepartment: 'Inspektorat', status: 'COMPLIANT' },
+        { name: 'Sistem Manajemen Keamanan Informasi', code: 'Permen PANRB No. 59/2020', category: 'GOVERNMENT', issuingBody: 'Kementerian PANRB', ownerDepartment: 'Unit IT Security', status: 'COMPLIANT' },
+        { name: 'Audit Keamanan SPBE', code: 'Permen PANRB No. 5/2020', category: 'GOVERNMENT', issuingBody: 'Kementerian PANRB', ownerDepartment: 'Inspektorat IT', status: 'UNDER_REVIEW' },
+        { name: 'Klasifikasi Arsip', code: 'Perka ANRI No. 24/2011', category: 'GOVERNMENT', issuingBody: 'ANRI', ownerDepartment: 'Unit Klasifikasi', status: 'COMPLIANT' },
+        { name: 'Jadwal Retensi Arsip', code: 'Perka ANRI No. 25/2012', category: 'GOVERNMENT', issuingBody: 'ANRI', ownerDepartment: 'Unit Retensi', status: 'COMPLIANT' },
+        { name: 'Information Security Management', code: 'ISO/IEC 27001:2022', category: 'INTERNATIONAL', issuingBody: 'ISO', ownerDepartment: 'Unit IT Security', status: 'COMPLIANT' },
+        { name: 'Records Management', code: 'ISO 15489-1:2016', category: 'INTERNATIONAL', issuingBody: 'ISO', ownerDepartment: 'Kearsipan', status: 'COMPLIANT' },
+        { name: 'Business Continuity Management', code: 'ISO 22301:2019', category: 'INTERNATIONAL', issuingBody: 'ISO', ownerDepartment: 'Unit BCP', status: 'COMPLIANT' },
+        { name: 'Risk Management', code: 'ISO 31000:2018', category: 'INTERNATIONAL', issuingBody: 'ISO', ownerDepartment: 'Manajemen Risiko', status: 'COMPLIANT' },
+        { name: 'IT Governance Framework', code: 'COBIT 2019', category: 'INTERNATIONAL', issuingBody: 'ISACA', ownerDepartment: 'IT Governance', status: 'PARTIAL' },
+        { name: 'SOP Penanganan Insiden Keamanan', code: 'SOP-SEC-001/2024', category: 'INTERNAL', issuingBody: 'ANRI', ownerDepartment: 'NSOC', status: 'COMPLIANT' },
+        { name: 'SOP Akses Ruang Arsip Rahasia', code: 'SOP-SEC-002/2024', category: 'INTERNAL', issuingBody: 'ANRI', ownerDepartment: 'Unit Keamanan', status: 'COMPLIANT' },
+        { name: 'SOP Backup dan Recovery Data', code: 'SOP-IT-003/2024', category: 'INTERNAL', issuingBody: 'ANRI', ownerDepartment: 'IT Infrastructure', status: 'COMPLIANT' },
+        { name: 'SOP Pengelolaan Arsip Digital', code: 'SOP-ARC-001/2024', category: 'INTERNAL', issuingBody: 'ANRI', ownerDepartment: 'Kearsipan Digital', status: 'COMPLIANT' },
+        { name: 'SOP Whistleblowing System', code: 'SOP-HR-001/2024', category: 'INTERNAL', issuingBody: 'ANRI', ownerDepartment: 'Inspektorat', status: 'COMPLIANT' },
+    ];
+
+    for (const reg of regulationsData) {
+        await prisma.regulation.create({
+            data: {
+                ...reg,
+                description: `Regulasi ${reg.name} diterbitkan oleh ${reg.issuingBody}`,
+                effectiveDate: randomDate(365 * 3),
+                lastReviewDate: randomDate(60),
+                nextReviewDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+                isActive: true,
+            },
+        });
+    }
+    console.log(`  ✓ Created ${regulationsData.length} regulations`);
+
+    // 14. CREATE AUDIT SCHEDULES
+    console.log('\n🔍 Creating audit schedules...');
+    const auditSchedulesData = [
+        { name: 'Audit Internal Triwulan IV 2024', type: 'INTERNAL', auditorName: 'Tim Inspektorat ANRI', auditorOrg: 'Inspektorat ANRI', status: 'COMPLETED', findings: 3, criticalFindings: 0, description: 'Audit kepatuhan internal 12 unit kerja. Tingkat kematangan: Level 4.' },
+        { name: 'Surveillance Audit ISO 27001:2022', type: 'SURVEILLANCE', auditorName: 'PT. TUV Rheinland', auditorOrg: 'TUV Rheinland Indonesia', status: 'COMPLETED', findings: 2, criticalFindings: 0, description: 'Audit surveilans tahun ke-2. Sertifikat dipertahankan.' },
+        { name: 'Audit BPK RI Semester II 2024', type: 'EXTERNAL', auditorName: 'Tim Auditor BPK', auditorOrg: 'BPK RI', status: 'COMPLETED', findings: 5, criticalFindings: 0, description: 'Pemeriksaan Laporan Keuangan. Opini: WTP.' },
+        { name: 'Evaluasi SAKIP Kementerian PANRB', type: 'EXTERNAL', auditorName: 'Tim Evaluator PANRB', auditorOrg: 'Kementerian PANRB', status: 'COMPLETED', findings: 2, criticalFindings: 0, description: 'Evaluasi AKIP. Nilai: 82.5 (Kategori A).' },
+        { name: 'Asesmen Indeks SPBE Nasional', type: 'EXTERNAL', auditorName: 'Tim Asesor SPBE', auditorOrg: 'Kementerian PANRB', status: 'COMPLETED', findings: 4, criticalFindings: 0, description: 'Penilaian Indeks SPBE. Nilai: 3.8/5.0.' },
+        { name: 'Audit Kepatuhan PDP', type: 'INTERNAL', auditorName: 'Tim Kepatuhan Data', auditorOrg: 'Unit Kepatuhan ANRI', status: 'IN_PROGRESS', findings: 0, criticalFindings: 0, description: 'Audit UU No. 27/2022 PDP. Progress: 75%.' },
+        { name: 'Penetration Testing', type: 'SPECIAL', auditorName: 'PT. Xynexis', auditorOrg: 'Xynexis Cybersecurity', status: 'IN_PROGRESS', findings: 0, criticalFindings: 0, description: 'Pengujian keamanan 45 IP, 12 aplikasi.' },
+        { name: 'Re-Sertifikasi ISO 27001', type: 'CERTIFICATION', auditorName: 'BSI Indonesia', auditorOrg: 'BSI Group', status: 'SCHEDULED', findings: 0, criticalFindings: 0, description: 'Audit sertifikasi ulang. Persiapan: 90%.' },
+        { name: 'Audit Internal Q1 2025', type: 'INTERNAL', auditorName: 'Tim Inspektorat', auditorOrg: 'Inspektorat ANRI', status: 'SCHEDULED', findings: 0, criticalFindings: 0, description: 'Fokus: implementasi kebijakan keamanan baru.' },
+        { name: 'Review IT General Controls', type: 'INTERNAL', auditorName: 'Tim Audit IT', auditorOrg: 'Inspektorat IT', status: 'SCHEDULED', findings: 0, criticalFindings: 0, description: 'Review ITGC: akses, change management, operasi.' },
+    ];
+
+    for (let i = 0; i < auditSchedulesData.length; i++) {
+        const audit = auditSchedulesData[i];
+        const scheduledDate = new Date();
+        scheduledDate.setDate(scheduledDate.getDate() - (auditSchedulesData.length - i - 1) * 15);
+
+        await prisma.auditSchedule.create({
+            data: {
+                name: audit.name,
+                type: audit.type,
+                description: audit.description,
+                scheduledDate,
+                completedDate: audit.status === 'COMPLETED' ? scheduledDate : null,
+                status: audit.status,
+                auditorName: audit.auditorName,
+                auditorOrg: audit.auditorOrg,
+                findings: audit.findings,
+                criticalFindings: audit.criticalFindings,
+            },
+        });
+    }
+    console.log(`  ✓ Created ${auditSchedulesData.length} audit schedules`);
+
+    // 15. CREATE POLICY ACKNOWLEDGMENTS
+    console.log('\n✍️  Creating policy acknowledgments...');
+    const compliancePolicies = [
+        { id: 'pol-sec-001', name: 'Kebijakan Keamanan Informasi', version: 'v3.2' },
+        { id: 'pol-sec-002', name: 'Kebijakan Penggunaan Sistem', version: 'v2.1' },
+        { id: 'pol-hr-001', name: 'Kode Etik Pegawai ASN', version: 'v4.0' },
+        { id: 'pol-hr-002', name: 'Kebijakan Anti-Korupsi', version: 'v3.0' },
+        { id: 'pol-data-001', name: 'Kebijakan PDP', version: 'v1.0' },
+    ];
+
+    let ackCount = 0;
+    for (const user of userList) {
+        for (const policy of compliancePolicies) {
+            if (Math.random() < 0.96) {
+                await prisma.policyAcknowledgment.create({
+                    data: {
+                        userId: user.id,
+                        policyId: policy.id,
+                        policyName: policy.name,
+                        policyVersion: policy.version,
+                        acknowledgedAt: randomDate(60),
+                        ipAddress: `192.168.1.${Math.floor(Math.random() * 254) + 1}`,
+                        digitalSignature: generateSignature(`${user.id}:${policy.id}`),
+                        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+                        isValid: true,
+                    },
+                });
+                ackCount++;
+            }
+        }
+    }
+    console.log(`  ✓ Created ${ackCount} policy acknowledgments`);
+
+    // 16. CREATE COMPLIANCE METRICS (12 months)
+    console.log('\n📈 Creating compliance metrics...');
+    const metricCategories = [
+        { category: 'COMPLIANCE_INDEX', name: 'Indeks Kepatuhan', base: 92, target: 95, unit: '%' },
+        { category: 'POLICY_ACK', name: 'Policy Acknowledgment', base: 94, target: 100, unit: '%' },
+        { category: 'AUDIT_READY', name: 'Kesiapan Audit', base: 91, target: 95, unit: '%' },
+        { category: 'ISO_COMPLIANCE', name: 'Kepatuhan ISO 27001', base: 95, target: 100, unit: '%' },
+        { category: 'TRAINING_COMPLETION', name: 'Pelatihan Wajib', base: 88, target: 95, unit: '%' },
+        { category: 'REGULATION_COMPLIANCE', name: 'Kepatuhan Regulasi', base: 87, target: 100, unit: '%' },
+    ];
+
+    let metricCount = 0;
+    for (let month = 0; month < 12; month++) {
+        const period = `2024-${String(month + 1).padStart(2, '0')}`;
+        for (const cat of metricCategories) {
+            const improvement = month * 0.5;
+            const value = Math.min(cat.base + improvement + (Math.random() - 0.5) * 2, 99);
+
+            await prisma.complianceMetric.create({
+                data: {
+                    name: cat.name,
+                    category: cat.category,
+                    value: Math.round(value * 10) / 10,
+                    target: cat.target,
+                    unit: cat.unit,
+                    trend: month > 3 ? 'UP' : 'STABLE',
+                    period,
+                    calculatedAt: new Date(2024, month, 28),
+                },
+            });
+            metricCount++;
+        }
+    }
+    console.log(`  ✓ Created ${metricCount} compliance metrics`);
+
     // SUMMARY
     console.log('\n' + '='.repeat(60));
     console.log('✅ DATABASE SEED COMPLETE!');
@@ -528,8 +674,12 @@ async function main() {
    • KPI Metrics:      84
    • Risk Postures:    30
    • Audit Logs:       520
+   • Regulations:      ${regulationsData.length}
+   • Audit Schedules:  ${auditSchedulesData.length}
+   • Policy Acks:      ${ackCount}
+   • Compliance Metrics: ${metricCount}
    
-   TOTAL: 1000+ records ready for demo! 🚀
+   TOTAL: 1100+ records ready for PRESIDENTIAL demo! 🚀
 `);
 }
 
