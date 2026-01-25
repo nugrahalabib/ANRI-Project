@@ -181,3 +181,34 @@
     margin: 0;
     line-height: 1.6;
 }
+
+/* Loading State */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    font-size: 16px;
+    color: #64748b;
+}
+
+/* No Alerts State */
+.noAlerts {
+    padding: var(--space-6);
+    text-align: center;
+    font-size: 14px;
+    color: #10b981;
+}
+
+/* Alerts Footer */
+.alertsFooter {
+    display: flex;
+    justify-content: center;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--navy-700);
+    margin-top: var(--space-4);
+}
+
+.viewAllLink {
+    text-decoration: none;
+}
