@@ -18,16 +18,11 @@ export async function GET(request: NextRequest) {
                     where: { isActive: true },
                     orderBy: { createdAt: 'desc' },
                 });
+                console.log(`[Compliance API] Fetched ${regulations.length} regulations`);
                 result.regulations = regulations;
-            } catch {
-                // Table might not exist yet, return defaults
-                result.regulations = [
-                    { id: '1', name: 'Undang-Undang Kearsipan', code: 'UU 43/2009', status: 'COMPLIANT', ownerDepartment: 'Biro Hukum', lastReviewDate: new Date() },
-                    { id: '2', name: 'Sistem Pemerintahan Berbasis Elektronik', code: 'Perpres 95/2018', status: 'PARTIAL', ownerDepartment: 'Unit IT', lastReviewDate: new Date() },
-                    { id: '3', name: 'Information Security Management', code: 'ISO 27001', status: 'COMPLIANT', ownerDepartment: 'Unit IT Security', lastReviewDate: new Date() },
-                    { id: '4', name: 'Manajemen Risiko Instansi', code: 'PP 60/2008', status: 'COMPLIANT', ownerDepartment: 'Unit Kepatuhan', lastReviewDate: new Date() },
-                    { id: '5', name: 'Pengamanan Informasi Pemerintah', code: 'Permen 59/2020', status: 'UNDER_REVIEW', ownerDepartment: 'Unit IT Security', lastReviewDate: new Date() },
-                ];
+            } catch (error) {
+                console.error('[Compliance API] Regulation error:', error);
+                result.regulations = [];
             }
         }
 
@@ -46,7 +41,9 @@ export async function GET(request: NextRequest) {
                     acknowledgedCount: acknowledgedUsers.length,
                     rate: Math.round(ackRate * 10) / 10,
                 };
-            } catch {
+                console.log(`[Compliance API] Ack rate: ${ackRate}%`);
+            } catch (error) {
+                console.error('[Compliance API] Acknowledgment error:', error);
                 result.acknowledgments = {
                     totalUsers: 10,
                     acknowledgedCount: 9,
@@ -62,6 +59,7 @@ export async function GET(request: NextRequest) {
                     orderBy: { scheduledDate: 'desc' },
                     take: 10,
                 });
+                console.log(`[Compliance API] Fetched ${audits.length} audits`);
 
                 const lastCompletedAudit = await prisma.auditSchedule.findFirst({
                     where: { status: 'COMPLETED' },
@@ -77,7 +75,8 @@ export async function GET(request: NextRequest) {
                     lastCompleted: lastCompletedAudit,
                     daysSinceLastAudit,
                 };
-            } catch {
+            } catch (error) {
+                console.error('[Compliance API] Audit error:', error);
                 result.audits = {
                     list: [],
                     lastCompleted: null,
@@ -92,6 +91,7 @@ export async function GET(request: NextRequest) {
                 const metrics = await prisma.complianceMetric.findMany({
                     orderBy: { calculatedAt: 'desc' },
                 });
+                console.log(`[Compliance API] Fetched ${metrics.length} metrics`);
 
                 const latestByCategory: Record<string, typeof metrics[0]> = {};
                 for (const metric of metrics) {
@@ -104,13 +104,11 @@ export async function GET(request: NextRequest) {
                     all: metrics,
                     latest: latestByCategory,
                 };
-            } catch {
+            } catch (error) {
+                console.error('[Compliance API] Metrics error:', error);
                 result.metrics = {
                     all: [],
-                    latest: {
-                        AUDIT_READY: { value: 91 },
-                        REGULATION_COMPLIANCE: { value: 87 },
-                    },
+                    latest: {},
                 };
             }
         }
@@ -131,7 +129,8 @@ export async function GET(request: NextRequest) {
                 });
 
                 result.pendingActions = pendingViolations;
-            } catch {
+            } catch (error) {
+                console.error('[Compliance API] Pending error:', error);
                 result.pendingActions = [];
             }
         }

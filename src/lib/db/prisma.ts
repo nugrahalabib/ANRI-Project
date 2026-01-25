@@ -11,7 +11,7 @@ const globalForPrisma = globalThis as unknown as {
 
 // Prisma 7: requires adapter for database connection
 const adapter = new PrismaBetterSqlite3({
-  url: process.env.DATABASE_URL || 'file:./prisma/dev.db'
+  url: process.env.DATABASE_URL || 'file:./dev.db'
 });
 
 export const prisma =

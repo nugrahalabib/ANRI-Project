@@ -9,7 +9,7 @@ const crypto = require('crypto');
 
 // Prisma 7 requires adapter
 const adapter = new PrismaBetterSqlite3({
-    url: process.env.DATABASE_URL || 'file:./prisma/dev.db'
+    url: process.env.DATABASE_URL || 'file:./dev.db'
 });
 const prisma = new PrismaClient({ adapter });
 
@@ -178,6 +178,11 @@ async function main() {
     await prisma.kPIMetric.deleteMany();
     await prisma.riskPosture.deleteMany();
     await prisma.session.deleteMany();
+    // Clear compliance tables
+    await prisma.complianceMetric.deleteMany();
+    await prisma.auditSchedule.deleteMany();
+    await prisma.policyAcknowledgment.deleteMany();
+    await prisma.regulation.deleteMany();
     await prisma.user.deleteMany();
     console.log('  ✓ Cleared all tables');
 
