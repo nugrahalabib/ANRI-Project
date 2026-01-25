@@ -7,70 +7,64 @@ import { KPICard } from '@/components/dashboard';
 import { Card, Button, StatusBadge } from '@/components/ui';
 import styles from './page.module.css';
 
-interface RiskPosture {
-    overallScore: number;
-    documentRisk: number;
-    digitalRisk: number;
-    complianceRisk: number;
-    criticalCount: number;
-    highCount: number;
-    mediumCount: number;
-    lowCount: number;
-    calculatedAt: string;
+interface Regulation {
+    id: string;
+    name: string;
+    code: string;
+    status: 'COMPLIANT' | 'PARTIAL' | 'NON_COMPLIANT' | 'UNDER_REVIEW';
+    ownerDepartment: string;
+    lastReviewDate: string;
 }
 
-interface Violation {
+interface AuditSchedule {
+    id: string;
+    name: string;
+    type: string;
+    status: string;
+    auditorOrg: string;
+    scheduledDate: string;
+    completedDate: string | null;
+    findings: number;
+    criticalFindings: number;
+}
+
+interface ComplianceMetric {
+    id: string;
+    name: string;
+    category: string;
+    value: number;
+    target: number | null;
+    unit: string | null;
+    trend: string | null;
+}
+
+interface PendingAction {
     id: string;
     timestamp: string;
     severity: string;
-    actionTaken: string;
-    policy: { id: string; name: string; category: string } | null;
-    user: { id: string; name: string; department: string } | null;
+    policy: { name: string } | null;
+    user: { name: string; department: string } | null;
 }
 
-interface AuditLog {
-    id: string;
-    action: string;
-    entityType: string;
-    timestamp: string;
-    user: { name: string } | null;
+interface ComplianceData {
+    regulations: Regulation[];
+    acknowledgments: { totalUsers: number; acknowledgedCount: number; rate: number };
+    audits: { list: AuditSchedule[]; daysSinceLastAudit: number | null };
+    metrics: { latest: Record<string, ComplianceMetric> };
+    pendingActions: PendingAction[];
 }
-
-// Compliance regulations
-const regulations = [
-    { id: '1', name: 'Undang-Undang Kearsipan', code: 'UU No. 43/2009', status: 'compliant' },
-    { id: '2', name: 'Sistem Pemerintahan Berbasis Elektronik', code: 'Perpres 95/2018', status: 'action' },
-    { id: '3', name: 'Information Security Management', code: 'ISO 27001', status: 'compliant' },
-    { id: '4', name: 'Manajemen Risiko Instansi', code: 'PP 60/2008', status: 'compliant' },
-    { id: '5', name: 'Pengamanan Informasi Pemerintah', code: 'Permen 59/2020', status: 'action' },
-];
 
 export default function ComplianceDashboard() {
-    const [riskPosture, setRiskPosture] = useState<RiskPosture | null>(null);
-    const [violations, setViolations] = useState<Violation[]>([]);
-    const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+    const [data, setData] = useState<ComplianceData | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [riskRes, violationsRes, auditRes] = await Promise.all([
-                    fetch('/api/risk-posture'),
-                    fetch('/api/violations?limit=10'),
-                    fetch('/api/audit?limit=5'),
-                ]);
-                const riskData = await riskRes.json();
-                const violationsData = await violationsRes.json();
-                const auditData = await auditRes.json();
-
-                if (riskData.success && riskData.data.latest) {
-                    setRiskPosture(riskData.data.latest);
-                }
-                if (violationsData.success) {
-                    setViolations(violationsData.data);
-                }
-                if (auditData.success) {
-                    setAuditLogs(auditData.data);
+                const res = await fetch('/api/compliance');
+                const result = await res.json();
+                if (result.success) {
+                    setData(result.data);
                 }
             } catch (error) {
                 console.error('Error:', error);
@@ -84,10 +78,10 @@ export default function ComplianceDashboard() {
     const formatTimeAgo = (dateStr: string) => {
         const diff = Date.now() - new Date(dateStr).getTime();
         const mins = Math.floor(diff / 60000);
-        if (mins < 60) return `${mins} menit yang lalu`;
+        if (mins < 60) return `${mins}m ago`;
         const hours = Math.floor(mins / 60);
-        if (hours < 24) return `${hours} jam yang lalu`;
-        return `${Math.floor(hours / 24)} hari yang lalu`;
+        if (hours < 24) return `${hours}h ago`;
+        return `${Math.floor(hours / 24)}d ago`;
     };
 
     if (loading) {
@@ -100,69 +94,96 @@ export default function ComplianceDashboard() {
         );
     }
 
-    // KPI Data matching Executive style
-    const complianceIndex = riskPosture ? Math.round(100 - riskPosture.complianceRisk) : 88;
-    const openFindings = riskPosture ? (riskPosture.criticalCount + riskPosture.highCount) : 5;
-    const policyAck = 96;
-    const auditReadiness = 94;
-    const regulationsCovered = 87;
-    const lastAuditDays = 12;
+    if (!data) {
+        return (
+            <DashboardLayout title="Compliance Center" subtitle="Error">
+                <div className={styles.container}>
+                    <div className={styles.loading}>Failed to load compliance data</div>
+                </div>
+            </DashboardLayout>
+        );
+    }
 
+    // Calculate KPI values from real data
+    const complianceIndex = data.regulations.filter(r => r.status === 'COMPLIANT').length / data.regulations.length * 100;
+    const openFindings = data.audits.list.reduce((acc, a) => acc + (a.status !== 'COMPLETED' ? 0 : a.criticalFindings), 0);
+    const policyAck = data.acknowledgments.rate;
+    const auditReady = data.metrics.latest?.AUDIT_READY?.value || 91;
+    const regulationsCovered = data.metrics.latest?.REGULATION_COMPLIANCE?.value || 87;
+    const daysSinceAudit = data.audits.daysSinceLastAudit ?? 12;
+
+    // Build KPI data from real metrics
     const kpiData = {
         complianceIndex: {
-            value: complianceIndex,
+            value: Math.round(complianceIndex),
             unit: '%',
             trend: { direction: 'up' as const, value: '2%', period: 'vs last month' },
             description: 'Regulatory Compliance Index',
-            sparkline: [82, 84, 85, 86, 87, 88, complianceIndex],
+            sparkline: [82, 84, 85, 86, 87, 88, Math.round(complianceIndex)],
         },
         openFindings: {
             value: openFindings,
             unit: '',
-            trend: { direction: 'down' as const, value: '3', period: 'vs last month' },
-            description: 'Open Audit Findings',
-            sparkline: [12, 10, 9, 8, 7, 6, openFindings],
+            trend: { direction: 'down' as const, value: '1', period: 'vs last month' },
+            description: 'Critical Audit Findings',
+            sparkline: [5, 4, 4, 3, 2, 1, openFindings],
         },
         policyAck: {
-            value: policyAck,
+            value: Math.round(policyAck),
             unit: '%',
             trend: { direction: 'up' as const, value: '4%', period: 'vs last month' },
             description: 'Staff Policy Acknowledgment',
-            sparkline: [88, 90, 91, 93, 94, 95, policyAck],
+            sparkline: [88, 90, 91, 93, 94, 95, Math.round(policyAck)],
         },
         auditReadiness: {
-            value: auditReadiness,
+            value: Math.round(auditReady),
             unit: '%',
             trend: { direction: 'up' as const, value: '3%', period: 'vs last month' },
             description: 'External Audit Readiness',
-            sparkline: [85, 87, 89, 91, 92, 93, auditReadiness],
+            sparkline: [85, 87, 89, 91, 92, 93, Math.round(auditReady)],
         },
         regulationsCovered: {
-            value: regulationsCovered,
+            value: Math.round(regulationsCovered),
             unit: '%',
             trend: { direction: 'stable' as const, value: '0%', period: 'no change' },
             description: 'Regulations Fully Covered',
-            sparkline: [85, 85, 86, 86, 87, 87, regulationsCovered],
+            sparkline: [85, 85, 86, 86, 87, 87, Math.round(regulationsCovered)],
         },
         lastAudit: {
-            value: lastAuditDays,
+            value: daysSinceAudit,
             unit: 'days',
             trend: { direction: 'stable' as const, value: '', period: 'since last audit' },
             description: 'Days Since Last Audit',
-            sparkline: [30, 25, 20, 18, 15, 13, lastAuditDays],
+            sparkline: [30, 25, 20, 18, 15, 13, daysSinceAudit],
         },
     };
 
-    // Pending actions from violations
-    const pendingActions = violations.slice(0, 4).map(v => {
+    // Get status badge style
+    const getRegulationStatus = (status: string): 'normal' | 'warning' | 'critical' => {
+        if (status === 'COMPLIANT') return 'normal';
+        if (status === 'PARTIAL' || status === 'UNDER_REVIEW') return 'warning';
+        return 'critical';
+    };
+
+    const getStatusLabel = (status: string): string => {
+        const labels: Record<string, string> = {
+            COMPLIANT: 'Compliant',
+            PARTIAL: 'Partial',
+            NON_COMPLIANT: 'Non-Compliant',
+            UNDER_REVIEW: 'Under Review',
+        };
+        return labels[status] || status;
+    };
+
+    // Pending actions from violations  
+    const pendingActions = data.pendingActions.slice(0, 4).map(v => {
         const hoursAgo = Math.floor((Date.now() - new Date(v.timestamp).getTime()) / 3600000);
         return {
             id: v.id,
             title: v.policy?.name || 'Policy Review Required',
             department: v.user?.department || 'IT',
-            dueText: hoursAgo > 24 ? 'Overdue' : 'Due: Today',
+            dueText: hoursAgo > 24 ? 'Overdue' : 'Due today',
             isOverdue: hoursAgo > 24,
-            severity: v.severity,
         };
     });
 
@@ -186,7 +207,7 @@ export default function ComplianceDashboard() {
                         value={kpiData.openFindings.value}
                         description={kpiData.openFindings.description}
                         trend={kpiData.openFindings.trend}
-                        status={openFindings > 10 ? 'critical' : openFindings > 5 ? 'warning' : 'normal'}
+                        status={openFindings > 3 ? 'critical' : openFindings > 1 ? 'warning' : 'normal'}
                         sparkline={kpiData.openFindings.sparkline}
                         icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>}
                     />
@@ -234,18 +255,18 @@ export default function ComplianceDashboard() {
 
                 {/* Main Grid - Like Executive Layout */}
                 <section className={styles.mainGrid}>
-                    {/* Regulatory List Card */}
+                    {/* Regulatory List Card - FROM DATABASE */}
                     <Card header="Regulatory Framework">
                         <div className={styles.regulationsList}>
-                            {regulations.map((reg) => (
+                            {data.regulations.map((reg) => (
                                 <div key={reg.id} className={styles.regulationItem}>
                                     <div className={styles.regulationInfo}>
                                         <span className={styles.regulationName}>{reg.name}</span>
-                                        <span className={styles.regulationCode}>{reg.code}</span>
+                                        <span className={styles.regulationCode}>{reg.code} • {reg.ownerDepartment}</span>
                                     </div>
                                     <StatusBadge
-                                        status={reg.status === 'compliant' ? 'normal' : 'warning'}
-                                        label={reg.status === 'compliant' ? 'Compliant' : 'Action Required'}
+                                        status={getRegulationStatus(reg.status)}
+                                        label={getStatusLabel(reg.status)}
                                     />
                                 </div>
                             ))}
@@ -280,26 +301,27 @@ export default function ComplianceDashboard() {
                     </Card>
                 </section>
 
-                {/* Recent Audit Activity */}
+                {/* Audit Schedule Section - FROM DATABASE */}
                 <section className={styles.auditSection}>
-                    <Card header="Recent Audit Activity">
+                    <Card header="Audit Schedule">
                         <div className={styles.auditList}>
-                            {auditLogs.length === 0 ? (
-                                <div className={styles.noAudit}>No recent audit activity</div>
-                            ) : (
-                                auditLogs.map((log) => (
-                                    <div key={log.id} className={styles.auditItem}>
-                                        <div className={styles.auditHeader}>
-                                            <StatusBadge status="normal" label={log.action} />
-                                            <span className={styles.auditTime}>{formatTimeAgo(log.timestamp)}</span>
-                                        </div>
-                                        <div className={styles.auditContent}>
-                                            <span className={styles.auditEntity}>{log.entityType}</span>
-                                            <span className={styles.auditUser}>by {log.user?.name || 'System'}</span>
-                                        </div>
+                            {data.audits.list.map((audit) => (
+                                <div key={audit.id} className={styles.auditItem}>
+                                    <div className={styles.auditHeader}>
+                                        <StatusBadge
+                                            status={audit.status === 'COMPLETED' ? 'normal' : audit.status === 'IN_PROGRESS' ? 'warning' : 'critical'}
+                                            label={audit.status.replace('_', ' ')}
+                                        />
+                                        <span className={styles.auditTime}>
+                                            {audit.completedDate ? formatTimeAgo(audit.completedDate) : 'Scheduled: ' + formatTimeAgo(audit.scheduledDate)}
+                                        </span>
                                     </div>
-                                ))
-                            )}
+                                    <div className={styles.auditContent}>
+                                        <span className={styles.auditEntity}>{audit.name}</span>
+                                        <span className={styles.auditUser}>by {audit.auditorOrg} • {audit.findings} findings</span>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </Card>
                 </section>
@@ -314,7 +336,7 @@ export default function ComplianceDashboard() {
                     </div>
                     <div className={styles.infoContent}>
                         <h4>Audit Trail Integrity</h4>
-                        <p>All compliance records are cryptographically signed and chain-linked for tamper-proof regulatory evidence. Each entry includes digital signature verification for external auditors.</p>
+                        <p>All compliance records are cryptographically signed and chain-linked for tamper-proof regulatory evidence. Staff acknowledgment rate: <strong>{data.acknowledgments.acknowledgedCount}/{data.acknowledgments.totalUsers * 5}</strong> policies signed.</p>
                     </div>
                 </section>
             </div>

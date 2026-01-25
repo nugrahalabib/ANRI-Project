@@ -429,3 +429,116 @@ model SystemConfig {
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
 }
+
+// ============================================================================
+// MODULE D: COMPLIANCE CENTER DATA
+// ============================================================================
+
+model Regulation {
+  id              String            @id @default(cuid())
+  name            String
+  code            String            @unique  // e.g., "UU 43/2009"
+  description     String?
+  category        RegulationCategory
+  issuingBody     String?           // e.g., "DPR RI", "Presiden", "ISO"
+  effectiveDate   DateTime?
+  
+  status          ComplianceStatus  @default(COMPLIANT)
+  lastReviewDate  DateTime?
+  nextReviewDate  DateTime?
+  evidenceUrl     String?
+  ownerDepartment String
+  
+  notes           String?
+  isActive        Boolean           @default(true)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+enum RegulationCategory {
+  LAW               // Undang-Undang
+  PRESIDENTIAL      // Perpres, Keppres
+  GOVERNMENT        // PP, Permen
+  INTERNATIONAL     // ISO, IEC
+  INTERNAL          // SOP Internal
+}
+
+enum ComplianceStatus {
+  COMPLIANT
+  PARTIAL
+  NON_COMPLIANT
+  UNDER_REVIEW
+  NOT_APPLICABLE
+}
+
+model PolicyAcknowledgment {
+  id              String         @id @default(cuid())
+  userId          String
+  policyId        String
+  policyName      String
+  policyVersion   String
+  
+  acknowledgedAt  DateTime       @default(now())
+  ipAddress       String?
+  digitalSignature String?       // Hash of user+policy+timestamp
+  
+  expiresAt       DateTime?      // When re-acknowledgment is needed
+  isValid         Boolean        @default(true)
+  
+  @@unique([userId, policyId, policyVersion])
+  @@index([userId])
+  @@index([policyId])
+}
+
+model AuditSchedule {
+  id              String         @id @default(cuid())
+  name            String
+  type            AuditType
+  description     String?
+  
+  scheduledDate   DateTime
+  completedDate   DateTime?
+  
+  status          AuditStatus    @default(SCHEDULED)
+  auditorName     String?
+  auditorOrg      String?        // e.g., "BPK", "Internal", "ISO Auditor"
+  
+  findings        Int            @default(0)
+  criticalFindings Int           @default(0)
+  reportUrl       String?
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+enum AuditType {
+  INTERNAL
+  EXTERNAL
+  CERTIFICATION
+  SURVEILLANCE
+  SPECIAL
+}
+
+enum AuditStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  OVERDUE
+}
+
+model ComplianceMetric {
+  id              String         @id @default(cuid())
+  name            String
+  category        String         // e.g., "POLICY_ACK", "AUDIT_READY", "REGULATION"
+  value           Float
+  target          Float?
+  unit            String?        // e.g., "%", "days", "count"
+  trend           TrendDirection?
+  
+  period          String         // e.g., "2024-01", "2024-Q1"
+  calculatedAt    DateTime       @default(now())
+  
+  @@index([category, period])
+}
+
