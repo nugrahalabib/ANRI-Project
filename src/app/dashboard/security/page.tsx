@@ -57,19 +57,29 @@ export default function NSOCTacticalTerminal() {
     const [readerTypeFilter, setReaderTypeFilter] = useState<string>('ALL');
     const [readerStatusFilter, setReaderStatusFilter] = useState<string>('ALL');
 
+    // Activity analytics data
+    const [activityData, setActivityData] = useState<{ hour: number; count: number; anomalyCount: number }[]>([]);
+    const [activitySummary, setActivitySummary] = useState<{ totalMovements: number; totalAnomalies: number; anomalyRate: number; peakHour: number }>({ totalMovements: 0, totalAnomalies: 0, anomalyRate: 0, peakHour: 0 });
+
     useEffect(() => {
         async function fetchData() {
             try {
-                const [alertsRes, readersRes] = await Promise.all([
+                const [alertsRes, readersRes, activityRes] = await Promise.all([
                     fetch('/api/alerts?limit=10'),
                     fetch('/api/rfid-readers'),
+                    fetch('/api/analytics/activity'),
                 ]);
 
                 const alertsData = await alertsRes.json();
                 const readersData = await readersRes.json();
+                const activityResult = await activityRes.json();
 
                 if (alertsData.success) setAlerts(alertsData.data);
                 if (readersData.success) setReaders(readersData.data);
+                if (activityResult.success) {
+                    setActivityData(activityResult.data.hourlyData);
+                    setActivitySummary(activityResult.data.summary);
+                }
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -112,13 +122,8 @@ export default function NSOCTacticalTerminal() {
         return matchesSearch && matchesType && matchesStatus;
     });
 
-    // Generate activity data from current hour
-    const activityData = Array.from({ length: 24 }, (_, i) => ({
-        hour: i,
-        value: Math.floor(Math.random() * 100) + 10,
-        isAnomaly: i >= 14 && i <= 16,
-    }));
-    const maxActivity = Math.max(...activityData.map(d => d.value));
+    // Calculate max activity for chart scaling
+    const maxActivity = Math.max(...activityData.map(d => d.count), 1);
 
     if (loading) {
         return (
@@ -301,11 +306,11 @@ export default function NSOCTacticalTerminal() {
                                 {activityData.map((point, i) => (
                                     <div key={i} className={styles.chartColumn}>
                                         <div
-                                            className={`${styles.chartBar} ${point.isAnomaly ? styles.anomalyBar : ''}`}
-                                            style={{ height: `${(point.value / maxActivity) * 100}%` }}
-                                            title={`${point.hour}:00 - ${point.value} movements`}
+                                            className={`${styles.chartBar} ${point.anomalyCount > 0 ? styles.anomalyBar : ''}`}
+                                            style={{ height: `${(point.count / maxActivity) * 100}%` }}
+                                            title={`${point.hour}:00 - ${point.count} movements${point.anomalyCount > 0 ? ` (${point.anomalyCount} anomalies)` : ''}`}
                                         />
-                                        {point.isAnomaly && <div className={styles.anomalyMarker} />}
+                                        {point.anomalyCount > 0 && <div className={styles.anomalyMarker} />}
                                     </div>
                                 ))}
                             </div>
