@@ -297,9 +297,9 @@ export default function NSOCTacticalTerminal() {
                 </section>
 
                 {/* Analytics Row */}
-                <div className={styles.analyticsRow}>
+                <div className={styles.analyticsRow} style={{ width: '100%' }}>
                     {/* Activity Timeline with Anomaly Highlighting */}
-                    <section className={styles.timelineSection}>
+                    <section className={styles.timelineSection} style={{ width: '100%' }}>
                         <div className={styles.sectionHeader}>
                             <h2>Tactical Activity Analytics (24H)</h2>
                             <span className={styles.anomalyLegend}>
