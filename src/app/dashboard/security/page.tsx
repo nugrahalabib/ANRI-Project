@@ -248,7 +248,7 @@ export default function NSOCTacticalTerminal() {
                                                 <p className={styles.xaiContent}>{alert.explanation}</p>
                                                 <div className={styles.threatIndicator}>
                                                     <span className={styles.threatLabel}>Confidence:</span>
-                                                    <span className={styles.threatValue}>{Math.round(alert.confidence)}%</span>
+                                                    <span className={styles.threatValue}>{Math.round(alert.confidence * 100)}%</span>
                                                 </div>
                                                 <div className={styles.xaiActions}>
                                                     <Button size="sm" variant="primary" onClick={() => setShowProtocolModal(true)}>
