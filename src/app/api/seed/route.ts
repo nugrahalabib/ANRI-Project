@@ -255,26 +255,87 @@ export async function GET() {
             movements.push({ id: movement.id, isAnomaly, docId: doc.id, classification: doc.classification, timestamp });
         }
 
-        // 6. Create Anomaly Alerts
-        const anomalyTypes = ['UNAUTHORIZED_ZONE', 'AFTER_HOURS_ACCESS', 'UNUSUAL_FREQUENCY', 'PATTERN_DEVIATION', 'RAPID_MOVEMENT'] as const;
-        const severities = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'] as const;
-        const anomalyMovements = movements.filter(m => m.isAnomaly).slice(0, 25);
+        // 6. Create Anomaly Alerts with REALISTIC SCENARIOS for Presidential Demo
+        const alertScenarios = [
+            {
+                type: 'UNAUTHORIZED_ZONE' as const,
+                severity: 'CRITICAL' as const,
+                explanation: 'PERINGATAN KEAMANAN TINGKAT TINGGI: Dokumen klasifikasi RAHASIA NEGARA terdeteksi di zona PUBLIK (Lobby Utama). Analisis pola menunjukkan deviasi 94% dari baseline perilaku normal. Sistem AI mendeteksi potensi percobaan eksfiltrasi data. Dokumen ini seharusnya tidak pernah meninggalkan Ruang Arsip Rahasia.',
+                factors: [{ factor: 'Zone Security Mismatch', weight: 0.85 }, { factor: 'Classification Violation', weight: 0.92 }],
+            },
+            {
+                type: 'UNAUTHORIZED_ZONE' as const,
+                severity: 'CRITICAL' as const,
+                explanation: 'ANOMALI TERDETEKSI: Dokumen investigasi KPK berpindah ke zona tanpa otorisasi. Korelasi temporal menunjukkan akses terjadi 15 menit setelah jam kerja berakhir. Confidence level: 96%. Rekomendasi: Immediate lockdown zona dan verifikasi identitas terakhir.',
+                factors: [{ factor: 'Unauthorized Movement', weight: 0.96 }, { factor: 'Time-based Anomaly', weight: 0.78 }],
+            },
+            {
+                type: 'AFTER_HOURS_ACCESS' as const,
+                severity: 'HIGH' as const,
+                explanation: 'AKSES DI LUAR JAM KERJA: Dokumen Strategi Nasional Cybersecurity diakses pada pukul 23:47 WIB. Tidak ada izin lembur tercatat. Pattern recognition mendeteksi 3 kejadian serupa dalam 14 hari terakhir oleh pengguna yang sama. Profil risiko insider threat: TINGGI.',
+                factors: [{ factor: 'After-Hours Access', weight: 0.88 }, { factor: 'Repeated Pattern', weight: 0.72 }],
+            },
+            {
+                type: 'AFTER_HOURS_ACCESS' as const,
+                severity: 'HIGH' as const,
+                explanation: 'ALERT: Arsip Rapat Kabinet Terbatas diakses pada dini hari (02:15 WIB). Lokasi akses: Ruang Server. Tidak ada jadwal maintenance terdaftar. Machine learning model mendeteksi anomali dengan confidence 91%. Aktivitas ini menunjukkan pola yang tidak konsisten dengan operasi normal.',
+                factors: [{ factor: 'Unusual Time Access', weight: 0.91 }, { factor: 'Location Mismatch', weight: 0.67 }],
+            },
+            {
+                type: 'UNUSUAL_FREQUENCY' as const,
+                severity: 'HIGH' as const,
+                explanation: 'FREKUENSI ANOMALI: Dokumen Perjanjian Bilateral Pertahanan mengalami 28 pergerakan dalam 24 jam terakhir. Baseline normal: 2 pergerakan/hari. Peningkatan 1400% mengindikasikan potensi duplikasi tidak sah atau scanning massal. Analisis dwell-time menunjukkan dokumen berada di zona non-designated selama 340% lebih lama dari normal.',
+                factors: [{ factor: 'Frequency Spike', weight: 0.94 }, { factor: 'Dwell Time Anomaly', weight: 0.81 }],
+            },
+            {
+                type: 'UNUSUAL_FREQUENCY' as const,
+                severity: 'MEDIUM' as const,
+                explanation: 'POLA TIDAK BIASA: Laporan Audit BPK Khusus diakses dengan frekuensi tinggi (18x dalam 12 jam). Analisis menunjukkan akses dari 4 device berbeda. Kemungkinan: koordinasi investigasi internal ATAU sharing kredensial tidak sah. Memerlukan verifikasi manual.',
+                factors: [{ factor: 'Multi-device Access', weight: 0.76 }, { factor: 'High Frequency', weight: 0.82 }],
+            },
+            {
+                type: 'PATTERN_DEVIATION' as const,
+                severity: 'CRITICAL' as const,
+                explanation: 'DEVIASI PERILAKU EKSTREM: SK Presiden No. 45/2024 menunjukkan pola pergerakan yang menyimpang 87% dari baseline. Dokumen berpindah melalui 7 zona dalam 2 jam - sangat tidak konsisten dengan prosedur penanganan dokumen RAHASIA. Neural network classifier mengidentifikasi ini sebagai potential data breach attempt.',
+                factors: [{ factor: 'Behavioral Deviation', weight: 0.87 }, { factor: 'Multi-zone Traversal', weight: 0.79 }],
+            },
+            {
+                type: 'RAPID_MOVEMENT' as const,
+                severity: 'MEDIUM' as const,
+                explanation: 'TRANSIT CEPAT: Dokumen MoU Arsip Belanda tercatat berpindah antar 5 zona dalam waktu 8 menit. Kecepatan pergerakan ini mengindikasikan: (1) Pengangkutan batch yang tidak terjadwal, ATAU (2) Bypass prosedur check-in/check-out. Anomaly score: 67%. Diperlukan konfirmasi petugas lapangan.',
+                factors: [{ factor: 'Rapid Transit', weight: 0.67 }, { factor: 'Procedure Bypass', weight: 0.54 }],
+            },
+            {
+                type: 'UNAUTHORIZED_ZONE' as const,
+                severity: 'CRITICAL' as const,
+                explanation: 'BREACH PROTOKOL: Dokumen Intelijen Keamanan Negara dari BIN terdeteksi di Ruang Baca Publik. Ini merupakan PELANGGARAN SERIUS protokol keamanan nasional. Sistem telah menginisiasi lockdown zona otomatis. Eskalasi ke BSSN direkomendasikan dalam 10 menit jika tidak ada resolusi.',
+                factors: [{ factor: 'Critical Zone Violation', weight: 0.98 }, { factor: 'National Security Risk', weight: 0.95 }],
+            },
+            {
+                type: 'AFTER_HOURS_ACCESS' as const,
+                severity: 'CRITICAL' as const,
+                explanation: 'AKSES MENCURIGAKAN: Rencana Operasi Militer TNI diakses pada pukul 04:30 WIB dari terminal yang biasanya tidak aktif. IP forensics menunjukkan koneksi dari subnet yang berbeda dari profil pengguna biasa. Deep learning anomaly detection confidence: 94%. IMMEDIATE ACTION REQUIRED.',
+                factors: [{ factor: 'Suspicious IP Pattern', weight: 0.94 }, { factor: 'Terminal Anomaly', weight: 0.89 }],
+            },
+        ];
 
-        for (const mov of anomalyMovements) {
-            const anomalyType = anomalyTypes[Math.floor(Math.random() * anomalyTypes.length)];
-            const severity = severities[Math.floor(Math.random() * severities.length)];
+        const anomalyMovements = movements.filter(m => m.isAnomaly).slice(0, alertScenarios.length);
+
+        for (let i = 0; i < anomalyMovements.length; i++) {
+            const mov = anomalyMovements[i];
+            const scenario = alertScenarios[i % alertScenarios.length];
 
             await prisma.anomalyAlert.create({
                 data: {
                     documentId: mov.docId,
                     movementId: mov.id,
-                    alertType: anomalyType,
-                    severity: severity,
-                    riskScore: 0.5 + Math.random() * 0.5,
-                    explanation: `Deteksi anomali: ${anomalyType} pada dokumen ${mov.classification}`,
-                    contributingFactors: JSON.stringify([{ factor: 'Security Mismatch', weight: 0.5 }]),
-                    confidence: 0.75 + Math.random() * 0.24,
-                    status: ['OPEN', 'INVESTIGATING', 'RESOLVED'][Math.floor(Math.random() * 3)] as 'OPEN' | 'INVESTIGATING' | 'RESOLVED',
+                    alertType: scenario.type,
+                    severity: scenario.severity,
+                    riskScore: 0.7 + Math.random() * 0.29,
+                    explanation: scenario.explanation,
+                    contributingFactors: JSON.stringify(scenario.factors),
+                    confidence: 0.85 + Math.random() * 0.14,
+                    status: ['OPEN', 'INVESTIGATING', 'OPEN', 'OPEN'][Math.floor(Math.random() * 4)] as 'OPEN' | 'INVESTIGATING' | 'RESOLVED',
                     createdAt: mov.timestamp,
                 },
             });
