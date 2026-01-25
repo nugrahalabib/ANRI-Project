@@ -2,14 +2,16 @@
 // This creates 1000+ realistic records across all use cases
 
 require('dotenv/config');
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient } = require('../src/generated/prisma');
+const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-// Prisma 7 requires datasource URL in constructor
-const prisma = new PrismaClient({
-    datasourceUrl: process.env.DATABASE_URL || 'file:./dev.db'
+// Prisma 7 requires adapter
+const adapter = new PrismaBetterSqlite3({
+    url: process.env.DATABASE_URL || 'file:./prisma/dev.db'
 });
+const prisma = new PrismaClient({ adapter });
 
 // Helper functions
 function generateRFIDTag() {
