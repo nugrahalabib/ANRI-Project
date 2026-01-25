@@ -19,17 +19,19 @@ interface Alert {
         rfidTag: string;
         classification: string;
     };
-    fromZone?: { name: string };
-    toZone?: { name: string };
+    movement?: {
+        fromZone?: { name: string };
+        toZone?: { name: string };
+    };
 }
 
-interface Device {
+interface RFIDReader {
     id: string;
-    deviceId: string;
+    readerId: string;
     name: string;
     type: string;
-    status: string;
-    lastSeen: string;
+    isOnline: boolean;
+    lastPing: string;
     zone: { name: string };
 }
 
@@ -45,7 +47,7 @@ const alertTypeLabels: Record<string, string> = {
 
 export default function NSOCTacticalTerminal() {
     const [alerts, setAlerts] = useState<Alert[]>([]);
-    const [devices, setDevices] = useState<Device[]>([]);
+    const [readers, setReaders] = useState<RFIDReader[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedAlert, setSelectedAlert] = useState<string | null>(null);
     const [showProtocolModal, setShowProtocolModal] = useState(false);
@@ -53,16 +55,16 @@ export default function NSOCTacticalTerminal() {
     useEffect(() => {
         async function fetchData() {
             try {
-                const [alertsRes, devicesRes] = await Promise.all([
+                const [alertsRes, readersRes] = await Promise.all([
                     fetch('/api/alerts?limit=10'),
-                    fetch('/api/devices'),
+                    fetch('/api/rfid-readers'),
                 ]);
 
                 const alertsData = await alertsRes.json();
-                const devicesData = await devicesRes.json();
+                const readersData = await readersRes.json();
 
                 if (alertsData.success) setAlerts(alertsData.data);
-                if (devicesData.success) setDevices(devicesData.data);
+                if (readersData.success) setReaders(readersData.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
             } finally {
@@ -83,7 +85,7 @@ export default function NSOCTacticalTerminal() {
 
     const criticalAlerts = alerts.filter(a => a.severity === 'CRITICAL').length;
     const openAlerts = alerts.filter(a => a.status === 'OPEN').length;
-    const onlineDevices = devices.filter(d => d.status === 'ONLINE').length;
+    const onlineReaders = readers.filter(r => r.isOnline).length;
 
     const getRiskColor = (score: number) => {
         if (score >= 70) return 'critical';
@@ -151,7 +153,7 @@ export default function NSOCTacticalTerminal() {
                                 <span className={styles.statLabel}>Open</span>
                             </div>
                             <div className={styles.statCard}>
-                                <span className={styles.statValue}>{onlineDevices}/{devices.length}</span>
+                                <span className={styles.statValue}>{onlineReaders}/{readers.length}</span>
                                 <span className={styles.statLabel}>Readers</span>
                             </div>
                         </div>
@@ -215,12 +217,12 @@ export default function NSOCTacticalTerminal() {
                                             </div>
 
                                             <div className={styles.movementPath}>
-                                                <span>{alert.fromZone?.name || 'Unknown'}</span>
+                                                <span>{alert.movement?.fromZone?.name || 'Unknown'}</span>
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                     <line x1="5" y1="12" x2="19" y2="12" />
                                                     <polyline points="12 5 19 12 12 19" />
                                                 </svg>
-                                                <span>{alert.toZone?.name || 'Unknown'}</span>
+                                                <span>{alert.movement?.toZone?.name || 'Unknown'}</span>
                                             </div>
 
                                             <div className={styles.alertFooter}>
@@ -300,33 +302,33 @@ export default function NSOCTacticalTerminal() {
                     <section className={styles.rfidSection}>
                         <div className={styles.sectionHeader}>
                             <h2>Infrastructure Intelligence</h2>
-                            <span className={styles.onlineCount}>{onlineDevices} Online</span>
+                            <span className={styles.onlineCount}>{onlineReaders} Online</span>
                         </div>
                         <div className={styles.readerGrid}>
-                            {devices.slice(0, 5).map((device) => (
+                            {readers.slice(0, 6).map((reader) => (
                                 <div
-                                    key={device.id}
-                                    className={`${styles.readerCard} ${device.status === 'OFFLINE' ? styles.offline : ''}`}
+                                    key={reader.id}
+                                    className={`${styles.readerCard} ${!reader.isOnline ? styles.offline : ''}`}
                                 >
                                     <div className={styles.readerHeader}>
-                                        <div className={`${styles.signalPulse} ${device.status === 'ONLINE' ? styles.active : ''}`}>
+                                        <div className={`${styles.signalPulse} ${reader.isOnline ? styles.active : ''}`}>
                                             <div className={styles.pulseRing} />
                                             <div className={styles.pulseCore} />
                                         </div>
                                         <div className={styles.readerInfo}>
-                                            <span className={styles.readerName}>{device.name}</span>
-                                            <code className={styles.readerId}>{device.deviceId}</code>
+                                            <span className={styles.readerName}>{reader.name}</span>
+                                            <code className={styles.readerId}>{reader.readerId}</code>
                                         </div>
                                     </div>
-                                    <div className={styles.readerZone}>{device.zone?.name || 'Unknown Zone'}</div>
+                                    <div className={styles.readerZone}>{reader.zone?.name || 'Unknown Zone'}</div>
                                     <div className={styles.readerMetrics}>
                                         <div className={styles.metricItem}>
                                             <span className={styles.metricLabel}>Status</span>
-                                            <span className={styles.metricValue}>{device.status}</span>
+                                            <span className={styles.metricValue}>{reader.isOnline ? 'ONLINE' : 'OFFLINE'}</span>
                                         </div>
                                         <div className={styles.metricItem}>
                                             <span className={styles.metricLabel}>Type</span>
-                                            <span className={styles.metricValue}>{device.type}</span>
+                                            <span className={styles.metricValue}>{reader.type}</span>
                                         </div>
                                     </div>
                                 </div>
