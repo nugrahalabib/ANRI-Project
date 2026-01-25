@@ -115,7 +115,9 @@ export function TimelineChart({
                     colors: '#9ca3af',
                     fontSize: '12px',
                 },
+                formatter: (value: number) => Math.round(value).toString(),
             },
+            decimalsInFloat: 0,
         },
         tooltip: {
             theme: 'dark',
@@ -140,7 +142,7 @@ export function TimelineChart({
             name: title || 'Value',
             data: data.map((d) => ({
                 x: d.x instanceof Date ? d.x.getTime() : d.x,
-                y: d.y,
+                y: Math.round(d.y),
             })),
         },
     ];

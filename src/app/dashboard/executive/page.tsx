@@ -149,7 +149,7 @@ export default function ExecutiveDashboard() {
                         </div>
                     </Card>
                     <Card header="Tren Risiko (30 Hari Terakhir)">
-                        <TimelineChart data={riskTrendData.length > 0 ? riskTrendData : [{ x: new Date(), y: 42 }]} color="#3d7ab8" height={280} yAxisLabel="Risk Score" />
+                        <TimelineChart data={riskTrendData.length > 0 ? riskTrendData : [{ x: new Date(), y: 42 }]} color="#3d7ab8" height={350} yAxisLabel="Risk Score" />
                     </Card>
                 </section>
 
