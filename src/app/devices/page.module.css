@@ -1,0 +1,172 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.statsRow {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.statCard {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px !important;
+}
+
+.statValue {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--grey-100);
+}
+
+.statLabel {
+    font-size: 14px;
+    color: var(--grey-400);
+    margin-top: 4px;
+}
+
+.green {
+    color: var(--status-success);
+}
+
+.red {
+    color: var(--status-critical);
+}
+
+.grey {
+    color: var(--grey-500);
+}
+
+.controls {
+    display: flex;
+    gap: 12px;
+}
+
+.searchInput {
+    flex: 1;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--navy-700);
+    background: var(--navy-900);
+    color: white;
+    font-family: inherit;
+}
+
+.filterSelect {
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--navy-700);
+    background: var(--navy-900);
+    color: white;
+    font-family: inherit;
+    min-width: 150px;
+}
+
+.tableCard {
+    overflow: hidden;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    text-align: left;
+    padding: 16px;
+    background: var(--navy-900);
+    color: var(--grey-400);
+    font-weight: 500;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.table td {
+    padding: 16px;
+    border-bottom: 1px solid var(--navy-800);
+    color: var(--grey-200);
+    font-size: 14px;
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.rowIsolated {
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+}
+
+.statusBadge {
+    padding: 4px 10px;
+    border-radius: 99px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.statusBadge.ACTIVE {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.statusBadge.ISOLATED {
+    background: rgba(239, 68, 68, 0.2);
+    color: #fca5a5;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.statusBadge.OFFLINE {
+    background: rgba(107, 114, 128, 0.2);
+    color: #d1d5db;
+    border: 1px solid rgba(107, 114, 128, 0.3);
+}
+
+.textGrey {
+    color: var(--grey-500);
+    font-size: 13px;
+}
+
+.loading,
+.empty {
+    text-align: center;
+    padding: 48px !important;
+    color: var(--grey-500);
+    font-style: italic;
+}
+
+.toast {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: var(--status-success);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 2000;
+    animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}

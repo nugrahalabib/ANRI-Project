@@ -10,10 +10,15 @@ interface AuditLog {
     action: string;
     entityType: string;
     entityId: string;
-    details: string;
+    details?: string; // Derived from metadata/new/prev
+    metadata?: Record<string, unknown> | null;
+    previousValue?: Record<string, unknown> | null;
+    newValue?: Record<string, unknown> | null;
     ipAddress: string;
     userAgent: string;
     timestamp: string;
+    signature: string;
+    previousHash: string | null;
     user: { id: string; name: string; role: string } | null;
 }
 
@@ -33,46 +38,125 @@ export default function AuditPage() {
     const [loading, setLoading] = useState(true);
     const [actionFilter, setActionFilter] = useState('all');
     const [entityFilter, setEntityFilter] = useState('all');
+    const [dateRange, setDateRange] = useState({ start: '', end: '' });
     const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
     const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 0 });
     const [toast, setToast] = useState('');
+    const [verifyResult, setVerifyResult] = useState<{ valid: boolean; totalEntries: number; invalidEntries: number; message?: string } | null>(null);
+    const [isVerifying, setIsVerifying] = useState(false);
 
     useEffect(() => {
-        fetchLogs();
-    }, [actionFilter, entityFilter, pagination.page]);
+        const fetchLogs = async () => {
+            try {
+                setLoading(true);
+                const params = new URLSearchParams();
+                if (actionFilter !== 'all') params.append('action', actionFilter);
+                if (entityFilter !== 'all') params.append('entityType', entityFilter);
+                if (dateRange.start) params.append('startDate', dateRange.start);
+                if (dateRange.end) params.append('endDate', dateRange.end);
+                params.append('page', pagination.page.toString());
+                params.append('limit', pagination.limit.toString());
 
-    async function fetchLogs() {
-        try {
-            const params = new URLSearchParams();
-            if (actionFilter !== 'all') params.append('action', actionFilter);
-            if (entityFilter !== 'all') params.append('entityType', entityFilter);
-            params.append('page', pagination.page.toString());
-            params.append('limit', pagination.limit.toString());
-
-            const res = await fetch(`/api/audit?${params.toString()}`);
-            const data = await res.json();
-            if (data.success) {
-                setLogs(data.data);
-                setPagination({ ...pagination, total: data.pagination.total, totalPages: data.pagination.totalPages });
+                const res = await fetch(`/api/audit?${params.toString()}`);
+                const data = await res.json();
+                if (data.success) {
+                    setLogs(data.data);
+                    setPagination(prev => ({ ...prev, total: data.pagination.total, totalPages: data.pagination.totalPages }));
+                }
+            } catch (error) {
+                console.error('Error fetching audit logs:', error);
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error fetching audit logs:', error);
-        } finally {
-            setLoading(false);
-        }
-    }
+        };
+
+        fetchLogs();
+    }, [actionFilter, entityFilter, pagination.page, dateRange.start, dateRange.end, pagination.limit]);
 
     const showToastMessage = (message: string) => {
         setToast(message);
         setTimeout(() => setToast(''), 3000);
     };
 
-    const handleVerifyChain = () => {
-        showToastMessage('Blockchain integrity verified: All records valid ✓');
+    const handleVerifyChain = async () => {
+        setIsVerifying(true);
+        try {
+            const res = await fetch('/api/audit/verify');
+            const result = await res.json();
+            setVerifyResult(result);
+            if (result.valid) {
+                showToastMessage(`Chain integrity verified (${result.totalEntries} entries) ✓`);
+            } else {
+                showToastMessage(`⚠️ Validation FAILED: ${result.invalidEntries} invalid entries found!`);
+            }
+        } catch (error) {
+            console.error('Verify failed:', error);
+            showToastMessage('Verification process failed');
+        } finally {
+            setIsVerifying(false);
+        }
     };
 
-    const handleExportCSV = () => {
-        showToastMessage('Exporting audit logs to CSV...');
+    const handleExportCSV = async () => {
+        showToastMessage('Generating CSV export...');
+        try {
+            // Fetch all matching logs for export (no pagination limits)
+            const params = new URLSearchParams();
+            if (actionFilter !== 'all') params.append('action', actionFilter);
+            if (entityFilter !== 'all') params.append('entityType', entityFilter);
+            if (dateRange.start) params.append('startDate', dateRange.start);
+            if (dateRange.end) params.append('endDate', dateRange.end);
+            params.append('limit', '10000'); // Export limit
+
+            const res = await fetch(`/api/audit?${params.toString()}`);
+            const json = await res.json();
+
+            if (!json.success || !json.data.length) {
+                showToastMessage('No data to export');
+                return;
+            }
+
+            const headers = ['Timestamp', 'Action', 'User', 'Role', 'Entity Type', 'Entity ID', 'Details', 'IP Address', 'Signature'];
+            const csvContent = [
+                headers.join(','),
+                ...json.data.map((log: AuditLog) => {
+                    const detailStr = getLogDetails(log).replace(/,/g, ';').replace(/\n/g, ' ');
+                    return [
+                        new Date(log.timestamp).toISOString(),
+                        log.action,
+                        log.user?.name || 'System',
+                        log.user?.role || '-',
+                        log.entityType,
+                        log.entityId,
+                        `"${detailStr}"`,
+                        log.ipAddress,
+                        log.signature
+                    ].join(',');
+                })
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `anri_audit_export_${new Date().toISOString().split('T')[0]}.csv`);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToastMessage('CSV Export Downloaded ✓');
+        } catch (error) {
+            console.error('Export failed:', error);
+            showToastMessage('Export failed');
+        }
+    };
+
+    const getLogDetails = (log: AuditLog): string => {
+        if (log.metadata && typeof log.metadata.description === 'string') return log.metadata.description;
+        if (log.metadata && log.metadata.details) return typeof log.metadata.details === 'string' ? log.metadata.details : JSON.stringify(log.metadata.details);
+        if (log.previousValue && log.newValue) return 'Update operation';
+        if (log.metadata) return JSON.stringify(log.metadata);
+        return '-';
     };
 
     const formatTime = (dateStr: string) => {
@@ -122,16 +206,41 @@ export default function AuditPage() {
                             <option value="all">All Entity Types</option>
                             <option value="Document">Document</option>
                             <option value="User">User</option>
-                            <option value="Policy">Policy</option>
+                            <option value="PolicyRule">Policy</option>
                             <option value="Zone">Zone</option>
                             <option value="Session">Session</option>
+                            <option value="ApprovalRequest">Approval</option>
                         </select>
+                        <input
+                            type="date"
+                            className={styles.dateInput}
+                            value={dateRange.start}
+                            onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
+                        />
+                        <span className={styles.dateSep}>To</span>
+                        <input
+                            type="date"
+                            className={styles.dateInput}
+                            value={dateRange.end}
+                            onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
+                        />
                     </div>
                     <div className={styles.actions}>
-                        <Button variant="secondary" size="sm" onClick={handleVerifyChain}>🔐 Verify Chain</Button>
-                        <Button variant="secondary" size="sm" onClick={handleExportCSV}>📥 Export</Button>
+                        <Button variant="secondary" size="sm" onClick={handleVerifyChain} disabled={isVerifying}>
+                            {isVerifying ? 'Verifying...' : '🔐 Verify Chain'}
+                        </Button>
+                        <Button variant="secondary" size="sm" onClick={handleExportCSV}>📥 Export CSV</Button>
                     </div>
                 </section>
+
+                {/* Verification Result Alert */}
+                {verifyResult && (
+                    <div className={`${styles.verifyAlert} ${verifyResult.valid ? styles.alertSuccess : styles.alertError}`}>
+                        <strong>Validation Result:</strong> {verifyResult.valid ? 'VALID' : 'INVALID'}
+                        — Checked {verifyResult.totalEntries} records.
+                        {verifyResult.invalidEntries > 0 && ` Found ${verifyResult.invalidEntries} TAMPERED records!`}
+                    </div>
+                )}
 
                 {/* Audit Logs Table */}
                 <Card noPadding>
@@ -166,9 +275,9 @@ export default function AuditPage() {
                                                 </div>
                                             </td>
                                             <td>
-                                                <code className={styles.entityCode}>{log.entityType}: {log.entityId}</code>
+                                                <code className={styles.entityCode}>{log.entityType}: {log.entityId.substring(0, 8)}...</code>
                                             </td>
-                                            <td className={styles.details}>{log.details}</td>
+                                            <td className={styles.details}>{getLogDetails(log).substring(0, 50) + (getLogDetails(log).length > 50 ? '...' : '')}</td>
                                             <td><code>{log.ipAddress}</code></td>
                                         </tr>
                                     );
@@ -213,10 +322,16 @@ export default function AuditPage() {
                                     <div className={styles.detailItem}><span className={styles.detailLabel}>Entity</span><code>{selectedLog.entityType}: {selectedLog.entityId}</code></div>
                                     <div className={styles.detailItem}><span className={styles.detailLabel}>IP Address</span><code>{selectedLog.ipAddress}</code></div>
                                     <div className={styles.detailItem}><span className={styles.detailLabel}>User Agent</span><code className={styles.userAgent}>{selectedLog.userAgent}</code></div>
+                                    <div className={styles.detailItem}><span className={styles.detailLabel}>Signature</span><code className={styles.signature}>{truncateSignature(selectedLog.signature)}</code></div>
                                 </div>
                                 <div className={styles.detailsFull}>
                                     <h4>Details</h4>
-                                    <p>{selectedLog.details}</p>
+                                    <pre className={styles.jsonDetails}>{JSON.stringify({
+                                        details: getLogDetails(selectedLog),
+                                        metadata: selectedLog.metadata,
+                                        previousValue: selectedLog.previousValue,
+                                        newValue: selectedLog.newValue
+                                    }, null, 2)}</pre>
                                 </div>
                             </div>
                             <div className={styles.modalFooter}>

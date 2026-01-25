@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../Sidebar';
 import { Header } from '../Header';
+import { AIAssistant } from '@/components/ai/AIAssistant/AIAssistant';
 import styles from './DashboardLayout.module.css';
 
 interface DashboardLayoutProps {
@@ -38,6 +39,9 @@ export function DashboardLayout({ title, subtitle, actions, children }: Dashboar
                 <Header title={title} subtitle={subtitle} actions={actions} />
                 <main className={styles.content}>{children}</main>
             </div>
+
+            {/* Global AI Assistant */}
+            <AIAssistant />
         </div>
     );
 }

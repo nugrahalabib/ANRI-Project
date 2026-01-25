@@ -101,6 +101,24 @@ export default function PoliciesPage() {
         }
     };
 
+    // Pattern Tester Logic
+    const [testUrl, setTestUrl] = useState('');
+    const [testResult, setTestResult] = useState<{ status: 'BLOCKED' | 'ALLOWED', policy?: string } | null>(null);
+
+    const handleTestPattern = () => {
+        if (!testUrl) return;
+        const matchedPolicy = policies.find(p => p.isActive && p.pattern.split(',').some(pat => {
+            const regex = new RegExp(pat.replace(/\*/g, '.*'));
+            return regex.test(testUrl);
+        }));
+
+        if (matchedPolicy) {
+            setTestResult({ status: 'BLOCKED', policy: matchedPolicy.name });
+        } else {
+            setTestResult({ status: 'ALLOWED' });
+        }
+    };
+
     const handleCreatePolicy = async () => {
         try {
             const res = await fetch('/api/policies', {
@@ -199,6 +217,26 @@ export default function PoliciesPage() {
                     <div className={styles.statCard}><span className={styles.statValue}>{stats.active}</span><span className={styles.statLabel}>Active</span></div>
                     <div className={styles.statCard}><span className={styles.statValue}>{stats.critical}</span><span className={styles.statLabel}>Critical</span></div>
                     <div className={styles.statCard}><span className={styles.statValue}>{stats.violations}</span><span className={styles.statLabel}>Violations</span></div>
+
+                    {/* Pattern Tester Widget */}
+                    <Card className={styles.testerCard} noPadding>
+                        <div className={styles.testerHeader}>🔍 Policy Simulator</div>
+                        <div className={styles.testerBody}>
+                            <input
+                                type="text"
+                                placeholder="e.g. judionline.com"
+                                value={testUrl}
+                                onChange={(e) => setTestUrl(e.target.value)}
+                                className={styles.testerInput}
+                            />
+                            <Button size="sm" onClick={handleTestPattern}>Test</Button>
+                        </div>
+                        {testResult && (
+                            <div className={`${styles.testerResult} ${testResult.status === 'BLOCKED' ? styles.blocked : styles.allowed}`}>
+                                {testResult.status === 'BLOCKED' ? `🚫 Blocked by: ${testResult.policy}` : '✅ Allowed'}
+                            </div>
+                        )}
+                    </Card>
                 </section>
 
                 {/* Controls */}

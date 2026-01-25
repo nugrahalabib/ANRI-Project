@@ -41,27 +41,34 @@ function generateHash(data) {
 // DATA DEFINITIONS
 // ============================================================================
 const usersData = [
-    { email: 'budi.santoso@anri.go.id', name: 'Dr. Ir. Budi Santoso, M.Sc.', role: 'EXECUTIVE', department: 'Direktorat Utama' },
-    { email: 'ahmad.fauzi@anri.go.id', name: 'Ahmad Fauzi, S.Kom.', role: 'IT_SECURITY', department: 'Unit IT' },
-    { email: 'citra.dewi@anri.go.id', name: 'Citra Dewi, S.H., M.H.', role: 'COMPLIANCE_OFFICER', department: 'Kepatuhan & Audit' },
-    { email: 'rina.wulandari@anri.go.id', name: 'Rina Wulandari, S.T.', role: 'SYSTEM_ADMIN', department: 'Unit IT' },
-    { email: 'hendra.wijaya@anri.go.id', name: 'Hendra Wijaya, S.Ars.', role: 'COMPLIANCE_OFFICER', department: 'Preservasi Arsip' },
-    { email: 'maya.kusuma@anri.go.id', name: 'Maya Kusuma, S.Kom., CISSP', role: 'IT_SECURITY', department: 'NSOC' },
-    { email: 'dimas.pratama@anri.go.id', name: 'Dimas Pratama, A.Md.', role: 'COMPLIANCE_OFFICER', department: 'Kearsipan Dinamis' },
-    { email: 'siti.nurhaliza@anri.go.id', name: 'Prof. Dr. Siti Nurhaliza, M.A.', role: 'EXECUTIVE', department: 'Manajemen Eksekutif' },
-    { email: 'agus.setiawan@anri.go.id', name: 'Agus Setiawan, S.Kom.', role: 'IT_SECURITY', department: 'Unit IT' },
-    { email: 'putri.handayani@anri.go.id', name: 'Putri Handayani, S.E., Ak.', role: 'COMPLIANCE_OFFICER', department: 'Audit Internal' },
+    // Demo accounts (matching login page for easy demo)
+    { email: 'presiden@anri.go.id', password: 'presiden123', name: 'Presiden Republik Indonesia', role: 'EXECUTIVE', department: 'Istana Negara', description: 'Kepala Negara' },
+    { email: 'audit@anri.go.id', password: 'audit123', name: 'Tim Auditor BPK', role: 'AUDITOR', department: 'BPK RI', description: 'Auditor Eksternal' },
+    { email: 'admin@anri.go.id', password: 'admin123', name: 'Rudi Hermawan, S.Kom.', role: 'SYSTEM_ADMIN', department: 'Unit IT', description: 'Administrator Sistem' },
+    { email: 'direktur@anri.go.id', password: 'direktur123', name: 'Dr. Ir. Budi Santoso, M.Sc.', role: 'EXECUTIVE', department: 'Direktorat Utama', description: 'Direktur Utama ANRI' },
+    { email: 'security@anri.go.id', password: 'security123', name: 'Siti Rahmawati, S.T.', role: 'IT_SECURITY', department: 'NSOC', description: 'Kepala NSOC' },
+    { email: 'compliance@anri.go.id', password: 'compliance123', name: 'Ahmad Wijaya, S.E., Ak.', role: 'COMPLIANCE_OFFICER', department: 'Audit Internal', description: 'Kepala Audit' },
+    { email: 'arsiparis@anri.go.id', password: 'arsiparis123', name: 'Dewi Lestari, S.Sos.', role: 'COMPLIANCE_OFFICER', department: 'Kearsipan', description: 'Arsiparis Senior' },
+    // Additional realistic users
+    { email: 'maya.kusuma@anri.go.id', password: 'Demo2024!', name: 'Maya Kusuma, S.Kom., CISSP', role: 'IT_SECURITY', department: 'NSOC', description: 'Analis Keamanan' },
+    { email: 'dimas.pratama@anri.go.id', password: 'Demo2024!', name: 'Dimas Pratama, A.Md.', role: 'COMPLIANCE_OFFICER', department: 'Kearsipan Dinamis', description: 'Arsiparis' },
+    { email: 'siti.nurhaliza@anri.go.id', password: 'Demo2024!', name: 'Prof. Dr. Siti Nurhaliza, M.A.', role: 'EXECUTIVE', department: 'Manajemen Eksekutif', description: 'Wakil Direktur' },
+    { email: 'agus.setiawan@anri.go.id', password: 'Demo2024!', name: 'Agus Setiawan, S.Kom.', role: 'IT_SECURITY', department: 'Unit IT', description: 'Spesialis IT' },
+    { email: 'putri.handayani@anri.go.id', password: 'Demo2024!', name: 'Putri Handayani, S.E., Ak.', role: 'COMPLIANCE_OFFICER', department: 'Audit Internal', description: 'Auditor' },
+    { email: 'rina.wulandari@anri.go.id', password: 'Demo2024!', name: 'Rina Wulandari, S.Sos.', role: 'COMPLIANCE_OFFICER', department: 'Preservasi Arsip', description: 'Kepala Seksi' },
+    { email: 'hendra.wijaya@anri.go.id', password: 'Demo2024!', name: 'Hendra Wijaya, S.Ars.', role: 'COMPLIANCE_OFFICER', department: 'Preservasi Arsip', description: 'Arsiparis Madya' },
 ];
 
 const zonesData = [
-    { code: 'ZONA-A1', name: 'Ruang Arsip Rahasia', securityLevel: 'HIGH_SECURITY', floor: 'Lantai 2', building: 'Gedung A - Arsip Pusat', description: 'Penyimpanan arsip dengan klasifikasi RAHASIA' },
-    { code: 'ZONA-A2', name: 'Ruang Digitalisasi', securityLevel: 'RESTRICTED', floor: 'Lantai 1', building: 'Gedung A - Arsip Pusat', description: 'Ruang pemindaian dan digitalisasi dokumen' },
-    { code: 'ZONA-B1', name: 'Kantor Kearsipan', securityLevel: 'STANDARD', floor: 'Lantai 1', building: 'Gedung B - Administrasi', description: 'Kantor utama unit kearsipan dinamis' },
-    { code: 'ZONA-B2', name: 'Ruang Rapat VIP', securityLevel: 'HIGH_SECURITY', floor: 'Lantai 3', building: 'Gedung B - Administrasi', description: 'Ruang rapat untuk pertemuan tingkat tinggi' },
-    { code: 'ZONA-C1', name: 'Gudang Penyimpanan', securityLevel: 'RESTRICTED', floor: 'Basement', building: 'Gedung C - Penyimpanan', description: 'Gudang penyimpanan arsip inaktif' },
-    { code: 'ZONA-L1', name: 'Lobby Utama', securityLevel: 'PUBLIC', floor: 'Lantai Dasar', building: 'Gedung A - Arsip Pusat', description: 'Area lobby dan resepsionis utama' },
-    { code: 'ZONA-R1', name: 'Ruang Baca Publik', securityLevel: 'PUBLIC', floor: 'Lantai 1', building: 'Gedung A - Arsip Pusat', description: 'Ruang baca untuk pengunjung umum' },
-    { code: 'ZONA-S1', name: 'Ruang Server', securityLevel: 'HIGH_SECURITY', floor: 'Basement', building: 'Gedung C - Penyimpanan', description: 'Data center dan server room' },
+    // Visual Coordinates for 1920x1080 SVG Map
+    { code: 'ZONA-A1', name: 'Ruang Arsip Rahasia', securityLevel: 'HIGH_SECURITY', status: 'ACTIVE', floor: 'Lantai 2', building: 'Gedung A', description: 'Penyimpanan arsip dengan klasifikasi RAHASIA', x_coord: 800, y_coord: 200, width: 300, height: 250 },
+    { code: 'ZONA-A2', name: 'Ruang Digitalisasi', securityLevel: 'RESTRICTED', status: 'ACTIVE', floor: 'Lantai 1', building: 'Gedung A', description: 'Ruang pemindaian dan digitalisasi', x_coord: 450, y_coord: 200, width: 300, height: 250 },
+    { code: 'ZONA-B1', name: 'Kantor Kearsipan', securityLevel: 'STANDARD', status: 'ACTIVE', floor: 'Lantai 1', building: 'Gedung B', description: 'Kantor utama unit kearsipan', x_coord: 1200, y_coord: 150, width: 400, height: 300 },
+    { code: 'ZONA-B2', name: 'Ruang Rapat VIP', securityLevel: 'HIGH_SECURITY', status: 'ACTIVE', floor: 'Lantai 3', building: 'Gedung B', description: 'Ruang rapat tingkat tinggi', x_coord: 1200, y_coord: 500, width: 400, height: 200 },
+    { code: 'ZONA-C1', name: 'Gudang Penyimpanan', securityLevel: 'RESTRICTED', status: 'ACTIVE', floor: 'Basement', building: 'Gedung C', description: 'Gudang arsip inaktif', x_coord: 100, y_coord: 500, width: 300, height: 400 },
+    { code: 'ZONA-L1', name: 'Lobby Utama', securityLevel: 'PUBLIC', status: 'ACTIVE', floor: 'Lantai Dasar', building: 'Gedung A', description: 'Area lobby dan resepsionis', x_coord: 450, y_coord: 500, width: 650, height: 150 },
+    { code: 'ZONA-R1', name: 'Ruang Baca Publik', securityLevel: 'PUBLIC', status: 'ACTIVE', floor: 'Lantai 1', building: 'Gedung A', description: 'Ruang baca umum', x_coord: 450, y_coord: 700, width: 650, height: 200 },
+    { code: 'ZONA-S1', name: 'Ruang Server', securityLevel: 'HIGH_SECURITY', status: 'ACTIVE', floor: 'Basement', building: 'Gedung C', description: 'Data center dan server room', x_coord: 100, y_coord: 150, width: 300, height: 300 },
 ];
 
 const rfidReadersData = [
@@ -183,6 +190,7 @@ async function main() {
     await prisma.auditSchedule.deleteMany();
     await prisma.policyAcknowledgment.deleteMany();
     await prisma.regulation.deleteMany();
+    await prisma.approvalRequest.deleteMany();
     await prisma.user.deleteMany();
     console.log('  ✓ Cleared all tables');
 
@@ -190,7 +198,7 @@ async function main() {
     console.log('\n👥 Creating users...');
     const users = {};
     for (const userData of usersData) {
-        const passwordHash = await bcrypt.hash('Demo2024!', 12);
+        const passwordHash = await bcrypt.hash(userData.password || 'Demo2024!', 12);
         const user = await prisma.user.create({
             data: {
                 email: userData.email,
@@ -202,7 +210,7 @@ async function main() {
             },
         });
         users[userData.email] = user;
-        console.log(`  ✓ ${user.name}`);
+        console.log(`  ✓ ${user.name} (${userData.email})`);
     }
 
     // 2. CREATE ZONES
@@ -660,6 +668,78 @@ async function main() {
         }
     }
     console.log(`  ✓ Created ${metricCount} compliance metrics`);
+
+    // 17. CREATE APPROVAL REQUESTS (for Document Movement)
+    console.log('\n📝 Creating approval requests...');
+    const approvalUserList = Object.values(users);
+    const approvalDocList = Object.values(documents);
+    const approvalZoneList = Object.values(zones);
+
+    const approvalJustifications = [
+        'Diperlukan untuk rapat koordinasi tingkat tinggi dengan Menteri.',
+        'Proses digitalisasi dan pemindaian dokumen untuk arsip digital.',
+        'Pengkajian oleh tim audit internal sebagai bagian dari audit tahunan.',
+        'Presentasi kepada delegasi asing terkait kerjasama bilateral.',
+        'Review oleh Inspektorat untuk pemeriksaan kepatuhan.',
+        'Diperlukan untuk sidang kabinet terbatas.',
+        'Penyusunan laporan tahunan ke DPR RI.',
+        'Konsultasi dengan konsultan hukum eksternal.',
+        'Persiapan pameran arsip nasional.',
+        'Backup dan recovery testing oleh tim IT.',
+    ];
+
+    const approvalSubjects = [
+        'Pemindahan ke Ruang Rapat VIP',
+        'Akses untuk Digitalisasi',
+        'Transfer ke Ruang Audit',
+        'Presentasi Bilateral',
+        'Review Inspektorat',
+        'Sidang Kabinet',
+        'Ruang Penyusunan Laporan',
+        'Konsultasi Hukum',
+        'Pameran Arsip',
+        'IT Testing Area',
+    ];
+
+    let approvalCount = 0;
+    for (let i = 0; i < 10; i++) {
+        const requester = approvalUserList[i % approvalUserList.length];
+        const doc = approvalDocList[i % approvalDocList.length];
+        const fromZone = approvalZoneList[i % approvalZoneList.length];
+        const toZone = approvalZoneList[(i + 1) % approvalZoneList.length];
+        const isUrgent = i < 3;
+        const status = i < 7 ? 'PENDING' : (i < 9 ? 'APPROVED' : 'REJECTED');
+
+        const metadata = {
+            documentId: doc.id,
+            documentTitle: doc.title,
+            rfidTag: doc.rfidTag,
+            classification: doc.classification,
+            fromZoneId: fromZone.id,
+            fromZoneName: fromZone.name,
+            toZoneId: toZone.id,
+            toZoneName: toZone.name,
+        };
+
+        await prisma.approvalRequest.create({
+            data: {
+                requestNumber: `REQ-2026-${String(i + 1).padStart(3, '0')}`,
+                type: 'DOCUMENT_MOVEMENT',
+                subject: approvalSubjects[i],
+                description: approvalJustifications[i],
+                priority: isUrgent ? 'URGENT' : 'NORMAL',
+                status: status,
+                requesterId: requester.id,
+                approvedById: status !== 'PENDING' ? approvalUserList[0].id : null,
+                approvedAt: status !== 'PENDING' ? new Date() : null,
+                notes: status === 'REJECTED' ? 'Tidak memenuhi persyaratan keamanan.' : null,
+                metadata: JSON.stringify(metadata),
+                createdAt: randomDate(7),
+            },
+        });
+        approvalCount++;
+    }
+    console.log(`  ✓ Created ${approvalCount} approval requests (7 pending)`);
 
     // SUMMARY
     console.log('\n' + '='.repeat(60));

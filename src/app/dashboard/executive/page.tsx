@@ -16,6 +16,8 @@ interface DashboardStats {
     violations: { thisMonth: number };
     riskPosture: { overallScore: number; documentRisk: number; digitalRisk: number; complianceRisk: number };
     kpis: { mttd: number; complianceRate: number; anomalyAccuracy: number };
+    riskyUsers: Array<{ id: string; name: string; department: string; riskScore: number; anomalies: number }>;
+    vulnerableZones: Array<{ id: string; name: string; attempts: number; riskLevel: string }>;
 }
 
 interface Alert {
@@ -178,6 +180,49 @@ export default function ExecutiveDashboard() {
                             <Link href="/alerts" className={styles.viewAllLink}>
                                 <Button variant="secondary" size="sm">Lihat Semua Alert →</Button>
                             </Link>
+                        </div>
+                    </Card>
+                </section>
+
+                {/* AI Insights Matrix */}
+                <section className={styles.insightsSection}>
+                    <Card header="AI Insights: Top Risky Users">
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Dept</th>
+                                    <th>Risk Score</th>
+                                    <th>Anomalies</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {stats?.riskyUsers?.map((user: any) => (
+                                    <tr key={user.id}>
+                                        <td>{user.name}</td>
+                                        <td>{user.department}</td>
+                                        <td>
+                                            <div className={styles.riskBadge} style={{ backgroundColor: user.riskScore > 80 ? 'rgba(239, 68, 68, 0.2)' : 'rgba(234, 179, 8, 0.2)', color: user.riskScore > 80 ? '#ef4444' : '#eab308' }}>
+                                                {user.riskScore}
+                                            </div>
+                                        </td>
+                                        <td>{user.anomalies}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </Card>
+                    <Card header="Vulnerable Zones Heatmap">
+                        <div className={styles.zoneList}>
+                            {stats?.vulnerableZones?.map((zone: any) => (
+                                <div key={zone.id} className={styles.zoneItem}>
+                                    <div className={styles.zoneInfo}>
+                                        <span className={styles.zoneName}>{zone.name}</span>
+                                        <span className={styles.zoneAttempts}>{zone.attempts} unauthorized attempts</span>
+                                    </div>
+                                    <StatusBadge status={zone.riskLevel === 'HIGH' ? 'critical' : zone.riskLevel === 'MEDIUM' ? 'warning' : 'normal'} label={zone.riskLevel} size="sm" />
+                                </div>
+                            ))}
                         </div>
                     </Card>
                 </section>

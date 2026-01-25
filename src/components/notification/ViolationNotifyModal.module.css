@@ -1,0 +1,235 @@
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 1rem;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.modal {
+    background: linear-gradient(180deg, #1a1f2e 0%, #0f1219 100%);
+    border: 2px solid #dc2626;
+    border-radius: 12px;
+    max-width: 520px;
+    width: 100%;
+    box-shadow:
+        0 0 60px rgba(220, 38, 38, 0.3),
+        0 20px 40px rgba(0, 0, 0, 0.5);
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-radius: 10px 10px 0 0;
+}
+
+.warningIcon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+}
+
+.warningIcon svg {
+    width: 100%;
+    height: 100%;
+    stroke: #fff;
+}
+
+.header h2 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+/* Body */
+.body {
+    padding: 1.5rem;
+}
+
+.mainMessage {
+    font-size: 0.95rem;
+    color: #e5e7eb;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.detailsGrid {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.detailRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detailRow:last-child {
+    border-bottom: none;
+}
+
+.detailLabel {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    width: 80px;
+}
+
+.detailValue {
+    font-size: 0.875rem;
+    color: #f3f4f6;
+    text-align: right;
+    word-break: break-all;
+}
+
+.urlValue {
+    font-family: 'Consolas', 'Monaco', monospace;
+    color: #fbbf24;
+    font-size: 0.8rem;
+    max-width: 320px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.severityBadge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.5px;
+}
+
+.actionBadge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    background: rgba(220, 38, 38, 0.2);
+    border: 1px solid #dc2626;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fca5a5;
+}
+
+/* Help Section */
+.helpSection {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.helpSection>p {
+    font-size: 0.8rem;
+    color: #93c5fd;
+    margin-bottom: 0.75rem;
+}
+
+.helpContacts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.helpItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: #e5e7eb;
+}
+
+.helpIcon {
+    font-size: 1rem;
+}
+
+/* Footer */
+.footer {
+    padding: 1rem 1.5rem 1.25rem;
+    display: flex;
+    justify-content: center;
+}
+
+.acknowledgeBtn {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #fff;
+    border: none;
+    padding: 0.875rem 2.5rem;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.acknowledgeBtn:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(59, 130, 246, 0.5);
+}
+
+.acknowledgeBtn:active {
+    transform: translateY(0);
+}
+
+/* Government Badge */
+.govBadge {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.75rem 1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.7rem;
+    color: #6b7280;
+    border-radius: 0 0 10px 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

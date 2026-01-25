@@ -1,8 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layouts';
 import { Button } from '@/components/ui';
+import { ProtocolModal } from '@/components/security';
 import styles from './page.module.css';
 
 interface Alert {
@@ -46,6 +48,7 @@ const alertTypeLabels: Record<string, string> = {
 };
 
 export default function NSOCTacticalTerminal() {
+    const router = useRouter();
     const [alerts, setAlerts] = useState<Alert[]>([]);
     const [readers, setReaders] = useState<RFIDReader[]>([]);
     const [loading, setLoading] = useState(true);
@@ -417,14 +420,14 @@ export default function NSOCTacticalTerminal() {
                 <footer className={styles.commandStrip}>
                     <div className={styles.commandTitle}>MISSION CONTROL</div>
                     <div className={styles.commandActions}>
-                        <button className={styles.commandBtn}>
+                        <button className={styles.commandBtn} onClick={() => router.push('/documents')}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <circle cx="11" cy="11" r="8" />
                                 <line x1="21" y1="21" x2="16.65" y2="16.65" />
                             </svg>
                             <span>Search Document</span>
                         </button>
-                        <button className={styles.commandBtn}>
+                        <button className={styles.commandBtn} onClick={() => router.push('/zones')}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
                                 <line x1="3" y1="9" x2="21" y2="9" />
@@ -432,7 +435,7 @@ export default function NSOCTacticalTerminal() {
                             </svg>
                             <span>Zone Map</span>
                         </button>
-                        <button className={styles.commandBtn}>
+                        <button className={styles.commandBtn} onClick={() => router.push('/policies')}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                             </svg>
@@ -445,7 +448,7 @@ export default function NSOCTacticalTerminal() {
                             </svg>
                             <span>Zone Lockdown</span>
                         </button>
-                        <button className={styles.commandBtn}>
+                        <button className={styles.commandBtn} onClick={() => router.push('/reports')}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                 <polyline points="7 10 12 15 17 10" />
@@ -458,49 +461,10 @@ export default function NSOCTacticalTerminal() {
 
                 {/* Protocol Modal */}
                 {showProtocolModal && (
-                    <div className={styles.modalOverlay}>
-                        <div className={styles.protocolModal}>
-                            <div className={styles.modalHeader}>
-                                <h2>Initiate Security Protocol</h2>
-                                <button className={styles.closeBtn} onClick={() => setShowProtocolModal(false)}>
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                        <line x1="18" y1="6" x2="6" y2="18" />
-                                        <line x1="6" y1="6" x2="18" y2="18" />
-                                    </svg>
-                                </button>
-                            </div>
-                            <div className={styles.modalBody}>
-                                <p className={styles.modalWarning}>
-                                    ⚠️ This action will trigger automated enforcement protocols.
-                                </p>
-                                <div className={styles.protocolOptions}>
-                                    <button className={styles.protocolBtn}>
-                                        <span className={styles.protocolIcon}>🔒</span>
-                                        <span className={styles.protocolName}>Device Isolation</span>
-                                        <span className={styles.protocolDesc}>Disable RFID tag temporarily</span>
-                                    </button>
-                                    <button className={styles.protocolBtn}>
-                                        <span className={styles.protocolIcon}>🚫</span>
-                                        <span className={styles.protocolName}>Zone Lockdown</span>
-                                        <span className={styles.protocolDesc}>Lock all entry points to zone</span>
-                                    </button>
-                                    <button className={styles.protocolBtn}>
-                                        <span className={styles.protocolIcon}>📧</span>
-                                        <span className={styles.protocolName}>Alert Security Team</span>
-                                        <span className={styles.protocolDesc}>Send immediate notification</span>
-                                    </button>
-                                </div>
-                            </div>
-                            <div className={styles.modalFooter}>
-                                <Button variant="secondary" onClick={() => setShowProtocolModal(false)}>
-                                    Cancel
-                                </Button>
-                                <Button variant="primary">
-                                    Execute Protocol
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
+                    <ProtocolModal
+                        onClose={() => setShowProtocolModal(false)}
+                        selectedAlert={selectedAlert ? alerts.find(a => a.id === selectedAlert) : null}
+                    />
                 )}
             </div>
         </DashboardLayout>

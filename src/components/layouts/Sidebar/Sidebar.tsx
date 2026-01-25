@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './Sidebar.module.css';
@@ -9,7 +9,7 @@ interface NavItem {
     label: string;
     href: string;
     icon: React.ReactNode;
-    badge?: number;
+    badgeKey?: string; // Optional key for dynamic badge
 }
 
 interface NavGroup {
@@ -17,7 +17,8 @@ interface NavGroup {
     items: NavItem[];
 }
 
-const navigation: NavGroup[] = [
+// Static navigation structure - badges will be overlayed dynamically
+const navigationConfig: NavGroup[] = [
     {
         title: 'Dashboards',
         items: [
@@ -68,16 +69,6 @@ const navigation: NavGroup[] = [
                 ),
             },
             {
-                label: 'Movement Timeline',
-                href: '/documents/timeline',
-                icon: (
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <circle cx="12" cy="12" r="10" />
-                        <polyline points="12 6 12 12 16 14" />
-                    </svg>
-                ),
-            },
-            {
                 label: 'Zone Management',
                 href: '/zones',
                 icon: (
@@ -99,7 +90,7 @@ const navigation: NavGroup[] = [
                         <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
                     </svg>
                 ),
-                badge: 2,
+                badgeKey: 'approvals',
             },
         ],
     },
@@ -135,6 +126,17 @@ const navigation: NavGroup[] = [
                         <circle cx="12" cy="12" r="10" />
                         <line x1="15" y1="9" x2="9" y2="15" />
                         <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                ),
+            },
+            {
+                label: 'Device Inventory',
+                href: '/devices',
+                icon: (
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                        <line x1="8" y1="21" x2="16" y2="21" />
+                        <line x1="12" y1="17" x2="12" y2="21" />
                     </svg>
                 ),
             },
@@ -184,6 +186,24 @@ const navigation: NavGroup[] = [
 
 export function Sidebar() {
     const pathname = usePathname();
+    const [badges, setBadges] = useState<Record<string, number>>({});
+
+    useEffect(() => {
+        const fetchBadges = async () => {
+            try {
+                const res = await fetch('/api/approvals?status=PENDING&limit=100');
+                const json = await res.json();
+                if (json.success) {
+                    setBadges(prev => ({ ...prev, approvals: json.data?.length || 0 }));
+                }
+            } catch (e) {
+                console.error('Failed to fetch badge counts', e);
+            }
+        };
+        fetchBadges();
+        const interval = setInterval(fetchBadges, 30000); // Refresh every 30s
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <aside className={styles.sidebar}>
@@ -209,12 +229,13 @@ export function Sidebar() {
 
             {/* Navigation */}
             <nav className={styles.nav}>
-                {navigation.map((group, groupIdx) => (
+                {navigationConfig.map((group: NavGroup, groupIdx: number) => (
                     <div key={groupIdx} className={styles.navGroup}>
                         <div className={styles.navGroupTitle}>{group.title}</div>
                         <ul className={styles.navList}>
-                            {group.items.map((item, itemIdx) => {
+                            {group.items.map((item: NavItem, itemIdx: number) => {
                                 const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                                const badgeValue = item.badgeKey ? badges[item.badgeKey] : undefined;
                                 return (
                                     <li key={itemIdx}>
                                         <Link
@@ -223,8 +244,8 @@ export function Sidebar() {
                                         >
                                             <span className={styles.navIcon}>{item.icon}</span>
                                             <span className={styles.navLabel}>{item.label}</span>
-                                            {item.badge !== undefined && (
-                                                <span className={styles.navBadge}>{item.badge}</span>
+                                            {badgeValue !== undefined && badgeValue > 0 && (
+                                                <span className={styles.navBadge}>{badgeValue}</span>
                                             )}
                                         </Link>
                                     </li>

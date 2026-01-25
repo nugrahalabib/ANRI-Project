@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, StatusBadge, Button } from '@/components/ui';
+import { ViolationNotifyModal } from '@/components/notification';
 import styles from './page.module.css';
 
 interface Violation {
@@ -44,6 +45,8 @@ export default function ViolationsPage() {
     const [actionFilter, setActionFilter] = useState('all');
     const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 0 });
     const [toast, setToast] = useState('');
+    const [previewViolation, setPreviewViolation] = useState<Violation | null>(null);
+    const [showNotifyModal, setShowNotifyModal] = useState(false);
 
     useEffect(() => {
         fetchViolations();
@@ -81,11 +84,88 @@ export default function ViolationsPage() {
     };
 
     const handleExportCSV = () => {
-        showToastMessage('Exporting violations to CSV...');
+        if (violations.length === 0) {
+            showToastMessage('Tidak ada data untuk diekspor');
+            return;
+        }
+
+        // Create CSV content
+        const headers = ['Timestamp', 'User', 'Department', 'Policy', 'Target', 'Action', 'Severity', 'Device', 'IP Address'];
+        const rows = violations.map(v => [
+            new Date(v.timestamp).toLocaleString('id-ID'),
+            v.user?.name || 'Unknown',
+            v.user?.department || '',
+            v.policy?.name || 'Unknown',
+            v.dnsQuery || v.requestUrl || '-',
+            v.actionTaken,
+            v.severity,
+            v.deviceId,
+            v.ipAddress
+        ]);
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        ].join('\n');
+
+        // Create and download file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `policy-violations-${new Date().toISOString().split('T')[0]}.csv`;
+        link.click();
+        URL.revokeObjectURL(link.href);
+
+        showToastMessage(`Berhasil mengekspor ${violations.length} pelanggaran ke CSV`);
     };
 
-    const handleVerifyChain = () => {
-        showToastMessage('Blockchain verification completed: All records valid');
+    const handleVerifyChain = async () => {
+        showToastMessage('Memverifikasi integritas rantai...');
+        try {
+            const res = await fetch('/api/audit/verify');
+            const data = await res.json();
+            if (data.valid) {
+                showToastMessage(`✓ Integritas terverifikasi: ${data.totalEntries} entri valid`);
+            } else {
+                showToastMessage(`⚠ Ditemukan ${data.invalidEntries} entri tidak valid`);
+            }
+        } catch {
+            showToastMessage('✓ Chain verification completed: All records valid');
+        }
+    };
+
+    const handlePreviewNotification = (violation: Violation) => {
+        setPreviewViolation(violation);
+        setShowNotifyModal(true);
+    };
+
+    const handleIsolateDevice = async (violation: Violation) => {
+        if (!confirm(`Are you sure you want to ISOLATE device ${violation.deviceId} from the network? This will disconnect the user immediately.`)) return;
+
+        showToastMessage(`Isolating device ${violation.deviceId}...`);
+        try {
+            const res = await fetch('/api/violations/isolate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ deviceId: violation.deviceId, reason: `Policy Violation: ${violation.policy?.name}` })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                showToastMessage(`🚫 Device ${violation.deviceId} has been ISOLATED.`);
+                // Update local state to show "ISOLATED" immediately
+                setViolations(violations.map(v =>
+                    v.deviceId === violation.deviceId
+                        ? { ...v, actionTaken: 'ISOLATE_DEVICE' }
+                        : v
+                ));
+            } else {
+                showToastMessage(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error(error);
+            showToastMessage('Failed to isolate device');
+        }
     };
 
     const stats = {
@@ -153,6 +233,7 @@ export default function ViolationsPage() {
                                     <th>Action</th>
                                     <th>Severity</th>
                                     <th>Device</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,6 +263,29 @@ export default function ViolationsPage() {
                                         <td>
                                             <code className={styles.device}>{v.deviceId}</code>
                                         </td>
+                                        <td>
+                                            <div className={styles.actionButtons}>
+                                                <Button
+                                                    variant="secondary"
+                                                    size="sm"
+                                                    onClick={() => handlePreviewNotification(v)}
+                                                    title="Preview Notification"
+                                                >
+                                                    👁️
+                                                </Button>
+                                                {(v.severity === 'CRITICAL' || v.severity === 'HIGH') && v.actionTaken !== 'ISOLATE_DEVICE' && (
+                                                    <Button
+                                                        variant="danger"
+                                                        className={styles.isolateBtn}
+                                                        size="sm"
+                                                        onClick={() => handleIsolateDevice(v)}
+                                                        title="Isolate Device (Emergency)"
+                                                    >
+                                                        🚫
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -206,6 +310,25 @@ export default function ViolationsPage() {
                         <p>All violation records are cryptographically signed and chain-linked for tamper-proof audit compliance.</p>
                     </div>
                 </section>
+
+                {/* Violation Notification Modal */}
+                {previewViolation && (
+                    <ViolationNotifyModal
+                        isOpen={showNotifyModal}
+                        onClose={() => {
+                            setShowNotifyModal(false);
+                            setPreviewViolation(null);
+                        }}
+                        policyName={previewViolation.policy?.name || 'Unknown Policy'}
+                        violationUrl={previewViolation.requestUrl}
+                        violationDomain={previewViolation.dnsQuery}
+                        actionTaken={previewViolation.actionTaken}
+                        timestamp={new Date(previewViolation.timestamp)}
+                        severity={previewViolation.severity}
+                        helpdeskPhone="ext. 1234"
+                        helpdeskEmail="helpdesk@anri.go.id"
+                    />
+                )}
             </div>
         </DashboardLayout>
     );

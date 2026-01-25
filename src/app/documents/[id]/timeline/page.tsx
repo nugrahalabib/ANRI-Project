@@ -2,328 +2,302 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, StatusBadge, Button } from '@/components/ui';
-import { TimelineChart } from '@/components/charts';
 import styles from './page.module.css';
 
-// Demo data structure
-interface TimelineEntry {
+interface Movement {
     id: string;
-    timestamp: Date;
-    fromZone: { id: string; name: string } | null;
-    toZone: { id: string; name: string };
-    reader: { name: string; readerId: string };
+    timestamp: string;
+    fromZone: { id: string; name: string; code: string } | null;
+    toZone: { id: string; name: string; code: string } | null;
+    reader: { id: string; name: string; type: string } | null;
     isAuthorized: boolean;
     riskScore: number;
-    anomaly: {
-        id: string;
-        alertType: string;
-        severity: string;
-        riskScore: number;
-        explanation: string;
-        status: string;
-    } | null;
 }
 
-// Demo data
-const demoDocument = {
-    id: '1',
-    rfidTag: 'ANRI-X8K9M2',
-    title: 'Arsip Rahasia Kepegawaian 2024-001',
-    classification: 'SECRET',
-    currentZone: { id: 'z1', name: 'Ruang Arsip Rahasia' },
-    baseline: {
-        normalHoursStart: 8,
-        normalHoursEnd: 17,
-        typicalMovementFreq: 2.5,
-        confidenceScore: 0.85,
-    },
+interface DocumentData {
+    id: string;
+    rfidTag: string;
+    title: string;
+    classification: 'PUBLIC' | 'RESTRICTED' | 'SECRET';
+    organizationUnit: string;
+    currentZone: { id: string; name: string; code: string } | null;
+}
+
+interface Alert {
+    id: string;
+    alertType: string;
+    severity: string;
+    explanation: string;
+    createdAt: string;
+}
+
+const classificationColors: Record<string, 'normal' | 'warning' | 'critical'> = {
+    PUBLIC: 'normal',
+    RESTRICTED: 'warning',
+    SECRET: 'critical',
 };
 
-const demoTimeline: TimelineEntry[] = [
-    {
-        id: 't1',
-        timestamp: new Date(Date.now() - 10 * 60000),
-        fromZone: { id: 'z1', name: 'Ruang Arsip Rahasia' },
-        toZone: { id: 'z8', name: 'Lobby Utama' },
-        reader: { name: 'Portal Utama A', readerId: 'RDR-1001' },
-        isAuthorized: false,
-        riskScore: 0.85,
-        anomaly: {
-            id: 'a1',
-            alertType: 'UNAUTHORIZED_ZONE',
-            severity: 'CRITICAL',
-            riskScore: 0.85,
-            explanation: 'Dokumen RAHASIA terdeteksi di zona publik tanpa otorisasi.',
-            status: 'OPEN',
-        },
-    },
-    {
-        id: 't2',
-        timestamp: new Date(Date.now() - 2 * 3600000),
-        fromZone: { id: 'z4', name: 'Kantor Kearsipan' },
-        toZone: { id: 'z1', name: 'Ruang Arsip Rahasia' },
-        reader: { name: 'Fixed Reader B1', readerId: 'RDR-1002' },
-        isAuthorized: true,
-        riskScore: 0.12,
-        anomaly: null,
-    },
-    {
-        id: 't3',
-        timestamp: new Date(Date.now() - 5 * 3600000),
-        fromZone: { id: 'z1', name: 'Ruang Arsip Rahasia' },
-        toZone: { id: 'z4', name: 'Kantor Kearsipan' },
-        reader: { name: 'Portal Utama B', readerId: 'RDR-1004' },
-        isAuthorized: true,
-        riskScore: 0.08,
-        anomaly: null,
-    },
-    {
-        id: 't4',
-        timestamp: new Date(Date.now() - 24 * 3600000),
-        fromZone: { id: 'z5', name: 'Ruang Digitalisasi' },
-        toZone: { id: 'z1', name: 'Ruang Arsip Rahasia' },
-        reader: { name: 'Fixed Reader B1', readerId: 'RDR-1002' },
-        isAuthorized: true,
-        riskScore: 0.15,
-        anomaly: null,
-    },
-    {
-        id: 't5',
-        timestamp: new Date(Date.now() - 26 * 3600000),
-        fromZone: { id: 'z1', name: 'Ruang Arsip Rahasia' },
-        toZone: { id: 'z5', name: 'Ruang Digitalisasi' },
-        reader: { name: 'Mobile Reader M1', readerId: 'RDR-1003' },
-        isAuthorized: true,
-        riskScore: 0.22,
-        anomaly: null,
-    },
-    {
-        id: 't6',
-        timestamp: new Date(Date.now() - 48 * 3600000),
-        fromZone: null,
-        toZone: { id: 'z1', name: 'Ruang Arsip Rahasia' },
-        reader: { name: 'Fixed Reader B1', readerId: 'RDR-1002' },
-        isAuthorized: true,
-        riskScore: 0.05,
-        anomaly: null,
-    },
-];
-
-const demoStats = {
-    totalMovements: 6,
-    authorizedMovements: 5,
-    anomalies: 1,
-    avgRiskScore: 0.25,
-};
-
-const alertTypeLabels: Record<string, string> = {
-    UNAUTHORIZED_ZONE: 'Zona Tidak Terotorisasi',
-    AFTER_HOURS_ACCESS: 'Akses Luar Jam Kerja',
-    UNUSUAL_FREQUENCY: 'Frekuensi Tidak Normal',
-    RAPID_MOVEMENT: 'Pergerakan Cepat',
+const icons = {
+    back: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7" /></svg>,
+    location: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" /><circle cx="12" cy="10" r="3" /></svg>,
+    movement: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>,
+    clock: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>,
+    alert: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>,
+    check: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>,
+    warning: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>,
+    file: <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>,
 };
 
 export default function DocumentTimelinePage() {
     const params = useParams();
     const router = useRouter();
-    const [selectedEntry, setSelectedEntry] = useState<string | null>(null);
-    const [playbackPosition, setPlaybackPosition] = useState<number | null>(null);
+    const documentId = params.id as string;
 
-    // Generate chart data from timeline
-    const chartData = demoTimeline.map((entry, index) => ({
-        x: entry.timestamp,
-        y: entry.riskScore * 100,
-    })).reverse();
+    const [document, setDocument] = useState<DocumentData | null>(null);
+    const [movements, setMovements] = useState<Movement[]>([]);
+    const [alerts, setAlerts] = useState<Alert[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
-    const formatTime = (date: Date) => {
-        return date.toLocaleString('id-ID', {
-            day: '2-digit',
-            month: 'short',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
+    useEffect(() => {
+        if (!documentId) return;
+
+        async function fetchData() {
+            try {
+                const res = await fetch(`/api/documents/${documentId}/movements`);
+                const data = await res.json();
+
+                if (data.success) {
+                    setDocument(data.data.document);
+                    setMovements(data.data.movements);
+                    setAlerts(data.data.alerts || []);
+                } else {
+                    setError(data.error || 'Failed to load data');
+                }
+            } catch (err) {
+                console.error('Error fetching timeline:', err);
+                setError('Failed to connect to server');
+            } finally {
+                setLoading(false);
+            }
+        }
+
+        fetchData();
+    }, [documentId]);
+
+    const formatDateTime = (dateStr: string) => {
+        const date = new Date(dateStr);
+        return {
+            date: date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+            time: date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+        };
     };
 
-    const formatDuration = (ms: number) => {
-        const hours = Math.floor(ms / 3600000);
-        const minutes = Math.floor((ms % 3600000) / 60000);
-        if (hours > 24) return `${Math.floor(hours / 24)} hari`;
-        if (hours > 0) return `${hours} jam ${minutes} menit`;
-        return `${minutes} menit`;
+    const getTimeAgo = (dateStr: string) => {
+        const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+        if (diff < 60) return `${diff} menit lalu`;
+        if (diff < 1440) return `${Math.floor(diff / 60)} jam lalu`;
+        return `${Math.floor(diff / 1440)} hari lalu`;
     };
+
+    // Calculate summary
+    const summary = {
+        total: movements.length,
+        unauthorized: movements.filter(m => !m.isAuthorized).length,
+        alerts: alerts.length,
+    };
+
+    if (loading) {
+        return (
+            <DashboardLayout title="Document Timeline" subtitle="Loading...">
+                <div className={styles.container}>
+                    <div className={styles.loading}>Loading document timeline...</div>
+                </div>
+            </DashboardLayout>
+        );
+    }
+
+    if (error || !document) {
+        return (
+            <DashboardLayout title="Document Timeline" subtitle="Error">
+                <div className={styles.container}>
+                    <Card>
+                        <div className={styles.errorState}>
+                            <div className={styles.errorIcon}>{icons.alert}</div>
+                            <h3>Dokumen Tidak Ditemukan</h3>
+                            <p>{error || 'Document ID tidak valid'}</p>
+                            <Button variant="primary" onClick={() => router.push('/documents')}>
+                                Kembali ke Daftar Dokumen
+                            </Button>
+                        </div>
+                    </Card>
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
         <DashboardLayout
-            title="Document Timeline"
-            subtitle={demoDocument.title}
-            actions={
-                <Button variant="secondary" size="sm" onClick={() => router.back()}>
-                    ← Kembali
-                </Button>
-            }
+            title="Document Movement History"
+            subtitle="Riwayat pergerakan fisik dokumen berdasarkan RFID"
         >
             <div className={styles.container}>
-                {/* Document Info Header */}
-                <section className={styles.docHeader}>
-                    <div className={styles.docInfo}>
-                        <div className={styles.rfidBadge}>{demoDocument.rfidTag}</div>
-                        <div className={styles.docMeta}>
-                            <StatusBadge
-                                status={demoDocument.classification === 'SECRET' ? 'critical' : 'warning'}
-                                label={demoDocument.classification}
-                            />
-                            <span className={styles.currentZone}>
-                                📍 {demoDocument.currentZone.name}
-                            </span>
-                        </div>
-                    </div>
-                    <div className={styles.docStats}>
-                        <div className={styles.stat}>
-                            <span className={styles.statValue}>{demoStats.totalMovements}</span>
-                            <span className={styles.statLabel}>Total Movements</span>
-                        </div>
-                        <div className={styles.stat}>
-                            <span className={styles.statValue}>{demoStats.anomalies}</span>
-                            <span className={styles.statLabel}>Anomalies</span>
-                        </div>
-                        <div className={styles.stat}>
-                            <span className={styles.statValue}>{Math.round(demoStats.avgRiskScore * 100)}%</span>
-                            <span className={styles.statLabel}>Avg Risk</span>
-                        </div>
-                    </div>
-                </section>
+                {/* Back Button */}
+                <button className={styles.backBtn} onClick={() => router.push('/documents')}>
+                    {icons.back}
+                    <span>Kembali ke Documents</span>
+                </button>
 
-                {/* Risk Chart */}
-                <Card header="Risk Score Over Time">
-                    <TimelineChart
-                        data={chartData}
-                        color={demoStats.avgRiskScore > 0.5 ? '#ef4444' : '#3d7ab8'}
-                        height={200}
-                        yAxisLabel="Risk %"
-                    />
-                </Card>
-
-                {/* Timeline */}
-                <Card header="Movement Timeline">
-                    <div className={styles.timeline}>
-                        {demoTimeline.map((entry, index) => (
-                            <div
-                                key={entry.id}
-                                className={`${styles.timelineEntry} ${entry.anomaly ? styles.anomaly : ''} ${selectedEntry === entry.id ? styles.selected : ''}`}
-                                onClick={() => setSelectedEntry(selectedEntry === entry.id ? null : entry.id)}
-                            >
-                                <div className={styles.timelineMarker}>
-                                    <div className={`${styles.markerDot} ${entry.anomaly ? styles.alert : ''}`} />
-                                    {index < demoTimeline.length - 1 && (
-                                        <div className={styles.markerLine}>
-                                            <span className={styles.duration}>
-                                                {formatDuration(demoTimeline[index].timestamp.getTime() - demoTimeline[index + 1].timestamp.getTime())}
-                                            </span>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className={styles.entryContent}>
-                                    <div className={styles.entryHeader}>
-                                        <span className={styles.entryTime}>{formatTime(entry.timestamp)}</span>
-                                        {entry.anomaly && (
-                                            <StatusBadge
-                                                status={entry.anomaly.severity.toLowerCase() as any}
-                                                label={alertTypeLabels[entry.anomaly.alertType] || entry.anomaly.alertType}
-                                                size="sm"
-                                                animate
-                                            />
-                                        )}
-                                    </div>
-
-                                    <div className={styles.movement}>
-                                        <div className={styles.zone}>
-                                            <span className={styles.zoneLabel}>Dari</span>
-                                            <span className={styles.zoneName}>{entry.fromZone?.name || 'Titik Awal'}</span>
-                                        </div>
-                                        <div className={styles.arrow}>
-                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                                <line x1="5" y1="12" x2="19" y2="12" />
-                                                <polyline points="12 5 19 12 12 19" />
-                                            </svg>
-                                        </div>
-                                        <div className={styles.zone}>
-                                            <span className={styles.zoneLabel}>Ke</span>
-                                            <span className={styles.zoneName}>{entry.toZone.name}</span>
-                                        </div>
-                                    </div>
-
-                                    <div className={styles.entryMeta}>
-                                        <span className={styles.reader}>
-                                            📡 {entry.reader.name} ({entry.reader.readerId})
-                                        </span>
-                                        <div className={styles.riskIndicator}>
-                                            <span>Risk:</span>
-                                            <div className={styles.riskBar}>
-                                                <div
-                                                    className={styles.riskFill}
-                                                    style={{
-                                                        width: `${entry.riskScore * 100}%`,
-                                                        background: entry.riskScore > 0.7 ? 'var(--status-critical)' :
-                                                            entry.riskScore > 0.4 ? 'var(--status-warning)' : 'var(--status-normal)'
-                                                    }}
-                                                />
-                                            </div>
-                                            <span>{Math.round(entry.riskScore * 100)}%</span>
-                                        </div>
-                                    </div>
-
-                                    {/* Expanded Details */}
-                                    {selectedEntry === entry.id && entry.anomaly && (
-                                        <div className={styles.expandedDetails}>
-                                            <div className={styles.aiExplanation}>
-                                                <strong>🤖 AI Explanation:</strong>
-                                                <p>{entry.anomaly.explanation}</p>
-                                            </div>
-                                            <div className={styles.expandedActions}>
-                                                <Button size="sm" variant="primary">Investigate</Button>
-                                                <Button size="sm" variant="secondary">Mark Resolved</Button>
-                                                <Button size="sm" variant="ghost">False Positive</Button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                {/* Document Info Card */}
+                <Card className={styles.docCard}>
+                    <div className={styles.docCardInner}>
+                        <div className={styles.docIcon}>{icons.file}</div>
+                        <div className={styles.docDetails}>
+                            <div className={styles.docHeader}>
+                                <h1>{document.title}</h1>
+                                <StatusBadge
+                                    status={classificationColors[document.classification]}
+                                    label={document.classification}
+                                />
                             </div>
-                        ))}
+                            <div className={styles.docMeta}>
+                                <span className={styles.rfidTag}>{document.rfidTag}</span>
+                                <span className={styles.separator}>•</span>
+                                <span>{document.organizationUnit}</span>
+                            </div>
+                        </div>
+                        <div className={styles.currentLocation}>
+                            <span className={styles.locationLabel}>Lokasi Saat Ini</span>
+                            <div className={styles.locationValue}>
+                                <span className={styles.locationIcon}>{icons.location}</span>
+                                <span>{document.currentZone?.name || 'Unknown'}</span>
+                            </div>
+                        </div>
                     </div>
                 </Card>
 
-                {/* Baseline Info */}
-                <Card header="AI Behavioral Profile">
-                    <div className={styles.baselineGrid}>
-                        <div className={styles.baselineItem}>
-                            <span className={styles.baselineLabel}>Normal Operating Hours</span>
-                            <span className={styles.baselineValue}>
-                                {demoDocument.baseline.normalHoursStart}:00 - {demoDocument.baseline.normalHoursEnd}:00 WIB
-                            </span>
-                        </div>
-                        <div className={styles.baselineItem}>
-                            <span className={styles.baselineLabel}>Typical Movement Frequency</span>
-                            <span className={styles.baselineValue}>
-                                {demoDocument.baseline.typicalMovementFreq.toFixed(1)} movements/day
-                            </span>
-                        </div>
-                        <div className={styles.baselineItem}>
-                            <span className={styles.baselineLabel}>Model Confidence</span>
-                            <span className={styles.baselineValue}>
-                                {Math.round(demoDocument.baseline.confidenceScore * 100)}%
-                            </span>
-                        </div>
-                        <div className={styles.baselineItem}>
-                            <span className={styles.baselineLabel}>Anomaly Rate</span>
-                            <span className={styles.baselineValue}>
-                                {Math.round((demoStats.anomalies / demoStats.totalMovements) * 100)}%
-                            </span>
+                {/* Summary Stats */}
+                <div className={styles.summaryRow}>
+                    <div className={styles.summaryCard}>
+                        <div className={styles.summaryIcon}>{icons.movement}</div>
+                        <div className={styles.summaryContent}>
+                            <span className={styles.summaryValue}>{summary.total}</span>
+                            <span className={styles.summaryLabel}>Total Pergerakan</span>
                         </div>
                     </div>
-                </Card>
+                    <div className={`${styles.summaryCard} ${summary.unauthorized > 0 ? styles.warning : ''}`}>
+                        <div className={styles.summaryIcon}>{icons.warning}</div>
+                        <div className={styles.summaryContent}>
+                            <span className={styles.summaryValue}>{summary.unauthorized}</span>
+                            <span className={styles.summaryLabel}>Tidak Terotorisasi</span>
+                        </div>
+                    </div>
+                    <div className={`${styles.summaryCard} ${summary.alerts > 0 ? styles.danger : ''}`}>
+                        <div className={styles.summaryIcon}>{icons.alert}</div>
+                        <div className={styles.summaryContent}>
+                            <span className={styles.summaryValue}>{summary.alerts}</span>
+                            <span className={styles.summaryLabel}>Alert Tercatat</span>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Main Content Grid */}
+                <div className={styles.mainGrid}>
+                    {/* Timeline */}
+                    <section className={styles.timelineSection}>
+                        <h2 className={styles.sectionTitle}>Riwayat Pergerakan</h2>
+
+                        {movements.length === 0 ? (
+                            <Card className={styles.emptyCard}>
+                                <div className={styles.emptyState}>
+                                    <div className={styles.emptyIcon}>{icons.clock}</div>
+                                    <h3>Belum Ada Pergerakan</h3>
+                                    <p>Dokumen ini belum memiliki riwayat pergerakan yang tercatat.</p>
+                                </div>
+                            </Card>
+                        ) : (
+                            <div className={styles.timeline}>
+                                {movements.map((movement, idx) => {
+                                    const { date, time } = formatDateTime(movement.timestamp);
+                                    const isUnauthorized = !movement.isAuthorized;
+
+                                    return (
+                                        <div key={movement.id} className={styles.timelineItem}>
+                                            {/* Timeline Line */}
+                                            <div className={styles.timelineLine}>
+                                                <div className={`${styles.dot} ${isUnauthorized ? styles.alertDot : ''}`}>
+                                                    {isUnauthorized ? icons.warning : icons.check}
+                                                </div>
+                                                {idx < movements.length - 1 && <div className={styles.connector} />}
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className={`${styles.timelineCard} ${isUnauthorized ? styles.alertCard : ''}`}>
+                                                <div className={styles.timelineCardHeader}>
+                                                    <div className={styles.movementRoute}>
+                                                        <span className={styles.zoneName}>{movement.fromZone?.name || 'Unknown'}</span>
+                                                        <span className={styles.arrow}>→</span>
+                                                        <span className={styles.zoneName}>{movement.toZone?.name || 'Unknown'}</span>
+                                                    </div>
+                                                    {isUnauthorized && (
+                                                        <span className={styles.alertBadge}>Tidak Terotorisasi</span>
+                                                    )}
+                                                </div>
+                                                <div className={styles.timelineCardBody}>
+                                                    <div className={styles.timeInfo}>
+                                                        <span className={styles.date}>{date}</span>
+                                                        <span className={styles.time}>{time}</span>
+                                                        <span className={styles.ago}>({getTimeAgo(movement.timestamp)})</span>
+                                                    </div>
+                                                    <div className={styles.readerInfo}>
+                                                        Reader: <strong>{movement.reader?.name || 'Unknown'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </section>
+
+                    {/* Alerts Sidebar */}
+                    <aside className={styles.alertsSidebar}>
+                        <h2 className={styles.sectionTitle}>Alert Log</h2>
+
+                        {alerts.length === 0 ? (
+                            <Card className={styles.noAlerts}>
+                                <div className={styles.noAlertsContent}>
+                                    <div className={styles.checkIcon}>{icons.check}</div>
+                                    <p>Tidak ada alert untuk dokumen ini</p>
+                                </div>
+                            </Card>
+                        ) : (
+                            <div className={styles.alertsList}>
+                                {alerts.map(alert => {
+                                    const { date, time } = formatDateTime(alert.createdAt);
+                                    return (
+                                        <Card key={alert.id} className={styles.alertItem}>
+                                            <div className={styles.alertItemHeader}>
+                                                <span className={`${styles.severityBadge} ${styles[alert.severity.toLowerCase()]}`}>
+                                                    {alert.severity}
+                                                </span>
+                                                <span className={styles.alertDate}>{date} {time}</span>
+                                            </div>
+                                            <div className={styles.alertType}>
+                                                {alert.alertType.replace(/_/g, ' ')}
+                                            </div>
+                                            <p className={styles.alertDesc}>{alert.explanation}</p>
+                                        </Card>
+                                    );
+                                })}
+                            </div>
+                        )}
+                    </aside>
+                </div>
             </div>
         </DashboardLayout>
     );

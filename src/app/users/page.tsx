@@ -43,6 +43,11 @@ export default function UsersPage() {
     const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
     const [toast, setToast] = useState('');
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [formData, setFormData] = useState({ name: '', email: '', role: 'VIEWER', department: '', password: '' });
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
     useEffect(() => {
         fetchUsers();
     }, [roleFilter, departmentFilter, search]);
@@ -71,23 +76,93 @@ export default function UsersPage() {
         setTimeout(() => setToast(''), 3000);
     };
 
+    const handleCreateClick = () => {
+        setEditingUser(null);
+        setFormData({ name: '', email: '', role: 'VIEWER', department: '', password: '' });
+        setIsModalOpen(true);
+    };
+
+    const handleEditClick = (user: User) => {
+        setEditingUser(user);
+        setFormData({
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            department: user.department,
+            password: '' // Don't fill password
+        });
+        setIsModalOpen(true);
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        try {
+            const url = '/api/users';
+            const method = editingUser ? 'PATCH' : 'POST';
+            const body = editingUser
+                ? { ...formData, id: editingUser.id, password: formData.password || undefined }
+                : formData;
+
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            const json = await res.json();
+            if (json.success) {
+                showToastMessage(editingUser ? 'User updated successfully' : 'User created successfully');
+                setIsModalOpen(false);
+                fetchUsers();
+            } else {
+                alert(json.error || 'Operation failed');
+            }
+        } catch (error) {
+            console.error('Submit error:', error);
+            alert('System error occurred');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const handleDelete = async (userId: string) => {
+        if (!confirm('Are you sure you want to deactivate this user?')) return;
+        try {
+            const res = await fetch(`/api/users?id=${userId}`, { method: 'DELETE' });
+            if (res.ok) {
+                showToastMessage('User deactivated');
+                fetchUsers();
+            }
+        } catch (error) {
+            console.error('Delete error:', error);
+        }
+    };
+
     const toggleUserSelection = (userId: string) => {
         setSelectedUsers(prev =>
             prev.includes(userId) ? prev.filter(id => id !== userId) : [...prev, userId]
         );
     };
 
-    const toggleAllSelection = () => {
-        if (selectedUsers.length === users.length) {
-            setSelectedUsers([]);
-        } else {
-            setSelectedUsers(users.map(u => u.id));
-        }
-    };
+    const handleBulkAction = async (action: string) => {
+        if (!confirm(`Apply ${action} to ${selectedUsers.length} users?`)) return;
 
-    const handleBulkAction = (action: string) => {
+        // Mock bulk action for now (or implement loop)
         showToastMessage(`${action} applied to ${selectedUsers.length} users`);
         setSelectedUsers([]);
+
+        // For real implementation: loop calls or bulk API endpoint
+        if (action === 'Suspend') {
+            for (const id of selectedUsers) {
+                await fetch(`/api/users`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, isActive: false })
+                });
+            }
+            fetchUsers();
+        }
     };
 
     const getRiskLevel = (violationCount: number) => {
@@ -104,6 +179,9 @@ export default function UsersPage() {
     const departments = [...new Set(users.map(u => u.department))];
     const roles = [...new Set(users.map(u => u.role))];
 
+    // Hardcoded roles list for select (in case API returns empty users initially)
+    const availableRoles = ['ADMIN', 'EXECUTIVE', 'IT_SECURITY', 'COMPLIANCE_OFFICER', 'SYSTEM_ADMIN'];
+
     const stats = {
         total: users.length,
         active: users.filter(u => u.isActive).length,
@@ -113,8 +191,9 @@ export default function UsersPage() {
 
     // Group by department
     const groupedUsers = users.reduce((acc, user) => {
-        if (!acc[user.department]) acc[user.department] = [];
-        acc[user.department].push(user);
+        const dept = user.department || 'Unassigned';
+        if (!acc[dept]) acc[dept] = [];
+        acc[dept].push(user);
         return acc;
     }, {} as Record<string, User[]>);
 
@@ -157,13 +236,16 @@ export default function UsersPage() {
                             {departments.map(d => <option key={d} value={d}>{d}</option>)}
                         </select>
                     </div>
-                    {selectedUsers.length > 0 && (
-                        <div className={styles.bulkActions}>
-                            <span>{selectedUsers.length} selected</span>
-                            <Button variant="secondary" size="sm" onClick={() => handleBulkAction('Suspend')}>Suspend</Button>
-                            <Button variant="secondary" size="sm" onClick={() => handleBulkAction('Upgrade clearance')}>Upgrade</Button>
-                        </div>
-                    )}
+                    <div className={styles.actionButtons}>
+                        <Button variant="primary" size="sm" onClick={handleCreateClick}>+ Add User</Button>
+                        {selectedUsers.length > 0 && (
+                            <div className={styles.bulkActions}>
+                                <span>{selectedUsers.length} selected</span>
+                                <Button variant="secondary" size="sm" onClick={() => handleBulkAction('Suspend')}>Suspend</Button>
+                                {/* <Button variant="secondary" size="sm" onClick={() => handleBulkAction('Upgrade')}>Upgrade</Button> */}
+                            </div>
+                        )}
+                    </div>
                 </section>
 
                 {/* Users by Department */}
@@ -188,7 +270,10 @@ export default function UsersPage() {
                                                     <span className={styles.userEmail}>{user.email}</span>
                                                 </div>
                                                 <div className={styles.userStatus}>
-                                                    <span className={`${styles.statusDot} ${user.isActive ? styles.active : styles.inactive}`}></span>
+                                                    <span className={`${styles.statusDot} ${user.isActive ? styles.active : styles.inactive}`} title={user.isActive ? 'Active' : 'Inactive'}></span>
+                                                </div>
+                                                <div className={styles.cardActions} onClick={(e) => e.stopPropagation()}>
+                                                    <Button variant="secondary" size="sm" onClick={() => handleEditClick(user)}>Edit</Button>
                                                 </div>
                                             </div>
                                             <div className={styles.userMeta}>
@@ -230,6 +315,54 @@ export default function UsersPage() {
                         ))}
                     </div>
                 </section>
+
+                {/* Edit/Create Modal */}
+                {isModalOpen && (
+                    <div className={styles.modalOverlay}>
+                        <div className={styles.modal}>
+                            <h2>{editingUser ? 'Edit User' : 'Create New User'}</h2>
+                            <form onSubmit={handleSubmit} className={styles.userForm}>
+                                <div className={styles.formGroup}>
+                                    <label>Full Name</label>
+                                    <input required type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>Email</label>
+                                    <input required type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} disabled={!!editingUser} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>Department</label>
+                                    <input required type="text" value={formData.department} onChange={e => setFormData({ ...formData, department: e.target.value })} />
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>Role</label>
+                                    <select value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value })}>
+                                        {availableRoles.map(r => <option key={r} value={r}>{r}</option>)}
+                                    </select>
+                                </div>
+                                <div className={styles.formGroup}>
+                                    <label>{editingUser ? 'New Password (leave blank to keep current)' : 'Password'}</label>
+                                    <input
+                                        type="password"
+                                        value={formData.password}
+                                        onChange={e => setFormData({ ...formData, password: e.target.value })}
+                                        required={!editingUser}
+                                        minLength={6}
+                                    />
+                                </div>
+                                <div className={styles.modalActions}>
+                                    <Button variant="secondary" onClick={() => setIsModalOpen(false)} type="button">Cancel</Button>
+                                    {editingUser && (
+                                        <Button variant="secondary" type="button" onClick={() => handleDelete(editingUser.id)} className={styles.deleteBtn}>Deactivate</Button>
+                                    )}
+                                    <Button variant="primary" type="submit" disabled={isSubmitting}>
+                                        {isSubmitting ? 'Saving...' : 'Save User'}
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
             </div>
         </DashboardLayout>
     );

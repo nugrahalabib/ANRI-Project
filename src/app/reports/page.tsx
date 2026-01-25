@@ -93,16 +93,86 @@ export default function ReportsPage() {
     const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
     const [dateRange, setDateRange] = useState({ start: '', end: '' });
     const [isGenerating, setIsGenerating] = useState(false);
+    const [toast, setToast] = useState('');
+
+    const showToast = (msg: string) => {
+        setToast(msg);
+        setTimeout(() => setToast(''), 3000);
+    };
 
     const handleGenerateReport = async () => {
         if (!selectedTemplate) return;
 
         setIsGenerating(true);
-        // Simulate report generation
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        setIsGenerating(false);
-        setSelectedTemplate(null);
-        alert('Report generated successfully! Check your downloads folder.');
+        try {
+            // Fetch real data based on template type
+            let data: Record<string, unknown>[] = [];
+            let filename = '';
+            let headers: string[] = [];
+
+            switch (selectedTemplate) {
+                case 'audit-trail':
+                    const auditRes = await fetch('/api/audit?limit=1000');
+                    const auditJson = await auditRes.json();
+                    data = auditJson.data || [];
+                    headers = ['Timestamp', 'Action', 'Entity Type', 'Entity ID', 'User', 'IP Address', 'Signature'];
+                    filename = `audit-trail-${new Date().toISOString().slice(0, 10)}.csv`;
+                    break;
+                case 'policy-violations':
+                    const violRes = await fetch('/api/violations?limit=1000');
+                    const violJson = await violRes.json();
+                    data = violJson.data || [];
+                    headers = ['Timestamp', 'User', 'Policy', 'Target', 'Action', 'Severity', 'Device'];
+                    filename = `policy-violations-${new Date().toISOString().slice(0, 10)}.csv`;
+                    break;
+                case 'document-movement':
+                    const docRes = await fetch('/api/documents?limit=500');
+                    const docJson = await docRes.json();
+                    data = docJson.data || [];
+                    headers = ['RFID Tag', 'Title', 'Classification', 'Current Zone', 'Movement Count', 'Risk Score'];
+                    filename = `document-movement-${new Date().toISOString().slice(0, 10)}.csv`;
+                    break;
+                default:
+                    showToast('Template ini belum tersedia untuk ekspor otomatis.');
+                    setIsGenerating(false);
+                    return;
+            }
+
+            if (data.length === 0) {
+                showToast('Tidak ada data untuk diekspor.');
+                setIsGenerating(false);
+                return;
+            }
+
+            // Generate CSV
+            const csvRows = [headers.join(',')];
+            data.forEach((row: Record<string, unknown>) => {
+                const values = headers.map(h => {
+                    const key = h.toLowerCase().replace(/ /g, '');
+                    let val = row[key] || row[h] || '-';
+                    if (typeof val === 'object') val = JSON.stringify(val);
+                    return `"${String(val).replace(/"/g, '""')}"`;
+                });
+                csvRows.push(values.join(','));
+            });
+
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            showToast(`✅ Report "${filename}" berhasil diunduh!`);
+        } catch (error) {
+            console.error('Report generation failed:', error);
+            showToast('❌ Gagal membuat laporan. Silakan coba lagi.');
+        } finally {
+            setIsGenerating(false);
+            setSelectedTemplate(null);
+        }
     };
 
     const formatDate = (date: Date) => {
@@ -119,6 +189,8 @@ export default function ReportsPage() {
             subtitle="Generate Compliance & Analytics Reports"
         >
             <div className={styles.container}>
+                {/* Toast */}
+                {toast && <div className={styles.toast}>{toast}</div>}
                 {/* Report Templates */}
                 <section>
                     <h2 className={styles.sectionTitle}>Report Templates</h2>
@@ -231,20 +303,20 @@ export default function ReportsPage() {
                                         <td className={styles.reportSize}>{report.size}</td>
                                         <td>
                                             <div className={styles.reportActions}>
-                                                <button className={styles.actionBtn} title="Download">
+                                                <button className={styles.actionBtn} title="Download" onClick={() => showToast('⚠️ Fitur download tersedia untuk laporan yang baru di-generate.')}>
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                                                         <polyline points="7 10 12 15 17 10" />
                                                         <line x1="12" y1="15" x2="12" y2="3" />
                                                     </svg>
                                                 </button>
-                                                <button className={styles.actionBtn} title="View">
+                                                <button className={styles.actionBtn} title="View" onClick={() => showToast('⚠️ Preview hanya tersedia untuk laporan PDF.')}>
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                                                         <circle cx="12" cy="12" r="3" />
                                                     </svg>
                                                 </button>
-                                                <button className={styles.actionBtn} title="Delete">
+                                                <button className={styles.actionBtn} title="Delete" onClick={() => showToast('⚠️ Hapus laporan tidak tersedia di mode demo.')}>
                                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                                                         <polyline points="3 6 5 6 21 6" />
                                                         <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />

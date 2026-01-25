@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { GlobalSearch } from '@/components/layout/GlobalSearch/GlobalSearch';
 import { NotificationDropdown } from '@/components/ui';
 import styles from './Header.module.css';
 
@@ -28,6 +29,9 @@ export function Header({ title, subtitle, actions }: HeaderProps) {
             </div>
 
             <div className={styles.right}>
+                {/* Global Search */}
+                <GlobalSearch />
+
                 {/* Date Display */}
                 <div className={styles.dateDisplay}>
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={styles.dateIcon}>

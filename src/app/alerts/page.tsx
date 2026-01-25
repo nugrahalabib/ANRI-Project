@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/layouts';
 import { Card, StatusBadge, Button } from '@/components/ui';
@@ -10,7 +10,7 @@ interface Alert {
     id: string;
     alertType: string;
     severity: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
-    status: 'OPEN' | 'INVESTIGATING' | 'RESOLVED' | 'FALSE_POSITIVE';
+    status: 'OPEN' | 'INVESTIGATING' | 'RESOLVED' | 'FALSE_POSITIVE' | 'ESCALATED';
     riskScore: number;
     explanation: string;
     contributingFactors: Array<{ factor: string; weight: number }>;
@@ -43,46 +43,92 @@ export default function AlertsPage() {
     const [severityFilter, setSeverityFilter] = useState('all');
     const [selectedAlert, setSelectedAlert] = useState<Alert | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
-    const [actionSuccess, setActionSuccess] = useState(false);
 
-    useEffect(() => {
-        async function fetchAlerts() {
-            try {
-                const params = new URLSearchParams();
-                if (statusFilter !== 'all') params.append('status', statusFilter);
-                if (severityFilter !== 'all') params.append('severity', severityFilter);
+    // Demo State
+    const [isSimulating, setIsSimulating] = useState(false);
+    const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
-                const res = await fetch(`/api/alerts?${params.toString()}`);
-                const data = await res.json();
-                if (data.success) {
-                    setAlerts(data.data);
-                }
-            } catch (error) {
-                console.error('Error fetching alerts:', error);
-            } finally {
-                setLoading(false);
+    // Polling Logic
+    const fetchAlerts = async (showLoading = false) => {
+        if (showLoading) setLoading(true);
+        try {
+            const params = new URLSearchParams();
+            if (statusFilter !== 'all') params.append('status', statusFilter);
+            if (severityFilter !== 'all') params.append('severity', severityFilter);
+
+            const res = await fetch(`/api/alerts?${params.toString()}`);
+            const data = await res.json();
+            if (data.success) {
+                setAlerts(data.data);
+                setLastUpdated(new Date());
             }
+        } catch (error) {
+            console.error('Error fetching alerts:', error);
+        } finally {
+            if (showLoading) setLoading(false);
         }
-        fetchAlerts();
-    }, [statusFilter, severityFilter]);
-
-    const formatTime = (dateStr: string) => {
-        const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
-        if (diff < 60) return `${diff} menit lalu`;
-        if (diff < 1440) return `${Math.floor(diff / 60)} jam lalu`;
-        return `${Math.floor(diff / 1440)} hari lalu`;
     };
 
-    const handleInvestigate = async (alert: Alert) => {
+    useEffect(() => {
+        fetchAlerts(true);
+        const interval = setInterval(() => fetchAlerts(false), 5000); // 5s Poll
+        return () => clearInterval(interval);
+    }, [statusFilter, severityFilter]);
+
+    // Demo: Simulate Breach
+    const handleSimulateBreach = async () => {
+        setIsSimulating(true);
+        try {
+            const res = await fetch('/api/alerts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'SIMULATE', zoneId: 'zone-l1-id' })
+            });
+            const data = await res.json();
+            if (data.success) {
+                fetchAlerts(); // Refresh immediately
+                // Force open the new alert details
+                setSelectedAlert(data.data);
+                setShowDetailModal(true);
+            }
+        } catch (error) {
+            console.error('Simulation failed:', error);
+        } finally {
+            setIsSimulating(false);
+        }
+    };
+
+    // Action: Dispatch Security
+    const handleDispatchSecurity = async (alert: Alert) => {
         try {
             await fetch('/api/alerts', {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: alert.id, status: 'INVESTIGATING' }),
+                body: JSON.stringify({ id: alert.id, status: 'INVESTIGATING', resolutionNotes: 'DISPATCHED_SECURITY' }),
             });
+            // Optimistic update
             setAlerts(alerts.map(a => a.id === alert.id ? { ...a, status: 'INVESTIGATING' } : a));
+
+            // Show toast or dispatch feedback (could add state for visual feedback)
+            if (selectedAlert?.id === alert.id) {
+                setShowDetailModal(false);
+            }
         } catch (error) {
-            console.error('Error updating alert:', error);
+            console.error('Dispatch failed:', error);
+        }
+    };
+
+    const handleEscalate = async (alert: Alert) => {
+        try {
+            await fetch('/api/alerts', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: alert.id, status: 'ESCALATED', resolutionNotes: 'Escalated to Supervisor' }),
+            });
+            setAlerts(alerts.map(a => a.id === alert.id ? { ...a, status: 'ESCALATED' } : a));
+            if (selectedAlert?.id === alert.id) setShowDetailModal(false);
+        } catch (error) {
+            console.error('Escalation failed:', error);
         }
     };
 
@@ -94,16 +140,18 @@ export default function AlertsPage() {
                 body: JSON.stringify({ id: alert.id, status: 'RESOLVED', resolutionNotes: 'Resolved via dashboard' }),
             });
             setAlerts(alerts.map(a => a.id === alert.id ? { ...a, status: 'RESOLVED' } : a));
-            setActionSuccess(true);
-            setTimeout(() => setActionSuccess(false), 2000);
+            if (selectedAlert?.id === alert.id) setShowDetailModal(false);
         } catch (error) {
             console.error('Error resolving alert:', error);
         }
     };
 
-    const handleViewDetails = (alert: Alert) => {
-        setSelectedAlert(alert);
-        setShowDetailModal(true);
+    const formatTime = (dateStr: string) => {
+        const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+        if (diff < 1) return 'Baru saja';
+        if (diff < 60) return `${diff} menit lalu`;
+        if (diff < 1440) return `${Math.floor(diff / 60)} jam lalu`;
+        return `${Math.floor(diff / 1440)} hari lalu`;
     };
 
     const stats = {
@@ -115,23 +163,42 @@ export default function AlertsPage() {
 
     if (loading) {
         return (
-            <DashboardLayout title="Anomaly Alerts" subtitle="Loading...">
-                <div className={styles.container}>
-                    <div className={styles.loading}>Loading alerts from database...</div>
-                </div>
+            <DashboardLayout title="Intelligent Alert Feed" subtitle="Loading...">
+                <div className={styles.loadingContainer}>Initializing Surveillance Feed...</div>
             </DashboardLayout>
         );
     }
 
     return (
-        <DashboardLayout title="Anomaly Alerts" subtitle="AI-Powered Document Security Monitoring">
+        <DashboardLayout title="Intelligent Alert Feed" subtitle="AI-Powered Threat Detection & Response">
             <div className={styles.container}>
                 {/* Stats Row */}
                 <section className={styles.statsRow}>
-                    <div className={styles.statCard}><span className={styles.statValue}>{stats.total}</span><span className={styles.statLabel}>Total Alerts</span></div>
-                    <div className={`${styles.statCard} ${styles.critical}`}><span className={styles.statValue}>{stats.critical}</span><span className={styles.statLabel}>Critical</span></div>
-                    <div className={styles.statCard}><span className={styles.statValue}>{stats.open}</span><span className={styles.statLabel}>Open</span></div>
-                    <div className={styles.statCard}><span className={styles.statValue}>{stats.investigating}</span><span className={styles.statLabel}>Investigating</span></div>
+                    <div className={styles.statCard}>
+                        <span className={styles.statValue}>{stats.total}</span>
+                        <span className={styles.statLabel}>Total Logs</span>
+                    </div>
+                    <div className={`${styles.statCard} ${styles.critical}`}>
+                        <div className={styles.pulseDot}></div>
+                        <span className={styles.statValue}>{stats.critical}</span>
+                        <span className={styles.statLabel}>Critical Threats</span>
+                    </div>
+                    <div className={styles.statCard}>
+                        <span className={styles.statValue}>{stats.open}</span>
+                        <span className={styles.statLabel}>Action Required</span>
+                    </div>
+
+                    {/* DEMO TRIGGER - Invisible but clickable area or explicit button */}
+                    <div className={styles.demoControls}>
+                        <button
+                            className={styles.simulateBtn}
+                            onClick={handleSimulateBreach}
+                            disabled={isSimulating}
+                        >
+                            {isSimulating ? 'SIMULATING...' : '⚡ SIMULATE BREACH'}
+                        </button>
+                        <span className={styles.lastUpdated}>Updated: {lastUpdated.toLocaleTimeString()}</span>
+                    </div>
                 </section>
 
                 {/* Filters */}
@@ -147,19 +214,13 @@ export default function AlertsPage() {
                         <option value="CRITICAL">Critical</option>
                         <option value="HIGH">High</option>
                         <option value="MEDIUM">Medium</option>
-                        <option value="LOW">Low</option>
                     </select>
                 </section>
-
-                {/* Success Toast */}
-                {actionSuccess && (
-                    <div className={styles.toast}>✓ Alert resolved successfully</div>
-                )}
 
                 {/* Alerts List */}
                 <div className={styles.alertsList}>
                     {alerts.length === 0 ? (
-                        <Card><div className={styles.noAlerts}>✅ Tidak ada alert yang sesuai dengan filter</div></Card>
+                        <Card><div className={styles.noAlerts}>✅ System Secure. No active anomalies detected.</div></Card>
                     ) : (
                         alerts.map((alert) => (
                             <Card key={alert.id} className={`${styles.alertCard} ${styles[alert.severity.toLowerCase()]}`}>
@@ -170,35 +231,46 @@ export default function AlertsPage() {
                                         <span className={styles.alertTime}>{formatTime(alert.createdAt)}</span>
                                     </div>
                                     <div className={styles.alertStatus}>
-                                        <span className={`${styles.statusBadge} ${styles[alert.status.toLowerCase()]}`}>{alert.status}</span>
+                                        <span className={`${styles.statusBadge} ${styles[alert.status.toLowerCase()]}`}>{alert.status.replace('_', ' ')}</span>
                                     </div>
                                 </div>
                                 <div className={styles.alertBody}>
                                     <div className={styles.alertDocument}>
                                         <strong>{alert.document?.title || 'Unknown Document'}</strong>
                                         <code>{alert.document?.rfidTag || 'N/A'}</code>
+                                        <span className={`${styles.docClass} ${styles[alert.document?.classification || 'Standard']}`}>
+                                            {alert.document?.classification}
+                                        </span>
                                     </div>
                                     <div className={styles.alertExplanation}>
-                                        <span className={styles.xaiLabel}>🤖 AI Explanation:</span>
+                                        <span className={styles.xaiLabel}>🤖 AI Prediction</span>
                                         <p>{alert.explanation}</p>
                                     </div>
-                                    <div className={styles.alertMovement}>
-                                        {alert.movement && (
-                                            <span>{alert.movement.fromZone?.name || 'Unknown'} → {alert.movement.toZone?.name || 'Unknown'}</span>
-                                        )}
-                                    </div>
                                     <div className={styles.alertMetrics}>
-                                        <span>Risk: {Math.round(alert.riskScore * 100)}%</span>
-                                        <span>Confidence: {Math.round(alert.confidence * 100)}%</span>
+                                        <div className={styles.metric}>
+                                            <span className={styles.metricLabel}>Risk</span>
+                                            <div className={styles.progressBar}>
+                                                <div className={styles.progressFill} style={{ width: `${alert.riskScore * 100}%`, background: alert.riskScore > 0.7 ? '#ef4444' : '#eab308' }}></div>
+                                            </div>
+                                            <span>{Math.round(alert.riskScore * 100)}%</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div className={styles.alertActions}>
-                                    <Button variant="secondary" size="sm" onClick={() => handleViewDetails(alert)}>View Details</Button>
+                                    <Button variant="secondary" size="sm" onClick={() => { setSelectedAlert(alert); setShowDetailModal(true); }}>
+                                        Analyze Details
+                                    </Button>
                                     {alert.status === 'OPEN' && (
-                                        <Button variant="primary" size="sm" onClick={() => handleInvestigate(alert)}>Investigate</Button>
-                                    )}
-                                    {alert.status === 'INVESTIGATING' && (
-                                        <Button variant="primary" size="sm" onClick={() => handleResolve(alert)}>✓ Resolve</Button>
+                                        <>
+                                            <Button variant="primary" size="sm" onClick={() => handleDispatchSecurity(alert)}>
+                                                👮 Dispatch Security
+                                            </Button>
+                                            {(alert.severity === 'HIGH' || alert.severity === 'CRITICAL') && (
+                                                <Button variant="danger" size="sm" onClick={() => handleEscalate(alert)} style={{ marginLeft: '8px' }}>
+                                                    📢 Escalate
+                                                </Button>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             </Card>
@@ -211,33 +283,55 @@ export default function AlertsPage() {
             {showDetailModal && selectedAlert && (
                 <div className={styles.modalOverlay} onClick={() => setShowDetailModal(false)}>
                     <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-                        <div className={styles.modalHeader}>
-                            <h2>Alert Details</h2>
+                        <div className={`${styles.modalHeader} ${styles[selectedAlert.severity]}`}>
+                            <div>
+                                <h2 className={styles.modalTitle}>THREAT ANALYSIS: {selectedAlert.alertType}</h2>
+                                <span className={styles.modalSubtitle}>ID: {selectedAlert.id}</span>
+                            </div>
                             <button className={styles.closeBtn} onClick={() => setShowDetailModal(false)}>×</button>
                         </div>
+
                         <div className={styles.modalBody}>
-                            <div className={styles.detailGrid}>
-                                <div className={styles.detailItem}><span className={styles.detailLabel}>Type</span><span>{alertTypeLabels[selectedAlert.alertType] || selectedAlert.alertType}</span></div>
-                                <div className={styles.detailItem}><span className={styles.detailLabel}>Severity</span><StatusBadge status={severityColors[selectedAlert.severity]} label={selectedAlert.severity} /></div>
-                                <div className={styles.detailItem}><span className={styles.detailLabel}>Status</span><span>{selectedAlert.status}</span></div>
-                                <div className={styles.detailItem}><span className={styles.detailLabel}>Document</span><span>{selectedAlert.document?.title || 'Unknown'}</span></div>
-                                <div className={styles.detailItem}><span className={styles.detailLabel}>Risk Score</span><span>{Math.round(selectedAlert.riskScore * 100)}%</span></div>
-                                <div className={styles.detailItem}><span className={styles.detailLabel}>AI Confidence</span><span>{Math.round(selectedAlert.confidence * 100)}%</span></div>
-                            </div>
-                            <div className={styles.xaiSection}>
-                                <h4>🤖 Explainable AI Analysis</h4>
-                                <p>{selectedAlert.explanation}</p>
-                                <h5>Contributing Factors:</h5>
-                                <ul>
+                            <div className={styles.xaiCard}>
+                                <div className={styles.xaiHeader}>
+                                    <h4>🤖 Explainable AI Reasoning</h4>
+                                    <span className={styles.confidenceBadge}>{Math.round(selectedAlert.confidence * 100)}% Confidence</span>
+                                </div>
+                                <p className={styles.xaiText}>{selectedAlert.explanation}</p>
+                                <div className={styles.factorGrid}>
                                     {selectedAlert.contributingFactors?.map((f, i) => (
-                                        <li key={i}>{f.factor}: {Math.round(f.weight * 100)}%</li>
+                                        <div key={i} className={styles.factorItem}>
+                                            <div className={styles.factorLabel}>{f.factor}</div>
+                                            <div className={styles.factorBarBg}>
+                                                <div className={styles.factorBarFill} style={{ width: `${f.weight * 100}%` }}></div>
+                                            </div>
+                                            <div className={styles.factorValue}>{Math.round(f.weight * 100)}%</div>
+                                        </div>
                                     ))}
-                                </ul>
+                                </div>
+                            </div>
+
+                            <div className={styles.detailGrid}>
+                                <div className={styles.detailItem}><label>Document</label>{selectedAlert.document?.title}</div>
+                                <div className={styles.detailItem}><label>Classification</label>{selectedAlert.document?.classification}</div>
+                                <div className={styles.detailItem}><label>Location</label>{selectedAlert.movement?.toZone?.name || 'Unknown'}</div>
+                                <div className={styles.detailItem}><label>Detected</label>{new Date(selectedAlert.createdAt).toLocaleString()}</div>
                             </div>
                         </div>
+
                         <div className={styles.modalFooter}>
-                            <Button variant="secondary" onClick={() => setShowDetailModal(false)}>Close</Button>
-                            <Button variant="primary" onClick={() => router.push(`/documents/timeline?doc=${selectedAlert.document?.rfidTag}`)}>View Timeline</Button>
+                            {selectedAlert.status === 'OPEN' ? (
+                                <Button variant="primary" size="lg" className={styles.dispatchBtn} onClick={() => handleDispatchSecurity(selectedAlert)}>
+                                    👮 DISPATCH SECURITY TEAM
+                                </Button>
+                            ) : (
+                                <div className={styles.statusMessage}>
+                                    Status: {selectedAlert.status}
+                                </div>
+                            )}
+                            <Button variant="secondary" onClick={() => router.push(`/documents/timeline?doc=${selectedAlert.document?.rfidTag}`)}>
+                                View Timeline Evidence
+                            </Button>
                         </div>
                     </div>
                 </div>

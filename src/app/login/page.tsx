@@ -1,87 +1,88 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import styles from './page.module.css';
 
-// Demo users for testing
+// Demo users for quick login display
 const DEMO_USERS = [
     {
         email: 'admin@anri.go.id',
         password: 'admin123',
         role: 'SYSTEM_ADMIN',
-        name: 'Admin System',
+        name: 'Rudi Hermawan, S.Kom',
         description: 'Kelola sistem, user, dan konfigurasi platform'
     },
     {
-        email: 'executive@anri.go.id',
-        password: 'executive123',
+        email: 'direktur@anri.go.id',
+        password: 'direktur123',
         role: 'EXECUTIVE',
-        name: 'Direktur Utama',
-        description: 'Lihat ringkasan risiko dan dashboard eksekutif'
+        name: 'Dr. Ir. Budi Santoso, M.Sc.',
+        description: 'Ringkasan risiko dan dashboard eksekutif'
     },
     {
         email: 'security@anri.go.id',
         password: 'security123',
         role: 'IT_SECURITY',
-        name: 'Siti Rahmawati',
-        description: 'Respons alert, kelola ancaman, dan pantau keamanan'
+        name: 'Siti Rahmawati, S.T.',
+        description: 'Respons alert dan pantau keamanan'
     },
     {
         email: 'compliance@anri.go.id',
         password: 'compliance123',
         role: 'COMPLIANCE_OFFICER',
-        name: 'Ahmad Wijaya',
-        description: 'Audit kepatuhan, policy, dan pelanggaran'
+        name: 'Ahmad Wijaya, S.E., Ak.',
+        description: 'Audit kepatuhan dan pelanggaran'
     },
 ];
 
 export default function LoginPage() {
     const router = useRouter();
+    const { login, isAuthenticated, isLoading: authLoading } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+
+    // Redirect if already authenticated
+    useEffect(() => {
+        if (!authLoading && isAuthenticated) {
+            router.push('/dashboard/executive');
+        }
+    }, [authLoading, isAuthenticated, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
         setError('');
 
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const result = await login(email, password);
 
-        const user = DEMO_USERS.find(u => u.email === email && u.password === password);
-
-        if (user) {
-            // Store user in localStorage for demo
-            localStorage.setItem('anri_user', JSON.stringify(user));
-
-            // Redirect based on role
-            switch (user.role) {
-                case 'EXECUTIVE':
-                    router.push('/dashboard/executive');
-                    break;
-                case 'IT_SECURITY':
-                    router.push('/dashboard/security');
-                    break;
-                case 'COMPLIANCE_OFFICER':
-                    router.push('/dashboard/compliance');
-                    break;
-                default:
-                    router.push('/dashboard/executive');
-            }
+        if (result.success && result.redirectUrl) {
+            router.push(result.redirectUrl);
         } else {
-            setError('Email atau password salah');
+            setError(result.error || 'Email atau password salah');
+            setLoading(false);
         }
-
-        setLoading(false);
     };
 
     const handleQuickLogin = (user: typeof DEMO_USERS[0]) => {
         setEmail(user.email);
         setPassword(user.password);
     };
+
+    // Show loading while checking auth
+    if (authLoading) {
+        return (
+            <main className={styles.main}>
+                <div className={styles.loadingContainer}>
+                    <div className={styles.spinner}></div>
+                    <p>Memuat...</p>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className={styles.main}>
@@ -119,6 +120,7 @@ export default function LoginPage() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="user@anri.go.id"
                             required
+                            autoComplete="email"
                         />
                     </div>
 
@@ -131,6 +133,7 @@ export default function LoginPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
                             required
+                            autoComplete="current-password"
                         />
                     </div>
 
@@ -143,7 +146,7 @@ export default function LoginPage() {
                                 Authenticating...
                             </>
                         ) : (
-                            'Login to Platform'
+                            'Masuk ke Platform'
                         )}
                     </button>
                 </form>
@@ -156,6 +159,7 @@ export default function LoginPage() {
                                 key={user.email}
                                 onClick={() => handleQuickLogin(user)}
                                 className={styles.roleCard}
+                                type="button"
                             >
                                 <span className={styles.roleName}>
                                     {user.role.replace(/_/g, ' ')}
@@ -169,10 +173,11 @@ export default function LoginPage() {
                 </div>
 
                 <div className={styles.footer}>
-                    <p>© 2024 Arsip Nasional Republik Indonesia</p>
+                    <p>© 2025 Arsip Nasional Republik Indonesia</p>
                     <p>Secure Access Portal v1.0</p>
                 </div>
             </div>
         </main>
     );
 }
+

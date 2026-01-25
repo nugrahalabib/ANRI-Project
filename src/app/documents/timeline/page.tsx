@@ -158,6 +158,132 @@ export default function DocumentTimelinePage() {
     const handleStepForward = () => { if (currentStep < movements.length - 1) setCurrentStep(prev => prev + 1); };
     const handleStepBack = () => { if (currentStep > 0) setCurrentStep(prev => prev - 1); };
 
+    // Export Timeline as PDF
+    const handleExportPDF = () => {
+        // Generate PDF content as printable HTML
+        const printWindow = window.open('', '_blank');
+        if (!printWindow) {
+            alert('Gagal membuka jendela print. Pastikan popup tidak diblokir.');
+            return;
+        }
+
+        const pdfContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Timeline Report - ${currentMovement.document.rfidTag}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1a1a2e; }
+        .header { text-align: center; border-bottom: 2px solid #3d7ab8; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-size: 24px; font-weight: bold; color: #3d7ab8; }
+        .subtitle { font-size: 14px; color: #666; margin-top: 8px; }
+        .doc-info { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px; }
+        .doc-title { font-size: 18px; font-weight: 600; margin-bottom: 10px; }
+        .rfid { font-family: monospace; color: #3d7ab8; font-size: 14px; }
+        .classification { display: inline-block; padding: 4px 12px; border-radius: 4px; font-size: 12px; font-weight: 600; margin-left: 10px; }
+        .secret { background: #fecaca; color: #991b1b; }
+        .restricted { background: #fde68a; color: #92400e; }
+        .section-title { font-size: 16px; font-weight: 600; margin: 25px 0 15px; color: #1a1a2e; border-left: 3px solid #3d7ab8; padding-left: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th { background: #3d7ab8; color: white; padding: 12px; text-align: left; font-size: 13px; }
+        td { padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 13px; }
+        tr:nth-child(even) { background: #f9fafb; }
+        .anomaly { background: #fef2f2 !important; }
+        .anomaly td { color: #991b1b; }
+        .risk-low { color: #16a34a; }
+        .risk-medium { color: #ca8a04; }
+        .risk-high { color: #dc2626; }
+        .ai-section { background: #0a1628; color: #e5e7eb; padding: 20px; border-radius: 8px; margin-top: 30px; }
+        .ai-title { font-size: 16px; font-weight: 600; margin-bottom: 15px; color: #3d7ab8; }
+        .ai-text { font-size: 13px; line-height: 1.7; }
+        .recommendation { background: rgba(202, 138, 4, 0.2); border-left: 3px solid #ca8a04; padding: 12px; margin-top: 15px; }
+        .factors { margin-top: 20px; }
+        .factor { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 13px; }
+        .stats { display: flex; gap: 40px; margin-bottom: 30px; }
+        .stat { text-align: center; }
+        .stat-value { font-size: 32px; font-weight: bold; color: #3d7ab8; }
+        .stat-label { font-size: 12px; color: #666; }
+        .footer { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e5e7eb; font-size: 11px; color: #666; text-align: center; }
+        @media print { body { padding: 20px; } }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🏛️ ANRI Document Movement Report</div>
+        <div class="subtitle">Sovereign Risk Intelligence Platform - Generated ${new Date().toLocaleString('id-ID')}</div>
+    </div>
+    
+    <div class="doc-info">
+        <div class="doc-title">${currentMovement.document.title}</div>
+        <span class="rfid">${currentMovement.document.rfidTag}</span>
+        <span class="classification ${currentMovement.document.classification.toLowerCase()}">${currentMovement.document.classification}</span>
+    </div>
+    
+    <div class="stats">
+        <div class="stat"><div class="stat-value">${totalMovements}</div><div class="stat-label">Total Movements</div></div>
+        <div class="stat"><div class="stat-value" style="color: #dc2626;">${anomalyCount}</div><div class="stat-label">Anomalies</div></div>
+        <div class="stat"><div class="stat-value">${Math.round(avgRisk * 100)}%</div><div class="stat-label">Avg Risk Score</div></div>
+    </div>
+    
+    <div class="section-title">Movement Timeline</div>
+    <table>
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Timestamp</th>
+                <th>Zone</th>
+                <th>RFID Reader</th>
+                <th>Risk Score</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${movements.map((m, i) => `
+                <tr class="${m.isAnomaly ? 'anomaly' : ''}">
+                    <td>${i + 1}</td>
+                    <td>${m.timestamp.toLocaleString('id-ID')}</td>
+                    <td>${m.zone.name} (${m.zone.code})</td>
+                    <td>${m.reader.name}</td>
+                    <td class="${m.riskScore > 0.7 ? 'risk-high' : m.riskScore > 0.4 ? 'risk-medium' : 'risk-low'}">${Math.round(m.riskScore * 100)}%</td>
+                    <td>${m.isAnomaly ? '⚠️ ANOMALY' : '✓ Normal'}</td>
+                </tr>
+            `).join('')}
+        </tbody>
+    </table>
+    
+    <div class="ai-section">
+        <div class="ai-title">🤖 AI Behavioral Analysis</div>
+        <div class="ai-text">${aiAnalysis.explanation}</div>
+        <div class="recommendation">
+            <strong>Recommendation:</strong> ${aiAnalysis.recommendation}
+        </div>
+        <div class="factors">
+            <strong>Contributing Factors:</strong>
+            ${aiAnalysis.contributingFactors.map(f => `
+                <div class="factor">
+                    <span>${f.factor}</span>
+                    <span>${Math.round(f.weight * 100)}%</span>
+                </div>
+            `).join('')}
+        </div>
+        <p style="margin-top: 15px;">AI Confidence: <strong>${Math.round(aiAnalysis.confidence * 100)}%</strong></p>
+    </div>
+    
+    <div class="footer">
+        ANRI Sovereign Risk Intelligence Platform | Confidential Document | Page 1
+    </div>
+</body>
+</html>`;
+
+        printWindow.document.write(pdfContent);
+        printWindow.document.close();
+        printWindow.focus();
+        setTimeout(() => {
+            printWindow.print();
+        }, 500);
+    };
+
     const formatTime = (date: Date) => date.toLocaleString('id-ID', {
         hour: '2-digit', minute: '2-digit', second: '2-digit'
     });
@@ -406,6 +532,11 @@ export default function DocumentTimelinePage() {
                                 </button>
                             ))}
                         </div>
+
+                        {/* Export PDF Button */}
+                        <Button variant="secondary" onClick={handleExportPDF}>
+                            📄 Export PDF
+                        </Button>
                     </div>
                 </Card>
 

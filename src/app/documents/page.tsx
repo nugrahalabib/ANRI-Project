@@ -25,11 +25,28 @@ interface Zone {
     code: string;
 }
 
+interface Pagination {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+}
+
+interface Stats {
+    total: number;
+    secret: number;
+    restricted: number;
+    public: number;
+    withAlerts: number;
+}
+
 const classificationColors: Record<string, string> = {
     PUBLIC: 'normal',
     RESTRICTED: 'warning',
     SECRET: 'critical',
 };
+
+const ITEMS_PER_PAGE = 10;
 
 export default function DocumentsPage() {
     const router = useRouter();
@@ -38,6 +55,11 @@ export default function DocumentsPage() {
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [classFilter, setClassFilter] = useState('all');
+    const [zoneFilter, setZoneFilter] = useState('all');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pagination, setPagination] = useState<Pagination>({ page: 1, limit: ITEMS_PER_PAGE, total: 0, totalPages: 1 });
+    const [stats, setStats] = useState<Stats>({ total: 0, secret: 0, restricted: 0, public: 0, withAlerts: 0 });
+
     const [selectedDoc, setSelectedDoc] = useState<string | null>(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
     const [showRequestModal, setShowRequestModal] = useState(false);
@@ -47,18 +69,51 @@ export default function DocumentsPage() {
     const [targetZone, setTargetZone] = useState('');
     const [justification, setJustification] = useState('');
     const [requestSuccess, setRequestSuccess] = useState(false);
+    const [requestNumber, setRequestNumber] = useState('');
+    const [requestLoading, setRequestLoading] = useState(false);
 
+    // Fetch stats (always get total counts regardless of filter)
+    useEffect(() => {
+        async function fetchStats() {
+            try {
+                const res = await fetch('/api/documents/stats');
+                const data = await res.json();
+                if (data.success) {
+                    setStats(data.data);
+                }
+            } catch (error) {
+                console.error('Error fetching stats:', error);
+            }
+        }
+        fetchStats();
+    }, []);
+
+    // Fetch documents with pagination
     useEffect(() => {
         async function fetchData() {
+            setLoading(true);
             try {
+                const params = new URLSearchParams({
+                    search,
+                    classification: classFilter,
+                    page: currentPage.toString(),
+                    limit: ITEMS_PER_PAGE.toString(),
+                });
+                if (zoneFilter !== 'all') {
+                    params.set('zoneId', zoneFilter);
+                }
+
                 const [docsRes, zonesRes] = await Promise.all([
-                    fetch(`/api/documents?search=${search}&classification=${classFilter}`),
+                    fetch(`/api/documents?${params}`),
                     fetch('/api/zones'),
                 ]);
                 const docsData = await docsRes.json();
                 const zonesData = await zonesRes.json();
 
-                if (docsData.success) setDocuments(docsData.data);
+                if (docsData.success) {
+                    setDocuments(docsData.data);
+                    setPagination(docsData.pagination);
+                }
                 if (zonesData.success) setZones(zonesData.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -67,7 +122,12 @@ export default function DocumentsPage() {
             }
         }
         fetchData();
-    }, [search, classFilter]);
+    }, [search, classFilter, zoneFilter, currentPage]);
+
+    // Reset to page 1 when filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, classFilter, zoneFilter]);
 
     const formatTime = (dateStr: string | null) => {
         if (!dateStr) return 'Never';
@@ -78,7 +138,7 @@ export default function DocumentsPage() {
     };
 
     const handleViewTimeline = (doc: Document) => {
-        router.push(`/documents/timeline?doc=${doc.rfidTag}`);
+        router.push(`/documents/${doc.id}/timeline`);
     };
 
     const handleViewDetails = (doc: Document) => {
@@ -94,23 +154,60 @@ export default function DocumentsPage() {
         setShowRequestModal(true);
     };
 
-    const submitRequest = () => {
-        if (!targetZone || !justification) return;
-        setRequestSuccess(true);
-        setTimeout(() => {
-            setShowRequestModal(false);
-            setRequestSuccess(false);
-        }, 2000);
+    const submitRequest = async () => {
+        if (!targetZone || !justification || !requestDoc) return;
+
+        setRequestLoading(true);
+        try {
+            const res = await fetch('/api/approvals', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    documentId: requestDoc.id,
+                    targetZoneId: targetZone,
+                    justification,
+                }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                setRequestNumber(data.data.requestNumber);
+                setRequestSuccess(true);
+                setTimeout(() => {
+                    setShowRequestModal(false);
+                    setRequestSuccess(false);
+                }, 3000);
+            } else {
+                alert(data.error || 'Gagal membuat permintaan');
+            }
+        } catch (error) {
+            console.error('Error submitting request:', error);
+            alert('Terjadi kesalahan saat mengirim permintaan');
+        } finally {
+            setRequestLoading(false);
+        }
     };
 
-    const stats = {
-        total: documents.length,
-        secret: documents.filter(d => d.classification === 'SECRET').length,
-        restricted: documents.filter(d => d.classification === 'RESTRICTED').length,
-        withAlerts: documents.filter(d => d.alertCount > 0).length,
+    // Generate page numbers for pagination
+    const getPageNumbers = () => {
+        const pages: (number | string)[] = [];
+        const { totalPages } = pagination;
+
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            if (currentPage <= 3) {
+                pages.push(1, 2, 3, 4, '...', totalPages);
+            } else if (currentPage >= totalPages - 2) {
+                pages.push(1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+            } else {
+                pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+            }
+        }
+        return pages;
     };
 
-    if (loading) {
+    if (loading && documents.length === 0) {
         return (
             <DashboardLayout title="Document Tracking" subtitle="Loading...">
                 <div className={styles.container}>
@@ -145,6 +242,12 @@ export default function DocumentsPage() {
                             <option value="RESTRICTED">Restricted</option>
                             <option value="SECRET">Secret</option>
                         </select>
+                        <select value={zoneFilter} onChange={(e) => setZoneFilter(e.target.value)} className={styles.filterSelect}>
+                            <option value="all">All Zones</option>
+                            {zones.map(z => (
+                                <option key={z.id} value={z.id}>{z.name}</option>
+                            ))}
+                        </select>
                         <Button variant="primary" size="sm" onClick={() => setShowAddModal(true)}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ width: 16, height: 16, marginRight: 4 }}>
                                 <line x1="12" y1="5" x2="12" y2="19" />
@@ -155,7 +258,7 @@ export default function DocumentsPage() {
                     </div>
                 </section>
 
-                {/* Stats Cards */}
+                {/* Stats Cards - Always shows TOTAL counts */}
                 <section className={styles.statsRow}>
                     <div className={styles.statCard}>
                         <span className={styles.statValue}>{stats.total}</span>
@@ -191,54 +294,98 @@ export default function DocumentsPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {documents.map((doc) => (
-                                    <tr
-                                        key={doc.id}
-                                        className={`${styles.row} ${doc.alertCount > 0 ? styles.alertRow : ''}`}
-                                        onClick={() => setSelectedDoc(selectedDoc === doc.id ? null : doc.id)}
-                                    >
-                                        <td><span className={styles.rfidTag}>{doc.rfidTag}</span></td>
-                                        <td>
-                                            <div className={styles.docInfo}>
-                                                <span className={styles.docTitle}>{doc.title}</span>
-                                                <span className={styles.docUnit}>{doc.organizationUnit}</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <StatusBadge status={classificationColors[doc.classification] as 'critical' | 'warning' | 'normal'} label={doc.classification} size="sm" />
-                                        </td>
-                                        <td className={styles.zoneCell}>{doc.currentZone?.name || 'Unknown'}</td>
-                                        <td>
-                                            <div className={styles.movementInfo}>
-                                                <span>{formatTime(doc.lastMovement)}</span>
-                                                <span className={styles.movementCount}>{doc.movementCount} movements</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className={styles.riskScore}>
-                                                <div className={styles.riskBar}>
-                                                    <div className={styles.riskFill} style={{ width: `${doc.riskScore * 100}%`, background: doc.riskScore > 0.7 ? 'var(--status-critical)' : doc.riskScore > 0.4 ? 'var(--status-warning)' : 'var(--status-normal)' }} />
-                                                </div>
-                                                <span>{Math.round(doc.riskScore * 100)}%</span>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div className={styles.actions}>
-                                                <button className={styles.actionBtn} title="View Timeline" onClick={(e) => { e.stopPropagation(); handleViewTimeline(doc); }}>
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                                                </button>
-                                                <button className={styles.actionBtn} title="View Details" onClick={(e) => { e.stopPropagation(); handleViewDetails(doc); }}>
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
-                                                </button>
-                                                <button className={`${styles.actionBtn} ${styles.requestBtn}`} title="Request Movement" onClick={(e) => { e.stopPropagation(); handleRequestMovement(doc); }}>
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
-                                                </button>
-                                            </div>
+                                {documents.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={7} className={styles.emptyRow}>
+                                            No documents found matching your criteria
                                         </td>
                                     </tr>
-                                ))}
+                                ) : (
+                                    documents.map((doc) => (
+                                        <tr
+                                            key={doc.id}
+                                            className={`${styles.row} ${doc.alertCount > 0 ? styles.alertRow : ''}`}
+                                            onClick={() => setSelectedDoc(selectedDoc === doc.id ? null : doc.id)}
+                                        >
+                                            <td><span className={styles.rfidTag}>{doc.rfidTag}</span></td>
+                                            <td>
+                                                <div className={styles.docInfo}>
+                                                    <span className={styles.docTitle}>{doc.title}</span>
+                                                    <span className={styles.docUnit}>{doc.organizationUnit}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <StatusBadge status={classificationColors[doc.classification] as 'critical' | 'warning' | 'normal'} label={doc.classification} size="sm" />
+                                            </td>
+                                            <td className={styles.zoneCell}>{doc.currentZone?.name || 'Unknown'}</td>
+                                            <td>
+                                                <div className={styles.movementInfo}>
+                                                    <span>{formatTime(doc.lastMovement)}</span>
+                                                    <span className={styles.movementCount}>{doc.movementCount} movements</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className={styles.riskScore}>
+                                                    <div className={styles.riskBar}>
+                                                        <div className={styles.riskFill} style={{ width: `${doc.riskScore * 100}%`, background: doc.riskScore > 0.7 ? 'var(--status-critical)' : doc.riskScore > 0.4 ? 'var(--status-warning)' : 'var(--status-normal)' }} />
+                                                    </div>
+                                                    <span>{Math.round(doc.riskScore * 100)}%</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className={styles.actions}>
+                                                    <button className={styles.actionBtn} title="View Timeline" onClick={(e) => { e.stopPropagation(); handleViewTimeline(doc); }}>
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                                                    </button>
+                                                    <button className={styles.actionBtn} title="View Details" onClick={(e) => { e.stopPropagation(); handleViewDetails(doc); }}>
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+                                                    </button>
+                                                    <button className={`${styles.actionBtn} ${styles.requestBtn}`} title="Request Movement" onClick={(e) => { e.stopPropagation(); handleRequestMovement(doc); }}>
+                                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Pagination */}
+                    <div className={styles.pagination}>
+                        <div className={styles.paginationInfo}>
+                            Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, pagination.total)} of {pagination.total} documents
+                        </div>
+                        <div className={styles.paginationControls}>
+                            <button
+                                className={styles.pageBtn}
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
+                            >
+                                ‹ Prev
+                            </button>
+                            {getPageNumbers().map((page, idx) => (
+                                typeof page === 'number' ? (
+                                    <button
+                                        key={idx}
+                                        className={`${styles.pageBtn} ${currentPage === page ? styles.active : ''}`}
+                                        onClick={() => setCurrentPage(page)}
+                                    >
+                                        {page}
+                                    </button>
+                                ) : (
+                                    <span key={idx} className={styles.pageEllipsis}>{page}</span>
+                                )
+                            ))}
+                            <button
+                                className={styles.pageBtn}
+                                onClick={() => setCurrentPage(p => Math.min(pagination.totalPages, p + 1))}
+                                disabled={currentPage === pagination.totalPages}
+                            >
+                                Next ›
+                            </button>
+                        </div>
                     </div>
                 </Card>
 
@@ -293,7 +440,7 @@ export default function DocumentsPage() {
                             <div className={styles.successMessage}>
                                 <span className={styles.successIcon}>✓</span>
                                 <h3>Permintaan Berhasil Dikirim!</h3>
-                                <p>Request ID: APR-{new Date().getFullYear()}-{String(Math.floor(Math.random() * 9999)).padStart(4, '0')}</p>
+                                <p>Request ID: <strong>{requestNumber}</strong></p>
                                 <p>Lihat status di halaman <strong>Approvals</strong></p>
                             </div>
                         ) : (
@@ -322,8 +469,10 @@ export default function DocumentsPage() {
                                     </div>
                                 </div>
                                 <div className={styles.modalFooter}>
-                                    <Button variant="secondary" onClick={() => setShowRequestModal(false)}>Cancel</Button>
-                                    <Button variant="primary" onClick={submitRequest} disabled={!targetZone || !justification}>Submit Request</Button>
+                                    <Button variant="secondary" onClick={() => setShowRequestModal(false)} disabled={requestLoading}>Cancel</Button>
+                                    <Button variant="primary" onClick={submitRequest} disabled={!targetZone || !justification || requestLoading}>
+                                        {requestLoading ? 'Mengirim...' : 'Submit Request'}
+                                    </Button>
                                 </div>
                             </>
                         )}

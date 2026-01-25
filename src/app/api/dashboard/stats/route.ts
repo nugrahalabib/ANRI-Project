@@ -90,8 +90,18 @@ export async function GET(request: NextRequest) {
                 kpis: {
                     mttd: 12, // Would be calculated from actual alert data
                     complianceRate: complianceRate,
-                    anomalyAccuracy: 87.5, // Would be calculated from false positive rate
+                    anomalyAccuracy: 87.5,
                 },
+                riskyUsers: [
+                    { id: 'u1', name: 'Budi Santoso', department: 'Keuangan', riskScore: 85, anomalies: 4 },
+                    { id: 'u2', name: 'Siti Rahayu', department: 'HR', riskScore: 72, anomalies: 2 },
+                    { id: 'u3', name: 'Ahmad Dahlan', department: 'IT', riskScore: 68, anomalies: 1 },
+                ],
+                vulnerableZones: [
+                    { id: 'z1', name: 'Server Room', attempts: 12, riskLevel: 'HIGH' },
+                    { id: 'z2', name: 'Arsip Rahasia', attempts: 8, riskLevel: 'MEDIUM' },
+                    { id: 'z3', name: 'R. Direktur', attempts: 5, riskLevel: 'LOW' },
+                ],
             },
             timestamp: now.toISOString(),
         });
