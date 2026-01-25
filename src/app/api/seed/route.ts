@@ -325,21 +325,26 @@ export async function GET() {
             const mov = anomalyMovements[i];
             const scenario = alertScenarios[i % alertScenarios.length];
 
+            // Calculate risk score based on severity
+            const riskScore = scenario.severity === 'CRITICAL'
+                ? 0.80 + Math.random() * 0.18  // CRITICAL: 80-98%
+                : scenario.severity === 'HIGH'
+                    ? 0.60 + Math.random() * 0.20  // HIGH: 60-80%
+                    : 0.40 + Math.random() * 0.20; // MEDIUM: 40-60%
+
+            // Confidence correlates with risk - high risk means AI is more certain
+            const confidence = Math.min(0.99, riskScore + (Math.random() * 0.10 - 0.05));
+
             await prisma.anomalyAlert.create({
                 data: {
                     documentId: mov.docId,
                     movementId: mov.id,
                     alertType: scenario.type,
                     severity: scenario.severity,
-                    // Risk score varies by severity: CRITICAL=0.70-0.95, HIGH=0.50-0.75, MEDIUM=0.30-0.55
-                    riskScore: scenario.severity === 'CRITICAL'
-                        ? 0.70 + Math.random() * 0.25
-                        : scenario.severity === 'HIGH'
-                            ? 0.50 + Math.random() * 0.25
-                            : 0.30 + Math.random() * 0.25,
+                    riskScore,
                     explanation: scenario.explanation,
                     contributingFactors: JSON.stringify(scenario.factors),
-                    confidence: 0.75 + Math.random() * 0.24,
+                    confidence,
                     status: ['OPEN', 'INVESTIGATING', 'OPEN', 'OPEN'][Math.floor(Math.random() * 4)] as 'OPEN' | 'INVESTIGATING' | 'RESOLVED',
                     createdAt: mov.timestamp,
                 },
