@@ -88,8 +88,9 @@ export default function NSOCTacticalTerminal() {
     const onlineReaders = readers.filter(r => r.isOnline).length;
 
     const getRiskColor = (score: number) => {
-        if (score >= 70) return 'critical';
-        if (score >= 40) return 'warning';
+        const pct = score * 100;
+        if (pct >= 70) return 'critical';
+        if (pct >= 40) return 'warning';
         return 'normal';
     };
 
@@ -200,11 +201,11 @@ export default function NSOCTacticalTerminal() {
                                                     <circle
                                                         cx="25" cy="25" r="20"
                                                         className={styles.gaugeFill}
-                                                        strokeDasharray={`${alert.riskScore * 1.26} 126`}
+                                                        strokeDasharray={`${alert.riskScore * 100 * 1.26} 126`}
                                                         transform="rotate(-90 25 25)"
                                                     />
                                                 </svg>
-                                                <span className={styles.gaugeValue}>{Math.round(alert.riskScore)}</span>
+                                                <span className={styles.gaugeValue}>{Math.round(alert.riskScore * 100)}</span>
                                             </div>
                                         </div>
 
