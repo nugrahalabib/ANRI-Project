@@ -1,0 +1,91 @@
+.card {
+    background: var(--color-background-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all var(--transition-fast);
+}
+
+/* Variants */
+.default {
+    background: var(--navy-800);
+    border-color: var(--navy-700);
+}
+
+.elevated {
+    background: var(--grey-800);
+    border-color: var(--grey-700);
+    box-shadow: var(--shadow-lg);
+}
+
+.outlined {
+    background: transparent;
+    border-color: var(--navy-600);
+}
+
+.outlined:hover {
+    border-color: var(--navy-500);
+}
+
+/* Status Variants */
+.statusnormal {
+    background: var(--status-normal-bg);
+    border-color: var(--status-normal-border);
+}
+
+.statusnormal .header {
+    border-bottom-color: var(--status-normal-border);
+}
+
+.statuswarning {
+    background: var(--status-warning-bg);
+    border-color: var(--status-warning-border);
+}
+
+.statuswarning .header {
+    border-bottom-color: var(--status-warning-border);
+}
+
+.statuscritical {
+    background: var(--status-critical-bg);
+    border-color: var(--status-critical-border);
+    animation: alertPulse 3s ease-in-out infinite;
+}
+
+.statuscritical .header {
+    border-bottom-color: var(--status-critical-border);
+}
+
+@keyframes alertPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0);
+    }
+}
+
+/* Card Parts */
+.header {
+    padding: var(--space-4) var(--space-5);
+    border-bottom: 1px solid var(--color-border);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-base);
+}
+
+.content {
+    padding: var(--space-5);
+}
+
+.noPadding .content {
+    padding: 0;
+}
+
+.footer {
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--color-border);
+    background: rgba(0, 0, 0, 0.2);
+}

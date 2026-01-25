@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.title {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-400);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0;
+}
+
+.chart {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.subtitle {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+    text-align: center;
+    margin: 0;
+}

@@ -1,0 +1,129 @@
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-family: var(--font-sans);
+    font-weight: var(--font-weight-medium);
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+}
+
+/* Sizes */
+.sm {
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--font-size-xs);
+}
+
+.md {
+    padding: var(--space-1) var(--space-3);
+    font-size: var(--font-size-sm);
+}
+
+.lg {
+    padding: var(--space-2) var(--space-4);
+    font-size: var(--font-size-base);
+}
+
+/* Status Colors */
+.normal {
+    background: var(--status-normal-bg);
+    color: var(--status-normal-light);
+    border: 1px solid var(--status-normal-border);
+}
+
+.normal .dot {
+    background: var(--status-normal);
+}
+
+.warning {
+    background: var(--status-warning-bg);
+    color: var(--status-warning-light);
+    border: 1px solid var(--status-warning-border);
+}
+
+.warning .dot {
+    background: var(--status-warning);
+}
+
+.critical,
+.high {
+    background: var(--status-critical-bg);
+    color: var(--status-critical-light);
+    border: 1px solid var(--status-critical-border);
+}
+
+.critical .dot,
+.high .dot {
+    background: var(--status-critical);
+}
+
+.low {
+    background: var(--status-normal-bg);
+    color: var(--status-normal-light);
+    border: 1px solid var(--status-normal-border);
+}
+
+.low .dot {
+    background: var(--status-normal);
+}
+
+.medium {
+    background: var(--status-warning-bg);
+    color: var(--status-warning-light);
+    border: 1px solid var(--status-warning-border);
+}
+
+.medium .dot {
+    background: var(--status-warning);
+}
+
+.info {
+    background: rgba(59, 130, 246, 0.2);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.info .dot {
+    background: #3b82f6;
+}
+
+/* Dot indicator */
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sm .dot {
+    width: 6px;
+    height: 6px;
+}
+
+.lg .dot {
+    width: 10px;
+    height: 10px;
+}
+
+/* Animation */
+.animate .dot {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+}
+
+.label {
+    line-height: 1;
+}

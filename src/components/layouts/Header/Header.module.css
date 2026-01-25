@@ -1,0 +1,165 @@
+.header {
+    height: var(--header-height);
+    background: var(--navy-800);
+    border-bottom: 1px solid var(--navy-700);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-6);
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.titleSection {
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-100);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.subtitle {
+    font-size: var(--font-size-sm);
+    color: var(--grey-500);
+    margin: 0;
+}
+
+.right {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.dateDisplay {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--grey-400);
+    padding: var(--space-2) var(--space-3);
+    background: var(--navy-900);
+    border-radius: var(--radius-md);
+}
+
+.dateIcon {
+    width: 16px;
+    height: 16px;
+    color: var(--grey-500);
+}
+
+.iconButton {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+    color: var(--grey-400);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+}
+
+.iconButton:hover {
+    background: var(--navy-700);
+    color: var(--grey-100);
+    border-color: var(--navy-600);
+}
+
+.iconButton svg {
+    width: 20px;
+    height: 20px;
+}
+
+.notificationBadge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    width: 18px;
+    height: 18px;
+    background: var(--status-critical);
+    color: white;
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--navy-800);
+}
+
+.userMenu {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-2) var(--space-3);
+    background: var(--navy-900);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.userMenu:hover {
+    border-color: var(--navy-600);
+    background: var(--navy-800);
+}
+
+.userAvatar {
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--navy-500), var(--navy-600));
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+}
+
+.userInfo {
+    display: flex;
+    flex-direction: column;
+}
+
+.userName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-100);
+    line-height: 1.2;
+}
+
+.userRole {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+.chevron {
+    width: 16px;
+    height: 16px;
+    color: var(--grey-500);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: var(--space-2);
+    padding-left: var(--space-4);
+    border-left: 1px solid var(--navy-700);
+}

@@ -1,0 +1,636 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+/* Score Overview Section */
+.scoreOverview {
+    display: flex;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    background: var(--navy-800);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-lg);
+}
+
+.mainScore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.scoreCircle {
+    position: relative;
+    width: 140px;
+    height: 140px;
+}
+
+.scoreCircle svg {
+    width: 100%;
+    height: 100%;
+}
+
+.scoreValue {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.scoreNumber {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--grey-100);
+}
+
+.scoreLabel {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.metricsGrid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
+}
+
+.metricCard {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: var(--navy-900);
+    border-radius: var(--radius-md);
+}
+
+.metricValue {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-100);
+}
+
+.metricLabel {
+    font-size: var(--font-size-sm);
+    color: var(--grey-500);
+}
+
+.metricBar {
+    height: 6px;
+    background: var(--navy-700);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-top: var(--space-2);
+}
+
+.metricFill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+}
+
+/* Main Grid */
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--space-5);
+}
+
+@media (max-width: 1200px) {
+    .mainGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Policy Table */
+.policyTable {
+    overflow-x: auto;
+}
+
+.policyTable table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.policyTable th {
+    text-align: left;
+    padding: var(--space-3) var(--space-4);
+    background: var(--navy-900);
+    color: var(--grey-500);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid var(--navy-700);
+}
+
+.policyTable td {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--navy-700);
+    vertical-align: middle;
+}
+
+.policyTable tbody tr {
+    cursor: pointer;
+    transition: background var(--transition-fast);
+}
+
+.policyTable tbody tr:hover {
+    background: rgba(28, 58, 94, 0.3);
+}
+
+.policyTable tbody tr.selected {
+    background: rgba(61, 122, 184, 0.15);
+}
+
+.policyCell {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.policyId {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+.policyName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-200);
+}
+
+.complianceCell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.complianceBar {
+    width: 80px;
+    height: 6px;
+    background: var(--navy-700);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.complianceFill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+}
+
+.dateCell {
+    font-size: var(--font-size-sm);
+    color: var(--grey-500);
+}
+
+/* Right Column */
+.rightColumn {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* Events List */
+.eventsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.eventItem {
+    padding: var(--space-3);
+    background: var(--navy-900);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+}
+
+.eventHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+}
+
+.eventTime {
+    font-size: var(--font-size-xs);
+    color: var(--grey-600);
+}
+
+.eventContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.eventPolicy {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-200);
+}
+
+.eventAuditor {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+/* Audits List */
+.auditsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.auditItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--navy-900);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+}
+
+.auditPriority {
+    flex-shrink: 0;
+}
+
+.priorityDot {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.priorityDot.high {
+    background: var(--status-critical);
+}
+
+.priorityDot.medium {
+    background: var(--status-warning);
+}
+
+.priorityDot.low {
+    background: var(--status-normal);
+}
+
+.auditInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.auditPolicy {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-200);
+}
+
+.auditMeta {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+/* Quick Actions */
+.quickActions {
+    display: flex;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: var(--navy-800);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-lg);
+}
+
+.quickActions button {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .scoreOverview {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .metricsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .quickActions {
+        flex-direction: column;
+    }
+}
+
+/* =========================================================
+   COMPLIANCE DASHBOARD - UI Classes  
+   ========================================================= */
+
+/* Loading State */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 300px;
+    font-size: 16px;
+    color: #64748b;
+}
+
+/* Score Section */
+.scoreSection {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: var(--space-6);
+    padding: var(--space-6);
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%);
+    border: 1px solid rgba(71, 85, 105, 0.3);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(10px);
+}
+
+.mainScore {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scoreGauge {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: conic-gradient(var(--color, #10b981) 0% var(--score, 85%),
+            rgba(71, 85, 105, 0.3) var(--score, 85%) 100%);
+}
+
+.scoreGauge::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+
+.scoreGauge .scoreValue {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-mono);
+    font-size: 32px;
+    font-weight: var(--font-weight-bold);
+    color: #f1f5f9;
+}
+
+.scoreGauge .scoreLabel {
+    position: relative;
+    z-index: 1;
+    margin-top: 4px;
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Risk Breakdown */
+.riskBreakdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    justify-content: center;
+}
+
+.riskCard {
+    display: grid;
+    grid-template-columns: 120px 1fr 60px;
+    gap: var(--space-3);
+    align-items: center;
+    padding: var(--space-3);
+    background: rgba(30, 41, 59, 0.5);
+    border: 1px solid rgba(71, 85, 105, 0.2);
+    border-radius: var(--radius-md);
+}
+
+.riskLabel {
+    font-size: 13px;
+    font-weight: var(--font-weight-medium);
+    color: #cbd5e1;
+}
+
+.riskBar {
+    height: 8px;
+    background: rgba(71, 85, 105, 0.3);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.riskFill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+}
+
+.riskValue {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    color: #f1f5f9;
+    text-align: right;
+}
+
+/* KPI Section */
+.kpiSection {
+    margin-top: var(--space-2);
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-4);
+}
+
+.sectionHeader h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: var(--font-weight-semibold);
+    color: #f1f5f9;
+}
+
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-4);
+}
+
+.kpiCard {
+    padding: var(--space-4);
+}
+
+.kpiCategory {
+    margin: 0 0 var(--space-3);
+    font-size: 13px;
+    font-weight: var(--font-weight-semibold);
+    color: #60a5fa;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.kpiList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.kpiItem {
+    padding: var(--space-3);
+    background: rgba(30, 41, 59, 0.5);
+    border-radius: var(--radius-md);
+}
+
+.kpiHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-2);
+}
+
+.kpiName {
+    font-size: 13px;
+    font-weight: var(--font-weight-medium);
+    color: #e2e8f0;
+}
+
+.kpiValue {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+/* Violations Section */
+.violationsSection {
+    margin-top: var(--space-2);
+}
+
+.violationsList {
+    display: flex;
+    flex-direction: column;
+}
+
+.violationItem {
+    display: grid;
+    grid-template-columns: 140px 1fr auto;
+    gap: var(--space-4);
+    align-items: center;
+    padding: var(--space-4);
+    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+    transition: background var(--transition-fast);
+}
+
+.violationItem:last-child {
+    border-bottom: none;
+}
+
+.violationItem:hover {
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.violationTime {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #64748b;
+}
+
+.violationInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.violationPolicy {
+    font-size: 13px;
+    font-weight: var(--font-weight-medium);
+    color: #e2e8f0;
+}
+
+.violationUser {
+    font-size: 11px;
+    color: #94a3b8;
+}
+
+.noViolations {
+    padding: var(--space-6);
+    text-align: center;
+    font-size: 14px;
+    color: #10b981;
+}
+
+/* Audit Info Section */
+.auditInfo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: var(--radius-lg);
+}
+
+.auditIcon {
+    font-size: 32px;
+    flex-shrink: 0;
+}
+
+.auditContent h4 {
+    margin: 0 0 var(--space-1);
+    font-size: 14px;
+    font-weight: var(--font-weight-semibold);
+    color: #10b981;
+}
+
+.auditContent p {
+    margin: 0;
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .scoreSection {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+
+    .riskCard {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+    }
+
+    .riskValue {
+        text-align: left;
+    }
+
+    .violationItem {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+    }
+
+    .kpiGrid {
+        grid-template-columns: 1fr;
+    }
+}

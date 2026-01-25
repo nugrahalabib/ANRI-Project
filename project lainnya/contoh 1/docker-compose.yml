@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  anri-platform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: anri-platform
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=file:/app/data/anri.db
+      - JWT_SECRET=${JWT_SECRET:-your-super-secret-jwt-key-change-in-production}
+      - AUDIT_SECRET=${AUDIT_SECRET:-your-audit-signing-secret-change-in-production}
+    volumes:
+      - anri-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Nginx reverse proxy for production
+  nginx:
+    image: nginx:alpine
+    container_name: anri-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - anri-platform
+    restart: unless-stopped
+
+volumes:
+  anri-data:
+    driver: local

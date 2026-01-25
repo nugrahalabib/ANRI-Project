@@ -1,0 +1,545 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+}
+
+/* Summary Header - Critical Alert Style */
+.summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4) var(--space-5);
+    background: linear-gradient(135deg, rgba(127, 29, 29, 0.2), var(--navy-800));
+    border: 1px solid var(--status-critical-border);
+    border-radius: var(--radius-lg);
+    flex-wrap: wrap;
+    gap: var(--space-3);
+}
+
+.summaryLeft {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.rfidTag {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-bold);
+    color: var(--grey-100);
+}
+
+.summaryRight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-1);
+}
+
+.docTitle {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-200);
+}
+
+.timeRange {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+/* Stats Bar */
+.statsBar {
+    display: flex;
+    gap: var(--space-6);
+    padding: var(--space-4) var(--space-5);
+    background: var(--navy-800);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-lg);
+    justify-content: center;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-1);
+    padding: 0 var(--space-6);
+}
+
+.stat:not(:last-child) {
+    border-right: 1px solid var(--navy-600);
+}
+
+.statValue {
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    color: var(--grey-100);
+}
+
+.statValue.danger {
+    color: var(--status-critical);
+}
+
+.statLabel {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Main Grid */
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: var(--space-5);
+}
+
+@media (max-width: 1000px) {
+    .mainGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Map Container */
+.mapContainer {
+    position: relative;
+    padding: var(--space-4);
+}
+
+.map {
+    width: 100%;
+    height: 320px;
+    background: var(--navy-900);
+    border-radius: var(--radius-md);
+}
+
+.pathLine {
+    transition: all 0.3s ease;
+}
+
+.pulsingDot {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.7;
+        transform: scale(1.3);
+    }
+}
+
+.positionInfo {
+    position: absolute;
+    bottom: var(--space-6);
+    left: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    padding: var(--space-3);
+    background: rgba(10, 22, 40, 0.95);
+    border: 1px solid var(--navy-600);
+    border-radius: var(--radius-md);
+    backdrop-filter: blur(4px);
+}
+
+.positionLabel {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.positionZone {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-100);
+}
+
+.positionCode {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-xs);
+    color: var(--navy-400);
+}
+
+.positionReader {
+    font-size: var(--font-size-xs);
+    color: var(--grey-400);
+    margin-top: var(--space-1);
+}
+
+/* Steps List */
+.stepsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    max-height: 380px;
+    overflow-y: auto;
+}
+
+.step {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    background: var(--navy-900);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.step:hover {
+    border-color: var(--navy-600);
+    background: var(--navy-800);
+}
+
+.step.current {
+    border-color: var(--navy-500);
+    background: rgba(61, 122, 184, 0.2);
+}
+
+.step.passed {
+    opacity: 0.6;
+}
+
+.step.anomaly {
+    border-left: 3px solid var(--status-critical);
+    background: rgba(127, 29, 29, 0.1);
+}
+
+.stepNumber {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--navy-700);
+    border-radius: 50%;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-bold);
+    color: var(--grey-300);
+    flex-shrink: 0;
+}
+
+.step.current .stepNumber {
+    background: var(--navy-500);
+    color: white;
+}
+
+.step.anomaly .stepNumber {
+    background: var(--status-critical);
+    color: white;
+}
+
+.stepContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.stepTime {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+    font-family: var(--font-mono);
+}
+
+.stepZone {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-200);
+}
+
+.stepRisk {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-xs);
+    color: var(--grey-400);
+}
+
+.riskBar {
+    width: 50px;
+    height: 6px;
+    background: var(--navy-700);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.riskFill {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+}
+
+/* Playback Controls */
+.controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    flex-wrap: wrap;
+}
+
+.playbackButtons {
+    display: flex;
+    gap: var(--space-2);
+}
+
+.controlBtn {
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--navy-800);
+    border: 1px solid var(--navy-600);
+    border-radius: var(--radius-md);
+    color: var(--grey-400);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.controlBtn:hover {
+    background: var(--navy-700);
+    color: var(--grey-100);
+}
+
+.controlBtn.primary {
+    width: 56px;
+    height: 56px;
+    background: var(--navy-600);
+    color: white;
+}
+
+.controlBtn.primary:hover {
+    background: var(--navy-500);
+}
+
+.controlBtn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.controlBtn.primary svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Progress Section */
+.progressSection {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.progressBar {
+    position: relative;
+    height: 8px;
+    background: var(--navy-700);
+    border-radius: var(--radius-full);
+    overflow: visible;
+}
+
+.progressFill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--navy-500), var(--navy-400));
+    border-radius: var(--radius-full);
+    transition: width var(--transition-normal);
+}
+
+.progressMarker {
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 14px;
+    height: 14px;
+    background: var(--navy-500);
+    border: 2px solid var(--navy-800);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.progressMarker:hover {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+.progressMarker.anomalyMarker {
+    background: var(--status-critical);
+}
+
+.progressLabel {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+    text-align: center;
+}
+
+/* Speed Control */
+.speedControl {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-size-sm);
+    color: var(--grey-500);
+}
+
+.speedBtn {
+    padding: var(--space-1) var(--space-2);
+    background: var(--navy-800);
+    border: 1px solid var(--navy-600);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    color: var(--grey-400);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.speedBtn:hover {
+    background: var(--navy-700);
+}
+
+.speedBtn.active {
+    background: var(--navy-600);
+    color: white;
+    border-color: var(--navy-500);
+}
+
+/* AI Analysis Section */
+.aiSection {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--space-6);
+}
+
+@media (max-width: 900px) {
+    .aiSection {
+        grid-template-columns: 1fr;
+    }
+}
+
+.explanation {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.explanation p {
+    font-size: var(--font-size-sm);
+    color: var(--grey-300);
+    line-height: 1.7;
+    margin: 0;
+}
+
+.recommendation {
+    padding: var(--space-3);
+    background: var(--status-warning-bg);
+    border: 1px solid var(--status-warning-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    color: var(--grey-300);
+}
+
+.recommendation strong {
+    color: var(--status-warning);
+    display: block;
+    margin-bottom: var(--space-1);
+}
+
+.factors h4 {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-400);
+    margin: 0 0 var(--space-3);
+}
+
+.factor {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+}
+
+.factorName {
+    flex: 1;
+    font-size: var(--font-size-sm);
+    color: var(--grey-400);
+}
+
+.factorBar {
+    width: 100px;
+    height: 6px;
+    background: var(--navy-700);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.factorFill {
+    height: 100%;
+    background: var(--navy-400);
+    border-radius: var(--radius-full);
+}
+
+.factorWeight {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-300);
+    min-width: 40px;
+    text-align: right;
+}
+
+.confidence {
+    margin-top: var(--space-4);
+    font-size: var(--font-size-sm);
+    color: var(--grey-500);
+}
+
+.confidence strong {
+    color: var(--navy-300);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .summary {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .summaryRight {
+        align-items: flex-start;
+    }
+
+    .statsBar {
+        flex-wrap: wrap;
+        gap: var(--space-4);
+    }
+
+    .stat {
+        border: none !important;
+    }
+
+    .controls {
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .playbackButtons {
+        justify-content: center;
+    }
+
+    .progressSection {
+        width: 100%;
+    }
+
+    .speedControl {
+        justify-content: center;
+    }
+}

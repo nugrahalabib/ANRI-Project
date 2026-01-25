@@ -1,0 +1,213 @@
+.container {
+    position: relative;
+}
+
+.bellButton {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 1px solid rgba(61, 122, 184, 0.3);
+    border-radius: 8px;
+    color: var(--grey-400, #9ca3af);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.bellButton:hover {
+    background: rgba(61, 122, 184, 0.1);
+    color: var(--grey-200, #e5e7eb);
+    border-color: rgba(61, 122, 184, 0.5);
+}
+
+.bellButton svg {
+    width: 20px;
+    height: 20px;
+}
+
+.badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #dc2626;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    border-radius: 9px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: transparent;
+    z-index: 999;
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    width: 340px;
+    max-height: 480px;
+    background: linear-gradient(180deg, rgba(16, 42, 67, 0.98), rgba(15, 23, 42, 0.98));
+    border: 1px solid rgba(61, 122, 184, 0.3);
+    border-radius: 12px;
+    z-index: 1000;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.dropdownHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid rgba(61, 122, 184, 0.2);
+}
+
+.dropdownHeader h3 {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--grey-200, #e5e7eb);
+}
+
+.markAllBtn {
+    background: none;
+    border: none;
+    color: var(--accent-gold, #d4af37);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0;
+}
+
+.markAllBtn:hover {
+    text-decoration: underline;
+}
+
+.notificationList {
+    max-height: 360px;
+    overflow-y: auto;
+}
+
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: var(--grey-500, #6b7280);
+}
+
+.emptyState span {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.5;
+}
+
+.notificationItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(61, 122, 184, 0.1);
+    transition: background 0.2s ease;
+    position: relative;
+}
+
+.notificationItem:hover {
+    background: rgba(61, 122, 184, 0.1);
+}
+
+.notificationItem.unread {
+    background: rgba(212, 175, 55, 0.05);
+}
+
+.notificationItem.unread:hover {
+    background: rgba(212, 175, 55, 0.1);
+}
+
+.notificationIcon {
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.notificationContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    min-width: 0;
+}
+
+.notificationTitle {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--grey-200, #e5e7eb);
+}
+
+.notificationMessage {
+    font-size: 0.75rem;
+    color: var(--grey-400, #9ca3af);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.notificationTime {
+    font-size: 0.65rem;
+    color: var(--grey-500, #6b7280);
+    margin-top: 0.25rem;
+}
+
+.unreadDot {
+    width: 8px;
+    height: 8px;
+    background: var(--accent-gold, #d4af37);
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.dropdownFooter {
+    padding: 0.75rem 1rem;
+    border-top: 1px solid rgba(61, 122, 184, 0.2);
+    text-align: center;
+}
+
+.viewAllBtn {
+    font-size: 0.8rem;
+    color: var(--accent-gold, #d4af37);
+    text-decoration: none;
+}
+
+.viewAllBtn:hover {
+    text-decoration: underline;
+}

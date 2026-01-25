@@ -1,0 +1,258 @@
+.layout {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+/* Sidebar */
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-secondary);
+    border-right: 1px solid var(--navy-700);
+    transition: width 0.3s ease;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+}
+
+.sidebar.open {
+    width: 260px;
+}
+
+.sidebar.closed {
+    width: 70px;
+}
+
+.sidebarHeader {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--navy-700);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.logoIcon {
+    width: 36px;
+    height: 36px;
+    color: var(--accent-gold);
+    flex-shrink: 0;
+}
+
+.logo span {
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+}
+
+/* Navigation */
+.nav {
+    flex: 1;
+    padding: 1rem 0.75rem;
+    overflow-y: auto;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    margin-bottom: 0.25rem;
+}
+
+.navItem:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.navItem.active {
+    background: rgba(212, 175, 55, 0.15);
+    color: var(--accent-gold);
+}
+
+.navIcon {
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.navLabel {
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+/* Sidebar Footer */
+.sidebarFooter {
+    padding: 1rem;
+    border-top: 1px solid var(--navy-700);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.userInfo {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-width: 0;
+}
+
+.userAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent-gold);
+    color: var(--navy-900);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+}
+
+.userDetails {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.userName {
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.userRole {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: capitalize;
+}
+
+.logoutBtn {
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.logoutBtn:hover {
+    background: var(--bg-tertiary);
+}
+
+/* Main Content */
+.main {
+    flex: 1;
+    margin-left: 260px;
+    transition: margin-left 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.sidebar.closed+.main {
+    margin-left: 70px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 2rem;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--navy-700);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.toggleBtn {
+    padding: 0.5rem;
+    font-size: 1.2rem;
+    border-radius: 6px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.headerContent {
+    flex: 1;
+}
+
+.headerContent h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.2rem;
+}
+
+.headerContent p {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.timestamp {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.content {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+}
+
+/* Loading State */
+.loading {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: var(--bg-primary);
+    color: var(--text-secondary);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--navy-600);
+    border-top-color: var(--accent-gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .sidebar.open {
+        width: 260px;
+        position: fixed;
+    }
+
+    .main {
+        margin-left: 0 !important;
+    }
+}

@@ -1,0 +1,183 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+/* KPI Grid */
+.kpiGrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-5);
+}
+
+@media (max-width: 1400px) {
+    .kpiGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 800px) {
+    .kpiGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Main Grid */
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: var(--space-5);
+}
+
+@media (max-width: 1200px) {
+    .mainGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Risk Posture */
+.riskPosture {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+.gaugeSection {
+    display: flex;
+    justify-content: center;
+}
+
+.riskBreakdown {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.riskItem {
+    display: grid;
+    grid-template-columns: 150px 1fr 50px;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.riskLabel {
+    font-size: var(--font-size-sm);
+    color: var(--grey-400);
+}
+
+.riskBar {
+    height: 8px;
+    background: var(--navy-700);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.riskProgress {
+    height: 100%;
+    border-radius: var(--radius-full);
+    transition: width var(--transition-slow);
+}
+
+.riskValue {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-200);
+    text-align: right;
+}
+
+/* Alerts Section */
+.alertsSection {
+    width: 100%;
+}
+
+.alertsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.alertItem {
+    padding: var(--space-4);
+    background: var(--navy-900);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.alertItem:hover {
+    border-color: var(--navy-600);
+    background: rgba(28, 58, 94, 0.3);
+}
+
+.alertHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-3);
+}
+
+.alertTime {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+.alertContent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.alertDocument {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-100);
+}
+
+.alertExplanation {
+    font-size: var(--font-size-sm);
+    color: var(--grey-400);
+    margin: 0;
+    line-height: 1.5;
+}
+
+.alertExplanation strong {
+    color: var(--navy-400);
+}
+
+/* XAI Banner */
+.xaiBanner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: linear-gradient(135deg, rgba(61, 122, 184, 0.15) 0%, rgba(28, 58, 94, 0.15) 100%);
+    border: 1px solid var(--navy-600);
+    border-radius: var(--radius-lg);
+}
+
+.xaiIcon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    color: var(--navy-400);
+}
+
+.xaiIcon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.xaiContent h4 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-100);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.xaiContent p {
+    font-size: var(--font-size-sm);
+    color: var(--grey-400);
+    margin: 0;
+    line-height: 1.6;
+}

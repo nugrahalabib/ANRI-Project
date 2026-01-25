@@ -1,0 +1,431 @@
+// Prisma Schema for ANRI Sovereign Risk Intelligence Platform
+// Enterprise-grade schema with RBAC, audit trails, and document tracking
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+// ============================================================================
+// CORE USER & ACCESS CONTROL
+// ============================================================================
+
+model User {
+  id            String          @id @default(cuid())
+  email         String          @unique
+  name          String
+  passwordHash  String
+  role          UserRole        @default(COMPLIANCE_OFFICER)
+  department    String?
+  isActive      Boolean         @default(true)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  sessions      Session[]
+  auditLogs     AuditLog[]
+  violations    PolicyViolation[]
+  notifications Notification[]
+}
+
+enum UserRole {
+  EXECUTIVE
+  IT_SECURITY
+  COMPLIANCE_OFFICER
+  SYSTEM_ADMIN
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token        String   @unique
+  ipAddress    String?
+  userAgent    String?
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
+}
+
+// ============================================================================
+// MODULE A: INTELLIGENT DOCUMENT TRACKING (RFID & AI)
+// ============================================================================
+
+model Zone {
+  id              String             @id @default(cuid())
+  name            String
+  code            String             @unique
+  description     String?
+  securityLevel   SecurityLevel      @default(STANDARD)
+  floor           String?
+  building        String?
+  isActive        Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  
+  documents       Document[]
+  movementsFrom   DocumentMovement[] @relation("FromZone")
+  movementsTo     DocumentMovement[] @relation("ToZone")
+  rfidReaders     RFIDReader[]
+  accessPermissions ZoneAccessPermission[]
+}
+
+enum SecurityLevel {
+  PUBLIC
+  STANDARD
+  RESTRICTED
+  HIGH_SECURITY
+}
+
+model RFIDReader {
+  id          String    @id @default(cuid())
+  readerId    String    @unique
+  name        String
+  type        ReaderType
+  zoneId      String
+  zone        Zone      @relation(fields: [zoneId], references: [id])
+  isOnline    Boolean   @default(true)
+  lastPing    DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  movements   DocumentMovement[]
+}
+
+enum ReaderType {
+  FIXED
+  MOBILE
+  PORTAL
+}
+
+model Document {
+  id                  String                @id @default(cuid())
+  rfidTag             String                @unique
+  title               String
+  description         String?
+  classification      DocumentClassification
+  organizationUnit    String
+  currentZoneId       String?
+  currentZone         Zone?                 @relation(fields: [currentZoneId], references: [id])
+  isActive            Boolean               @default(true)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  
+  baselineProfile     DocumentBaseline?
+  movements           DocumentMovement[]
+  anomalies           AnomalyAlert[]
+}
+
+enum DocumentClassification {
+  PUBLIC
+  RESTRICTED
+  SECRET
+}
+
+model DocumentBaseline {
+  id                  String    @id @default(cuid())
+  documentId          String    @unique
+  document            Document  @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  // Behavioral profile data (JSON for flexibility)
+  normalHoursStart    Int       @default(8)   // 24h format
+  normalHoursEnd      Int       @default(17)
+  allowedZones        String    // JSON array of zone IDs
+  typicalMovementFreq Float     @default(1.0) // avg movements per day
+  
+  // ML model data
+  featureVector       String?   // JSON serialized feature vector
+  modelVersion        String?
+  lastTrainedAt       DateTime?
+  confidenceScore     Float     @default(0.0)
+  
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+}
+
+model DocumentMovement {
+  id            String       @id @default(cuid())
+  documentId    String
+  document      Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  
+  fromZoneId    String?
+  fromZone      Zone?        @relation("FromZone", fields: [fromZoneId], references: [id])
+  toZoneId      String
+  toZone        Zone         @relation("ToZone", fields: [toZoneId], references: [id])
+  
+  readerId      String
+  reader        RFIDReader   @relation(fields: [readerId], references: [id])
+  
+  isAuthorized  Boolean      @default(true)
+  riskScore     Float        @default(0.0)
+  timestamp     DateTime     @default(now())
+  
+  anomalyAlert  AnomalyAlert?
+}
+
+model AnomalyAlert {
+  id              String         @id @default(cuid())
+  documentId      String
+  document        Document       @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  movementId      String?        @unique
+  movement        DocumentMovement? @relation(fields: [movementId], references: [id])
+  
+  alertType       AnomalyType
+  severity        RiskSeverity
+  riskScore       Float
+  
+  // XAI - Explainable AI fields
+  explanation     String         // Human-readable explanation
+  contributingFactors String     // JSON array of factor objects
+  confidence      Float
+  
+  status          AlertStatus    @default(OPEN)
+  resolvedAt      DateTime?
+  resolvedBy      String?
+  resolutionNotes String?
+  
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+enum AnomalyType {
+  UNAUTHORIZED_ZONE
+  AFTER_HOURS_ACCESS
+  UNUSUAL_FREQUENCY
+  PATTERN_DEVIATION
+  CLASSIFICATION_MISMATCH
+  RAPID_MOVEMENT
+}
+
+enum RiskSeverity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertStatus {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  FALSE_POSITIVE
+  ESCALATED
+}
+
+model ZoneAccessPermission {
+  id                    String                @id @default(cuid())
+  zoneId                String
+  zone                  Zone                  @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  organizationUnit      String
+  classification        DocumentClassification
+  allowedHoursStart     Int                   @default(0)
+  allowedHoursEnd       Int                   @default(24)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  
+  @@unique([zoneId, organizationUnit, classification])
+}
+
+// ============================================================================
+// MODULE B: DIGITAL ACTIVITY INTELLIGENCE & ENFORCEMENT
+// ============================================================================
+
+model PolicyRule {
+  id          String          @id @default(cuid())
+  name        String
+  description String
+  category    PolicyCategory
+  pattern     String          // Regex or pattern for matching
+  action      PolicyAction
+  severity    RiskSeverity
+  isActive    Boolean         @default(true)
+  priority    Int             @default(100)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  
+  violations  PolicyViolation[]
+}
+
+enum PolicyCategory {
+  DNS_BLOCK
+  URL_FILTER
+  CONTENT_RESTRICTION
+  TIME_RESTRICTION
+  BANDWIDTH_LIMIT
+  APPLICATION_CONTROL
+}
+
+enum PolicyAction {
+  BLOCK
+  WARN
+  LOG_ONLY
+  SUSPEND_ACCESS
+  ISOLATE_DEVICE
+}
+
+model PolicyViolation {
+  id              String          @id @default(cuid())
+  policyId        String
+  policy          PolicyRule      @relation(fields: [policyId], references: [id])
+  userId          String?
+  user            User?           @relation(fields: [userId], references: [id])
+  
+  deviceId        String?
+  ipAddress       String?
+  requestUrl      String?
+  dnsQuery        String?
+  
+  matchedPattern  String
+  actionTaken     PolicyAction
+  severity        RiskSeverity
+  
+  // User notification tracking
+  userNotified    Boolean         @default(false)
+  notificationId  String?
+  notification    Notification?   @relation(fields: [notificationId], references: [id])
+  
+  metadata        String?         // JSON for additional context
+  timestamp       DateTime        @default(now())
+}
+
+model Notification {
+  id              String             @id @default(cuid())
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  type            NotificationType
+  title           String
+  message         String
+  severity        RiskSeverity
+  
+  policyName      String?
+  helpdeskContact String?
+  
+  isRead          Boolean            @default(false)
+  readAt          DateTime?
+  
+  createdAt       DateTime           @default(now())
+  
+  violations      PolicyViolation[]
+}
+
+enum NotificationType {
+  POLICY_VIOLATION
+  ACCESS_SUSPENDED
+  DEVICE_ISOLATED
+  WARNING
+  INFORMATION
+}
+
+model DeviceStatus {
+  id              String         @id @default(cuid())
+  deviceId        String         @unique
+  hostname        String?
+  ipAddress       String
+  macAddress      String?
+  
+  status          DeviceStatusType @default(ACTIVE)
+  isolatedAt      DateTime?
+  isolationReason String?
+  
+  lastSeen        DateTime       @default(now())
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+enum DeviceStatusType {
+  ACTIVE
+  SUSPENDED
+  ISOLATED
+  OFFLINE
+}
+
+// ============================================================================
+// MODULE C: EXECUTIVE INTELLIGENCE & KPIs
+// ============================================================================
+
+model KPIMetric {
+  id              String         @id @default(cuid())
+  name            String
+  category        KPICategory
+  value           Float
+  target          Float?
+  trend           TrendDirection?
+  period          String         // e.g., "2024-01", "2024-Q1"
+  calculatedAt    DateTime       @default(now())
+}
+
+enum KPICategory {
+  MTTD              // Mean Time to Detection
+  MTTR              // Mean Time to Resolution
+  COMPLIANCE_RATE
+  ANOMALY_ACCURACY
+  POLICY_VIOLATIONS
+  DOCUMENT_RISK
+  SYSTEM_HEALTH
+}
+
+enum TrendDirection {
+  UP
+  DOWN
+  STABLE
+}
+
+model RiskPosture {
+  id              String         @id @default(cuid())
+  overallScore    Float
+  documentRisk    Float
+  digitalRisk     Float
+  complianceRisk  Float
+  
+  // Breakdown by severity
+  criticalCount   Int            @default(0)
+  highCount       Int            @default(0)
+  mediumCount     Int            @default(0)
+  lowCount        Int            @default(0)
+  
+  calculatedAt    DateTime       @default(now())
+}
+
+// ============================================================================
+// GOVERNANCE: CRYPTOGRAPHIC AUDIT TRAIL
+// ============================================================================
+
+model AuditLog {
+  id              String         @id @default(cuid())
+  action          String         // e.g., "CREATE", "UPDATE", "DELETE", "ACCESS"
+  entityType      String         // e.g., "Document", "PolicyRule", "User"
+  entityId        String
+  
+  userId          String?
+  user            User?          @relation(fields: [userId], references: [id])
+  
+  previousValue   String?        // JSON of previous state
+  newValue        String?        // JSON of new state
+  metadata        String?        // Additional context as JSON
+  
+  ipAddress       String?
+  userAgent       String?
+  
+  // Cryptographic integrity
+  signature       String         // HMAC signature of the log entry
+  previousHash    String?        // Hash of previous log entry (chain)
+  
+  timestamp       DateTime       @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([timestamp])
+}
+
+model SystemConfig {
+  id              String         @id @default(cuid())
+  key             String         @unique
+  value           String
+  description     String?
+  isEncrypted     Boolean        @default(false)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}

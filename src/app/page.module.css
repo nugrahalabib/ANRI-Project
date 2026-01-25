@@ -1,0 +1,262 @@
+.main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #0f172a 0%, #102a43 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.main::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(61, 90, 122, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.container {
+  text-align: center;
+  z-index: 1;
+  padding: 2rem;
+}
+
+.logo {
+  margin-bottom: 2rem;
+}
+
+.shield {
+  width: 100px;
+  height: 100px;
+  color: #d4af37;
+  filter: drop-shadow(0 0 20px rgba(212, 175, 55, 0.3));
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.title {
+  font-size: 4rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em;
+  color: #f8fafc;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  color: #d4af37;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 2rem;
+}
+
+.description {
+  color: #94a3b8;
+  margin-bottom: 3rem;
+}
+
+.description strong {
+  color: #d4af37;
+}
+
+/* Use Cases - Proposal Alignment */
+.useCases {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.useCase {
+  padding: 1.5rem;
+  background: rgba(28, 58, 94, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(61, 122, 184, 0.3);
+  border-radius: 12px;
+  text-align: left;
+  transition: all 0.3s ease;
+}
+
+.useCase:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.useCaseHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.useCaseIcon {
+  font-size: 1.5rem;
+}
+
+.useCaseLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #d4af37;
+  padding: 0.2rem 0.5rem;
+  background: rgba(212, 175, 55, 0.15);
+  border-radius: 4px;
+}
+
+.useCase h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f8fafc;
+  margin: 0 0 0.5rem;
+}
+
+.useCase p {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+}
+
+.useCaseTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.useCaseTags span {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(61, 122, 184, 0.3);
+  border-radius: 4px;
+  color: #93c5fd;
+}
+
+/* AI Badge */
+.aiBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  border-radius: 50px;
+  margin-bottom: 2rem;
+}
+
+.aiBadge svg {
+  width: 16px;
+  height: 16px;
+  color: #10b981;
+}
+
+.aiBadge span {
+  font-size: 0.8rem;
+  color: #86efac;
+  font-weight: 500;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  color: #64748b;
+  margin-bottom: 2rem;
+  font-size: 0.9rem;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #486581;
+  border-top-color: #d4af37;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loginBtn {
+  padding: 1rem 3rem;
+  background: linear-gradient(135deg, #d4af37 0%, #b8942d 100%);
+  color: #102a43;
+  font-weight: 600;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+  margin-bottom: 2rem;
+}
+
+.loginBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 30px rgba(212, 175, 55, 0.4);
+}
+
+/* Government Footer */
+.govFooter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #64748b;
+  flex-wrap: wrap;
+}
+
+.divider {
+  color: #334e68;
+}
+
+@media (max-width: 768px) {
+  .title {
+    font-size: 2.5rem;
+    letter-spacing: 0.2em;
+  }
+
+  .subtitle {
+    font-size: 1rem;
+  }
+
+  .useCases {
+    grid-template-columns: 1fr;
+  }
+
+  .govFooter {
+    flex-direction: column;
+  }
+
+  .divider {
+    display: none;
+  }
+}

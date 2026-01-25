@@ -1,0 +1,43 @@
+.container {
+    width: 100%;
+}
+
+.title {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-200);
+    margin: 0 0 var(--space-4) 0;
+}
+
+.chart {
+    width: 100%;
+}
+
+/* ApexCharts overrides */
+.chart :global(.apexcharts-toolbar) {
+    top: -30px !important;
+}
+
+.chart :global(.apexcharts-menu) {
+    background: var(--navy-800) !important;
+    border: 1px solid var(--navy-600) !important;
+}
+
+.chart :global(.apexcharts-menu-item) {
+    color: var(--grey-300) !important;
+}
+
+.chart :global(.apexcharts-menu-item:hover) {
+    background: var(--navy-700) !important;
+}
+
+.chart :global(.apexcharts-tooltip) {
+    background: var(--navy-800) !important;
+    border: 1px solid var(--navy-600) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+.chart :global(.apexcharts-tooltip-title) {
+    background: var(--navy-700) !important;
+    border-bottom: 1px solid var(--navy-600) !important;
+}
