@@ -331,10 +331,15 @@ export async function GET() {
                     movementId: mov.id,
                     alertType: scenario.type,
                     severity: scenario.severity,
-                    riskScore: 0.7 + Math.random() * 0.29,
+                    // Risk score varies by severity: CRITICAL=0.70-0.95, HIGH=0.50-0.75, MEDIUM=0.30-0.55
+                    riskScore: scenario.severity === 'CRITICAL'
+                        ? 0.70 + Math.random() * 0.25
+                        : scenario.severity === 'HIGH'
+                            ? 0.50 + Math.random() * 0.25
+                            : 0.30 + Math.random() * 0.25,
                     explanation: scenario.explanation,
                     contributingFactors: JSON.stringify(scenario.factors),
-                    confidence: 0.85 + Math.random() * 0.14,
+                    confidence: 0.75 + Math.random() * 0.24,
                     status: ['OPEN', 'INVESTIGATING', 'OPEN', 'OPEN'][Math.floor(Math.random() * 4)] as 'OPEN' | 'INVESTIGATING' | 'RESOLVED',
                     createdAt: mov.timestamp,
                 },
