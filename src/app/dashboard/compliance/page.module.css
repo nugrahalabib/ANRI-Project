@@ -1,257 +1,235 @@
 /* =============================================================================
-   NATIONAL DIGITAL AUDIT CHAMBER
-   Design: "Sterile & Official" - Rigorous Transparency
+   MODERN SOVEREIGN GLASS INTERFACE
+   Design: Premium Dark Glassmorphism with Gold Accent
    ============================================================================= */
 
 .container {
-    position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--space-5);
-    min-height: 100vh;
-    padding: var(--space-6);
-    background: linear-gradient(180deg, #0a0f1a 0%, #0f172a 50%, #1a1f2e 100%);
-}
-
-/* Technical Grid Pattern Overlay */
-.container::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image:
-        linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
-    pointer-events: none;
-    z-index: 0;
-}
-
-/* All content above grid */
-.container>* {
-    position: relative;
-    z-index: 1;
+    gap: var(--space-6);
+    padding: var(--space-2);
 }
 
 /* =============================================================================
-   HEADER METRICS - "Official Stamped Seals"
+   HERO METRICS - Premium Glass Cards
    ============================================================================= */
 
-.sealHeader {
+.heroSection {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: var(--space-5);
 }
 
-.sealCard {
+.heroCard {
     position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: var(--space-5);
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border: 2px solid #475569;
-    border-radius: 8px;
-    box-shadow:
-        inset 0 2px 0 rgba(255, 255, 255, 0.05),
-        inset 0 -2px 0 rgba(0, 0, 0, 0.2),
-        0 4px 20px rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    padding: var(--space-8) var(--space-6);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-/* Bolt corners for "engraved metal plaque" effect */
-.sealCard::before,
-.sealCard::after {
-    content: '⊛';
+.heroCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* Watermark Icon */
+.heroCard::before {
+    content: '';
     position: absolute;
+    right: -20px;
+    bottom: -20px;
+    width: 120px;
+    height: 120px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0.03;
+}
+
+.heroCard.gold::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F59E0B' stroke-width='1'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
+    opacity: 0.08;
+}
+
+.heroLabel {
     font-size: 10px;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: var(--space-3);
+}
+
+.heroValue {
+    font-family: var(--font-mono);
+    font-size: 48px;
+    font-weight: 300;
+    line-height: 1;
+    margin-bottom: var(--space-2);
+}
+
+.heroCard.gold .heroValue {
+    color: #f59e0b;
+    text-shadow: 0 0 40px rgba(245, 158, 11, 0.3);
+}
+
+.heroCard.cyan .heroValue {
+    color: #22d3ee;
+}
+
+.heroCard.white .heroValue {
+    color: #f1f5f9;
+}
+
+.heroSubtext {
+    font-size: 11px;
     color: #64748b;
 }
 
-.sealCard::before {
-    top: 8px;
-    left: 8px;
-}
-
-.sealCard::after {
-    top: 8px;
-    right: 8px;
-}
-
-.sealCard.primary {
-    border-color: #10b981;
-    box-shadow:
-        inset 0 2px 0 rgba(16, 185, 129, 0.1),
-        0 0 30px rgba(16, 185, 129, 0.15);
-}
-
-.sealCard.danger {
-    border-color: #ef4444;
-    box-shadow:
-        inset 0 2px 0 rgba(239, 68, 68, 0.1),
-        0 0 30px rgba(239, 68, 68, 0.15);
-}
-
-.sealCard.neutral {
-    border-color: #64748b;
-}
-
-.sealIcon {
-    width: 48px;
-    height: 48px;
-    margin-bottom: var(--space-3);
+.heroIcon {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    width: 32px;
+    height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(15, 23, 42, 0.8);
-    border: 2px solid currentColor;
-    border-radius: 50%;
+    opacity: 0.4;
 }
 
-.sealIcon svg {
-    width: 24px;
-    height: 24px;
+.heroIcon svg {
+    width: 20px;
+    height: 20px;
 }
 
-.sealCard.primary .sealIcon {
-    color: #10b981;
-    border-color: #10b981;
+.heroCard.gold .heroIcon {
+    color: #f59e0b;
 }
 
-.sealCard.danger .sealIcon {
-    color: #ef4444;
-    border-color: #ef4444;
+.heroCard.cyan .heroIcon {
+    color: #22d3ee;
 }
 
-.sealCard.neutral .sealIcon {
-    color: #64748b;
-    border-color: #64748b;
-}
-
-.sealValue {
-    font-family: var(--font-mono);
-    font-size: 36px;
-    font-weight: 800;
-    letter-spacing: -1px;
-    margin-bottom: var(--space-1);
-}
-
-.sealCard.primary .sealValue {
-    color: #10b981;
-}
-
-.sealCard.danger .sealValue {
-    color: #ef4444;
-}
-
-.sealCard.neutral .sealValue {
+.heroCard.white .heroIcon {
     color: #94a3b8;
 }
 
-.sealLabel {
-    font-size: 11px;
-    font-weight: 600;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    text-align: center;
-}
-
-.sealSubtext {
-    font-size: 10px;
-    color: #475569;
-    margin-top: var(--space-1);
-}
-
 /* =============================================================================
-   MAIN GRID LAYOUT
+   MAIN GRID
    ============================================================================= */
 
 .mainGrid {
     display: grid;
-    grid-template-columns: 1fr 320px;
+    grid-template-columns: 1fr 340px;
     gap: var(--space-5);
 }
 
 /* =============================================================================
-   REGULATORY FRAMEWORK GRID - Compliance Matrix
+   GLASS PANEL
    ============================================================================= */
 
-.matrixSection {
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border: 2px solid #475569;
-    border-radius: 8px;
+.glassPanel {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     overflow: hidden;
 }
 
-.matrixHeader {
+.panelHeader {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-4);
-    background: rgba(15, 23, 42, 0.8);
-    border-bottom: 2px solid #475569;
+    padding: var(--space-5) var(--space-6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.matrixTitle {
+.panelTitle {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    font-size: 13px;
-    font-weight: 700;
+    font-size: 11px;
+    font-weight: 600;
     color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.panelTitle svg {
+    width: 16px;
+    height: 16px;
+    opacity: 0.6;
+}
+
+/* =============================================================================
+   FLOATING TABLE
+   ============================================================================= */
+
+.floatingTable {
+    width: 100%;
+}
+
+.tableHeader {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-6);
+    background: rgba(15, 23, 42, 0.4);
+}
+
+.tableHeader span {
+    font-size: 9px;
+    font-weight: 600;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
 
-.matrixTitle svg {
-    width: 16px;
-    height: 16px;
+.tableBody {
+    display: flex;
+    flex-direction: column;
 }
 
-.matrixTable {
-    width: 100%;
-    border-collapse: collapse;
+.tableRow {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: var(--space-4);
+    align-items: center;
+    padding: var(--space-4) var(--space-6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: background 0.2s ease;
 }
 
-.matrixTable th {
-    padding: var(--space-3) var(--space-4);
-    background: rgba(15, 23, 42, 0.6);
-    border-bottom: 2px solid #475569;
-    border-right: 1px solid #334155;
-    font-size: 10px;
-    font-weight: 700;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    text-align: left;
-}
-
-.matrixTable th:last-child {
-    border-right: none;
-}
-
-.matrixTable td {
-    padding: var(--space-3) var(--space-4);
-    border-bottom: 1px solid #334155;
-    border-right: 1px solid #334155;
-    font-size: 13px;
-    color: #e2e8f0;
-    vertical-align: middle;
-}
-
-.matrixTable td:last-child {
-    border-right: none;
-}
-
-.matrixTable tr:last-child td {
+.tableRow:last-child {
     border-bottom: none;
 }
 
-.matrixTable tr:hover td {
-    background: rgba(71, 85, 105, 0.15);
+.tableRow:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.regulationCell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
 .regulationName {
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 500;
     color: #f1f5f9;
 }
 
@@ -259,45 +237,54 @@
     font-family: var(--font-mono);
     font-size: 10px;
     color: #64748b;
-    margin-top: 2px;
 }
 
-/* Status Badges */
-.statusBadge {
+/* Pill Badges with Glow */
+.pillBadge {
     display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
-    padding: 4px 10px;
+    gap: 6px;
+    padding: 6px 12px;
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-radius: 4px;
+    border-radius: 20px;
+    background: transparent;
     border: 1px solid;
+    transition: all 0.2s ease;
 }
 
-.statusBadge.compliant {
-    background: rgba(16, 185, 129, 0.15);
-    border-color: rgba(16, 185, 129, 0.4);
-    color: #10b981;
+.pillBadge.compliant {
+    color: #22d3ee;
+    border-color: rgba(34, 211, 238, 0.4);
+    box-shadow: 0 0 15px rgba(34, 211, 238, 0.15);
 }
 
-.statusBadge.action {
-    background: rgba(245, 158, 11, 0.15);
-    border-color: rgba(245, 158, 11, 0.4);
-    color: #f59e0b;
+.pillBadge.action {
+    color: #fbbf24;
+    border-color: rgba(251, 191, 36, 0.4);
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
 }
 
-.statusBadge.critical {
-    background: rgba(239, 68, 68, 0.15);
-    border-color: rgba(239, 68, 68, 0.4);
-    color: #ef4444;
+.pillBadge.critical {
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.4);
+    box-shadow: 0 0 15px rgba(248, 113, 113, 0.15);
+}
+
+.pillBadge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
 }
 
 .timestampCell {
     font-family: var(--font-mono);
     font-size: 11px;
-    color: #94a3b8;
+    color: #64748b;
 }
 
 .ownerCell {
@@ -307,16 +294,16 @@
 }
 
 .ownerAvatar {
-    width: 24px;
-    height: 24px;
-    background: #475569;
-    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 10px;
     font-weight: 700;
-    color: #e2e8f0;
+    color: white;
 }
 
 .ownerName {
@@ -325,193 +312,180 @@
 }
 
 /* =============================================================================
-   SIDEBAR - Mandatory Action Checklist (Clipboard Style)
+   PENDING ACTIONS SIDEBAR
    ============================================================================= */
 
-.checklistSection {
+.actionsFeed {
     display: flex;
     flex-direction: column;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    border: 2px solid #475569;
-    border-radius: 8px;
-    overflow: hidden;
-}
-
-.checklistHeader {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
     padding: var(--space-4);
-    background: rgba(239, 68, 68, 0.1);
-    border-bottom: 2px solid #475569;
-}
-
-.clipboardIcon {
-    font-size: 20px;
-}
-
-.checklistTitle {
-    font-size: 12px;
-    font-weight: 700;
-    color: #ef4444;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.checklistItems {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    padding: var(--space-3);
     gap: var(--space-3);
-    max-height: 400px;
+    max-height: 420px;
     overflow-y: auto;
 }
 
-.checklistItem {
+.actionItem {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-    padding: var(--space-3);
-    padding-left: calc(var(--space-3) + 4px);
-    background: rgba(15, 23, 42, 0.6);
-    border: 1px solid #334155;
-    border-radius: 6px;
+    padding: var(--space-4);
+    padding-left: calc(var(--space-4) + 4px);
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 12px;
+    transition: background 0.2s ease;
 }
 
-/* Red stripe for overdue */
-.checklistItem.overdue::before {
+.actionItem:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+/* Urgency Bar */
+.actionItem::before {
     content: '';
     position: absolute;
     left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: #ef4444;
-    border-radius: 6px 0 0 6px;
+    top: 12px;
+    bottom: 12px;
+    width: 3px;
+    border-radius: 2px;
 }
 
-.checklistItem.warning::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 4px;
-    background: #f59e0b;
-    border-radius: 6px 0 0 6px;
+.actionItem.overdue::before {
+    background: #f87171;
+    box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
 }
 
-.itemStatus {
+.actionItem.warning::before {
+    background: #fbbf24;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+.actionLabel {
     font-size: 9px;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
-.itemStatus.overdue {
-    color: #ef4444;
+.actionItem.overdue .actionLabel {
+    color: #f87171;
 }
 
-.itemStatus.warning {
-    color: #f59e0b;
+.actionItem.warning .actionLabel {
+    color: #fbbf24;
 }
 
-.itemDescription {
-    font-size: 12px;
-    color: #e2e8f0;
+.actionDesc {
+    font-size: 13px;
+    font-weight: 500;
+    color: #f1f5f9;
     line-height: 1.4;
 }
 
-.itemMeta {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 10px;
-    color: #64748b;
-}
-
-.itemResponsible {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-}
-
-.responsibleAvatar {
-    width: 16px;
-    height: 16px;
-    background: #475569;
-    border-radius: 50%;
-    font-size: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #e2e8f0;
-}
-
-.itemDeadline {
-    margin-left: auto;
-}
-
-.noItems {
-    padding: var(--space-6);
-    text-align: center;
-    color: #10b981;
-    font-size: 13px;
-}
-
-/* =============================================================================
-   AUDIT READINESS FOOTER BAR
-   ============================================================================= */
-
-.auditFooter {
+.actionMeta {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-4) var(--space-5);
-    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(16, 185, 129, 0.1) 100%);
-    border: 2px solid #10b981;
-    border-radius: 8px;
+    font-size: 11px;
+    color: #64748b;
 }
 
-.auditStatus {
+.actionOwner {
     display: flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-2);
 }
 
-.readyIndicator {
+.miniAvatar {
+    width: 18px;
+    height: 18px;
+    background: #475569;
+    border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: rgba(16, 185, 129, 0.2);
-    border: 2px solid #10b981;
-    border-radius: 50%;
-    animation: readyPulse 2s ease-in-out infinite;
+    font-size: 9px;
+    font-weight: 700;
+    color: #e2e8f0;
 }
 
-@keyframes readyPulse {
+.noActions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-8);
+    color: #22d3ee;
+    text-align: center;
+}
+
+.noActions svg {
+    width: 32px;
+    height: 32px;
+    margin-bottom: var(--space-3);
+    opacity: 0.6;
+}
+
+.noActionsText {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* =============================================================================
+   EVIDENCE BUTTON - Special Glowing CTA
+   ============================================================================= */
+
+.evidenceBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-5) var(--space-6);
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+}
+
+.evidenceStatus {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+}
+
+.statusIndicator {
+    position: relative;
+    width: 12px;
+    height: 12px;
+    background: #22d3ee;
+    border-radius: 50%;
+    box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
+}
+
+.statusIndicator::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border: 2px solid rgba(34, 211, 238, 0.3);
+    border-radius: 50%;
+    animation: statusPulse 2s ease-in-out infinite;
+}
+
+@keyframes statusPulse {
 
     0%,
     100% {
-        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+        transform: scale(1);
+        opacity: 1;
     }
 
     50% {
-        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+        transform: scale(1.3);
+        opacity: 0;
     }
 }
 
-.readyIndicator svg {
-    width: 16px;
-    height: 16px;
-    color: #10b981;
-}
-
-.statusText {
+.statusInfo {
     display: flex;
     flex-direction: column;
     gap: 2px;
@@ -519,10 +493,10 @@
 
 .statusLabel {
     font-size: 12px;
-    font-weight: 700;
-    color: #10b981;
+    font-weight: 600;
+    color: #22d3ee;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
 .statusTime {
@@ -530,35 +504,40 @@
     color: #64748b;
 }
 
-.generateBtn {
+.evidenceBtn {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    padding: var(--space-3) var(--space-5);
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: var(--space-3) var(--space-6);
+    background: linear-gradient(135deg, #0891b2 0%, #0284c7 50%, #0ea5e9 100%);
     border: none;
-    border-radius: 6px;
+    border-radius: 10px;
     font-size: 12px;
     font-weight: 700;
-    color: #0f172a;
+    color: white;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    box-shadow:
+        0 0 20px rgba(14, 165, 233, 0.4),
+        0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
 }
 
-.generateBtn:hover {
+.evidenceBtn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+    box-shadow:
+        0 0 30px rgba(14, 165, 233, 0.6),
+        0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
-.generateBtn svg {
+.evidenceBtn svg {
     width: 16px;
     height: 16px;
 }
 
 /* =============================================================================
-   LOADING STATE
+   LOADING
    ============================================================================= */
 
 .loading {
@@ -566,7 +545,7 @@
     align-items: center;
     justify-content: center;
     height: 400px;
-    font-size: 16px;
+    font-size: 14px;
     color: #64748b;
 }
 
@@ -574,8 +553,8 @@
    RESPONSIVE
    ============================================================================= */
 
-@media (max-width: 1024px) {
-    .sealHeader {
+@media (max-width: 1200px) {
+    .heroSection {
         grid-template-columns: 1fr;
     }
 
@@ -583,11 +562,12 @@
         grid-template-columns: 1fr;
     }
 
-    .matrixTable {
-        font-size: 11px;
+    .tableHeader,
+    .tableRow {
+        grid-template-columns: 1fr 1fr;
     }
 
-    .auditFooter {
+    .evidenceBar {
         flex-direction: column;
         gap: var(--space-4);
         text-align: center;
