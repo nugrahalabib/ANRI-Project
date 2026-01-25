@@ -1,575 +1,270 @@
 /* =============================================================================
-   MODERN SOVEREIGN GLASS INTERFACE
-   Design: Premium Dark Glassmorphism with Gold Accent
+   COMPLIANCE CENTER - Executive Twin Standard
+   Matches Executive Dashboard design system exactly
    ============================================================================= */
 
 .container {
     display: flex;
     flex-direction: column;
     gap: var(--space-6);
-    padding: var(--space-2);
 }
 
-/* =============================================================================
-   HERO METRICS - Premium Glass Cards
-   ============================================================================= */
-
-.heroSection {
+/* KPI Grid - 3 columns like Executive */
+.kpiGrid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-5);
+    gap: var(--space-4);
 }
 
-.heroCard {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-8) var(--space-6);
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
-    transition: all 0.3s ease;
+@media (max-width: 1200px) {
+    .kpiGrid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
-.heroCard:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.6);
-    border-color: rgba(255, 255, 255, 0.15);
+@media (max-width: 700px) {
+    .kpiGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
-/* Watermark Icon */
-.heroCard::before {
-    content: '';
-    position: absolute;
-    right: -20px;
-    bottom: -20px;
-    width: 120px;
-    height: 120px;
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0.03;
-}
-
-.heroCard.gold::before {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F59E0B' stroke-width='1'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E");
-    opacity: 0.08;
-}
-
-.heroLabel {
-    font-size: 10px;
-    font-weight: 600;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 3px;
-    margin-bottom: var(--space-3);
-}
-
-.heroValue {
-    font-family: var(--font-mono);
-    font-size: 48px;
-    font-weight: 300;
-    line-height: 1;
-    margin-bottom: var(--space-2);
-}
-
-.heroCard.gold .heroValue {
-    color: #f59e0b;
-    text-shadow: 0 0 40px rgba(245, 158, 11, 0.3);
-}
-
-.heroCard.cyan .heroValue {
-    color: #22d3ee;
-}
-
-.heroCard.white .heroValue {
-    color: #f1f5f9;
-}
-
-.heroSubtext {
-    font-size: 11px;
-    color: #64748b;
-}
-
-.heroIcon {
-    position: absolute;
-    top: var(--space-4);
-    right: var(--space-4);
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0.4;
-}
-
-.heroIcon svg {
-    width: 20px;
-    height: 20px;
-}
-
-.heroCard.gold .heroIcon {
-    color: #f59e0b;
-}
-
-.heroCard.cyan .heroIcon {
-    color: #22d3ee;
-}
-
-.heroCard.white .heroIcon {
-    color: #94a3b8;
-}
-
-/* =============================================================================
-   MAIN GRID
-   ============================================================================= */
-
+/* Main Grid - Same as Executive */
 .mainGrid {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: 1.5fr 1fr;
     gap: var(--space-5);
 }
 
-/* =============================================================================
-   GLASS PANEL
-   ============================================================================= */
-
-.glassPanel {
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    overflow: hidden;
+@media (max-width: 1200px) {
+    .mainGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
-.panelHeader {
+/* Regulations List - Like Alert List in Executive */
+.regulationsList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.regulationItem {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--space-5) var(--space-6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: var(--space-4);
+    background: var(--navy-900);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
 }
 
-.panelTitle {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-    font-size: 11px;
-    font-weight: 600;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 2px;
+.regulationItem:hover {
+    border-color: var(--navy-600);
+    background: rgba(28, 58, 94, 0.3);
 }
 
-.panelTitle svg {
-    width: 16px;
-    height: 16px;
-    opacity: 0.6;
-}
-
-/* =============================================================================
-   FLOATING TABLE
-   ============================================================================= */
-
-.floatingTable {
-    width: 100%;
-}
-
-.tableHeader {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: var(--space-4);
-    padding: var(--space-3) var(--space-6);
-    background: rgba(15, 23, 42, 0.4);
-}
-
-.tableHeader span {
-    font-size: 9px;
-    font-weight: 600;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.tableBody {
+.regulationInfo {
     display: flex;
     flex-direction: column;
-}
-
-.tableRow {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr;
-    gap: var(--space-4);
-    align-items: center;
-    padding: var(--space-4) var(--space-6);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    transition: background 0.2s ease;
-}
-
-.tableRow:last-child {
-    border-bottom: none;
-}
-
-.tableRow:hover {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-.regulationCell {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    gap: 4px;
 }
 
 .regulationName {
-    font-size: 14px;
-    font-weight: 500;
-    color: #f1f5f9;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-100);
 }
 
 .regulationCode {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
     font-family: var(--font-mono);
-    font-size: 10px;
-    color: #64748b;
 }
 
-/* Pill Badges with Glow */
-.pillBadge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    font-size: 10px;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-radius: 20px;
-    background: transparent;
-    border: 1px solid;
-    transition: all 0.2s ease;
-}
-
-.pillBadge.compliant {
-    color: #22d3ee;
-    border-color: rgba(34, 211, 238, 0.4);
-    box-shadow: 0 0 15px rgba(34, 211, 238, 0.15);
-}
-
-.pillBadge.action {
-    color: #fbbf24;
-    border-color: rgba(251, 191, 36, 0.4);
-    box-shadow: 0 0 15px rgba(251, 191, 36, 0.15);
-}
-
-.pillBadge.critical {
-    color: #f87171;
-    border-color: rgba(248, 113, 113, 0.4);
-    box-shadow: 0 0 15px rgba(248, 113, 113, 0.15);
-}
-
-.pillBadge::before {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: currentColor;
-}
-
-.timestampCell {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: #64748b;
-}
-
-.ownerCell {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.ownerAvatar {
-    width: 28px;
-    height: 28px;
-    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    color: white;
-}
-
-.ownerName {
-    font-size: 12px;
-    color: #cbd5e1;
-}
-
-/* =============================================================================
-   PENDING ACTIONS SIDEBAR
-   ============================================================================= */
-
-.actionsFeed {
+/* Actions List */
+.actionsList {
     display: flex;
     flex-direction: column;
-    padding: var(--space-4);
     gap: var(--space-3);
-    max-height: 420px;
-    overflow-y: auto;
 }
 
 .actionItem {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
     padding: var(--space-4);
-    padding-left: calc(var(--space-4) + 4px);
-    background: rgba(15, 23, 42, 0.4);
-    border-radius: 12px;
-    transition: background 0.2s ease;
+    background: var(--navy-900);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
 }
 
 .actionItem:hover {
-    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--navy-600);
+    background: rgba(28, 58, 94, 0.3);
 }
 
-/* Urgency Bar */
-.actionItem::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 12px;
-    bottom: 12px;
-    width: 3px;
-    border-radius: 2px;
-}
-
-.actionItem.overdue::before {
-    background: #f87171;
-    box-shadow: 0 0 10px rgba(248, 113, 113, 0.5);
-}
-
-.actionItem.warning::before {
-    background: #fbbf24;
-    box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
-}
-
-.actionLabel {
-    font-size: 9px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.actionItem.overdue .actionLabel {
-    color: #f87171;
-}
-
-.actionItem.warning .actionLabel {
-    color: #fbbf24;
-}
-
-.actionDesc {
-    font-size: 13px;
-    font-weight: 500;
-    color: #f1f5f9;
-    line-height: 1.4;
-}
-
-.actionMeta {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #64748b;
-}
-
-.actionOwner {
+.actionHeader {
     display: flex;
     align-items: center;
     gap: var(--space-2);
+    margin-bottom: var(--space-2);
 }
 
-.miniAvatar {
-    width: 18px;
-    height: 18px;
-    background: #475569;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    font-weight: 700;
-    color: #e2e8f0;
-}
-
-.noActions {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-8);
-    color: #22d3ee;
-    text-align: center;
-}
-
-.noActions svg {
-    width: 32px;
-    height: 32px;
-    margin-bottom: var(--space-3);
-    opacity: 0.6;
-}
-
-.noActionsText {
-    font-size: 13px;
-    font-weight: 500;
-}
-
-/* =============================================================================
-   EVIDENCE BUTTON - Special Glowing CTA
-   ============================================================================= */
-
-.evidenceBar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--space-5) var(--space-6);
-    background: rgba(15, 23, 42, 0.6);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-}
-
-.evidenceStatus {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-}
-
-.statusIndicator {
-    position: relative;
-    width: 12px;
-    height: 12px;
-    background: #22d3ee;
+.actionDot {
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
-    box-shadow: 0 0 20px rgba(34, 211, 238, 0.6);
 }
 
-.statusIndicator::after {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    border: 2px solid rgba(34, 211, 238, 0.3);
-    border-radius: 50%;
-    animation: statusPulse 2s ease-in-out infinite;
+.actionDot.overdue {
+    background: #f87171;
+    box-shadow: 0 0 8px rgba(248, 113, 113, 0.5);
 }
 
-@keyframes statusPulse {
-
-    0%,
-    100% {
-        transform: scale(1);
-        opacity: 1;
-    }
-
-    50% {
-        transform: scale(1.3);
-        opacity: 0;
-    }
+.actionDot.warning {
+    background: #fbbf24;
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.5);
 }
 
-.statusInfo {
+.actionDue {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+.actionContent {
     display: flex;
     flex-direction: column;
     gap: 2px;
 }
 
-.statusLabel {
-    font-size: 12px;
-    font-weight: 600;
+.actionTitle {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-100);
+}
+
+.actionDept {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+.actionsFooter {
+    display: flex;
+    justify-content: center;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--navy-700);
+    margin-top: var(--space-4);
+}
+
+.noActions {
+    padding: var(--space-6);
+    text-align: center;
+    font-size: 14px;
     color: #22d3ee;
-    text-transform: uppercase;
-    letter-spacing: 1px;
 }
 
-.statusTime {
-    font-size: 11px;
-    color: #64748b;
+/* Audit Section */
+.auditSection {
+    width: 100%;
 }
 
-.evidenceBtn {
+.auditList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.auditItem {
+    padding: var(--space-4);
+    background: var(--navy-900);
+    border: 1px solid var(--navy-700);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.auditItem:hover {
+    border-color: var(--navy-600);
+    background: rgba(28, 58, 94, 0.3);
+}
+
+.auditHeader {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    padding: var(--space-3) var(--space-6);
-    background: linear-gradient(135deg, #0891b2 0%, #0284c7 50%, #0ea5e9 100%);
-    border: none;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: 700;
-    color: white;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-    box-shadow:
-        0 0 20px rgba(14, 165, 233, 0.4),
-        0 4px 15px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s ease;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
 }
 
-.evidenceBtn:hover {
-    transform: translateY(-2px);
-    box-shadow:
-        0 0 30px rgba(14, 165, 233, 0.6),
-        0 8px 25px rgba(0, 0, 0, 0.4);
+.auditTime {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
 }
 
-.evidenceBtn svg {
-    width: 16px;
-    height: 16px;
+.auditContent {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-/* =============================================================================
-   LOADING
-   ============================================================================= */
+.auditEntity {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--grey-100);
+}
 
+.auditUser {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+.noAudit {
+    padding: var(--space-6);
+    text-align: center;
+    font-size: 14px;
+    color: var(--grey-500);
+}
+
+/* Info Banner - Same as XAI Banner in Executive */
+.infoBanner {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-4);
+    padding: var(--space-5);
+    background: linear-gradient(135deg, rgba(61, 122, 184, 0.15) 0%, rgba(28, 58, 94, 0.15) 100%);
+    border: 1px solid var(--navy-600);
+    border-radius: var(--radius-lg);
+}
+
+.infoIcon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    color: var(--navy-400);
+}
+
+.infoIcon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.infoContent h4 {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-100);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.infoContent p {
+    font-size: var(--font-size-sm);
+    color: var(--grey-400);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* Loading State */
 .loading {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 400px;
-    font-size: 14px;
+    height: 300px;
+    font-size: 16px;
     color: #64748b;
-}
-
-/* =============================================================================
-   RESPONSIVE
-   ============================================================================= */
-
-@media (max-width: 1200px) {
-    .heroSection {
-        grid-template-columns: 1fr;
-    }
-
-    .mainGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .tableHeader,
-    .tableRow {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .evidenceBar {
-        flex-direction: column;
-        gap: var(--space-4);
-        text-align: center;
-    }
 }
