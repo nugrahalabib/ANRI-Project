@@ -4,20 +4,20 @@
     gap: var(--space-6);
 }
 
-/* KPI Grid */
+/* KPI Grid - 3 columns for balanced 6-card layout */
 .kpiGrid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-5);
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-4);
 }
 
-@media (max-width: 1400px) {
+@media (max-width: 1200px) {
     .kpiGrid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 800px) {
+@media (max-width: 700px) {
     .kpiGrid {
         grid-template-columns: 1fr;
     }
