@@ -1,854 +1,595 @@
+/* =============================================================================
+   NATIONAL DIGITAL AUDIT CHAMBER
+   Design: "Sterile & Official" - Rigorous Transparency
+   ============================================================================= */
+
 .container {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-6);
-}
-
-/* Score Overview Section */
-.scoreOverview {
-    display: flex;
-    gap: var(--space-6);
-    padding: var(--space-6);
-    background: var(--navy-800);
-    border: 1px solid var(--navy-700);
-    border-radius: var(--radius-lg);
-}
-
-.mainScore {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.scoreCircle {
     position: relative;
-    width: 140px;
-    height: 140px;
-}
-
-.scoreCircle svg {
-    width: 100%;
-    height: 100%;
-}
-
-.scoreValue {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 2px;
+    gap: var(--space-5);
+    min-height: 100vh;
+    padding: var(--space-6);
+    background: linear-gradient(180deg, #0a0f1a 0%, #0f172a 50%, #1a1f2e 100%);
 }
 
-.scoreNumber {
-    font-size: var(--font-size-2xl);
-    font-weight: var(--font-weight-bold);
-    color: var(--grey-100);
+/* Technical Grid Pattern Overlay */
+.container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(148, 163, 184, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(148, 163, 184, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+    pointer-events: none;
+    z-index: 0;
 }
 
-.scoreLabel {
-    font-size: var(--font-size-xs);
-    color: var(--grey-500);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+/* All content above grid */
+.container>* {
+    position: relative;
+    z-index: 1;
 }
 
-.metricsGrid {
-    flex: 1;
+/* =============================================================================
+   HEADER METRICS - "Official Stamped Seals"
+   ============================================================================= */
+
+.sealHeader {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: var(--space-4);
-}
-
-.metricCard {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding: var(--space-4);
-    background: var(--navy-900);
-    border-radius: var(--radius-md);
-}
-
-.metricValue {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-semibold);
-    color: var(--grey-100);
-}
-
-.metricLabel {
-    font-size: var(--font-size-sm);
-    color: var(--grey-500);
-}
-
-.metricBar {
-    height: 6px;
-    background: var(--navy-700);
-    border-radius: var(--radius-full);
-    overflow: hidden;
-    margin-top: var(--space-2);
-}
-
-.metricFill {
-    height: 100%;
-    border-radius: var(--radius-full);
-    transition: width 0.5s ease;
-}
-
-/* Main Grid */
-.mainGrid {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
     gap: var(--space-5);
 }
 
-@media (max-width: 1200px) {
-    .mainGrid {
-        grid-template-columns: 1fr;
-    }
+.sealCard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-5);
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #475569;
+    border-radius: 8px;
+    box-shadow:
+        inset 0 2px 0 rgba(255, 255, 255, 0.05),
+        inset 0 -2px 0 rgba(0, 0, 0, 0.2),
+        0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
-/* Policy Table */
-.policyTable {
-    overflow-x: auto;
+/* Bolt corners for "engraved metal plaque" effect */
+.sealCard::before,
+.sealCard::after {
+    content: '⊛';
+    position: absolute;
+    font-size: 10px;
+    color: #64748b;
 }
 
-.policyTable table {
+.sealCard::before {
+    top: 8px;
+    left: 8px;
+}
+
+.sealCard::after {
+    top: 8px;
+    right: 8px;
+}
+
+.sealCard.primary {
+    border-color: #10b981;
+    box-shadow:
+        inset 0 2px 0 rgba(16, 185, 129, 0.1),
+        0 0 30px rgba(16, 185, 129, 0.15);
+}
+
+.sealCard.danger {
+    border-color: #ef4444;
+    box-shadow:
+        inset 0 2px 0 rgba(239, 68, 68, 0.1),
+        0 0 30px rgba(239, 68, 68, 0.15);
+}
+
+.sealCard.neutral {
+    border-color: #64748b;
+}
+
+.sealIcon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: var(--space-3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15, 23, 42, 0.8);
+    border: 2px solid currentColor;
+    border-radius: 50%;
+}
+
+.sealIcon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.sealCard.primary .sealIcon {
+    color: #10b981;
+    border-color: #10b981;
+}
+
+.sealCard.danger .sealIcon {
+    color: #ef4444;
+    border-color: #ef4444;
+}
+
+.sealCard.neutral .sealIcon {
+    color: #64748b;
+    border-color: #64748b;
+}
+
+.sealValue {
+    font-family: var(--font-mono);
+    font-size: 36px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: var(--space-1);
+}
+
+.sealCard.primary .sealValue {
+    color: #10b981;
+}
+
+.sealCard.danger .sealValue {
+    color: #ef4444;
+}
+
+.sealCard.neutral .sealValue {
+    color: #94a3b8;
+}
+
+.sealLabel {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+.sealSubtext {
+    font-size: 10px;
+    color: #475569;
+    margin-top: var(--space-1);
+}
+
+/* =============================================================================
+   MAIN GRID LAYOUT
+   ============================================================================= */
+
+.mainGrid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: var(--space-5);
+}
+
+/* =============================================================================
+   REGULATORY FRAMEWORK GRID - Compliance Matrix
+   ============================================================================= */
+
+.matrixSection {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #475569;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.matrixHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--space-4);
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 2px solid #475569;
+}
+
+.matrixTitle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 13px;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.matrixTitle svg {
+    width: 16px;
+    height: 16px;
+}
+
+.matrixTable {
     width: 100%;
     border-collapse: collapse;
 }
 
-.policyTable th {
-    text-align: left;
+.matrixTable th {
     padding: var(--space-3) var(--space-4);
-    background: var(--navy-900);
-    color: var(--grey-500);
-    font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
+    background: rgba(15, 23, 42, 0.6);
+    border-bottom: 2px solid #475569;
+    border-right: 1px solid #334155;
+    font-size: 10px;
+    font-weight: 700;
+    color: #64748b;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    border-bottom: 1px solid var(--navy-700);
+    text-align: left;
 }
 
-.policyTable td {
-    padding: var(--space-4);
-    border-bottom: 1px solid var(--navy-700);
+.matrixTable th:last-child {
+    border-right: none;
+}
+
+.matrixTable td {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid #334155;
+    border-right: 1px solid #334155;
+    font-size: 13px;
+    color: #e2e8f0;
     vertical-align: middle;
 }
 
-.policyTable tbody tr {
-    cursor: pointer;
-    transition: background var(--transition-fast);
+.matrixTable td:last-child {
+    border-right: none;
 }
 
-.policyTable tbody tr:hover {
-    background: rgba(28, 58, 94, 0.3);
+.matrixTable tr:last-child td {
+    border-bottom: none;
 }
 
-.policyTable tbody tr.selected {
-    background: rgba(61, 122, 184, 0.15);
+.matrixTable tr:hover td {
+    background: rgba(71, 85, 105, 0.15);
 }
 
-.policyCell {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+.regulationName {
+    font-weight: 600;
+    color: #f1f5f9;
 }
 
-.policyId {
+.regulationCode {
     font-family: var(--font-mono);
-    font-size: var(--font-size-xs);
-    color: var(--grey-500);
+    font-size: 10px;
+    color: #64748b;
+    margin-top: 2px;
 }
 
-.policyName {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--grey-200);
-}
-
-.complianceCell {
-    display: flex;
+/* Status Badges */
+.statusBadge {
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-1);
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-radius: 4px;
+    border: 1px solid;
 }
 
-.complianceBar {
-    width: 80px;
-    height: 6px;
-    background: var(--navy-700);
-    border-radius: var(--radius-full);
-    overflow: hidden;
+.statusBadge.compliant {
+    background: rgba(16, 185, 129, 0.15);
+    border-color: rgba(16, 185, 129, 0.4);
+    color: #10b981;
 }
 
-.complianceFill {
-    height: 100%;
-    border-radius: var(--radius-full);
-    transition: width 0.3s ease;
+.statusBadge.action {
+    background: rgba(245, 158, 11, 0.15);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #f59e0b;
 }
 
-.dateCell {
-    font-size: var(--font-size-sm);
-    color: var(--grey-500);
+.statusBadge.critical {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: rgba(239, 68, 68, 0.4);
+    color: #ef4444;
 }
 
-/* Right Column */
-.rightColumn {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-5);
+.timestampCell {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: #94a3b8;
 }
 
-/* Events List */
-.eventsList {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-}
-
-.eventItem {
-    padding: var(--space-3);
-    background: var(--navy-900);
-    border: 1px solid var(--navy-700);
-    border-radius: var(--radius-md);
-}
-
-.eventHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: var(--space-2);
-}
-
-.eventTime {
-    font-size: var(--font-size-xs);
-    color: var(--grey-600);
-}
-
-.eventContent {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.eventPolicy {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--grey-200);
-}
-
-.eventAuditor {
-    font-size: var(--font-size-xs);
-    color: var(--grey-500);
-}
-
-/* Audits List */
-.auditsList {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-}
-
-.auditItem {
-    display: flex;
-    align-items: center;
-    gap: var(--space-3);
-    padding: var(--space-3);
-    background: var(--navy-900);
-    border: 1px solid var(--navy-700);
-    border-radius: var(--radius-md);
-}
-
-.auditPriority {
-    flex-shrink: 0;
-}
-
-.priorityDot {
-    display: block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-}
-
-.priorityDot.high {
-    background: var(--status-critical);
-}
-
-.priorityDot.medium {
-    background: var(--status-warning);
-}
-
-.priorityDot.low {
-    background: var(--status-normal);
-}
-
-.auditInfo {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.auditPolicy {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--grey-200);
-}
-
-.auditMeta {
-    font-size: var(--font-size-xs);
-    color: var(--grey-500);
-}
-
-/* Quick Actions */
-.quickActions {
-    display: flex;
-    gap: var(--space-4);
-    padding: var(--space-5);
-    background: var(--navy-800);
-    border: 1px solid var(--navy-700);
-    border-radius: var(--radius-lg);
-}
-
-.quickActions button {
+.ownerCell {
     display: flex;
     align-items: center;
     gap: var(--space-2);
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-    .scoreOverview {
-        flex-direction: column;
-        align-items: center;
+.ownerAvatar {
+    width: 24px;
+    height: 24px;
+    background: #475569;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #e2e8f0;
+}
+
+.ownerName {
+    font-size: 12px;
+    color: #cbd5e1;
+}
+
+/* =============================================================================
+   SIDEBAR - Mandatory Action Checklist (Clipboard Style)
+   ============================================================================= */
+
+.checklistSection {
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #475569;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.checklistHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    background: rgba(239, 68, 68, 0.1);
+    border-bottom: 2px solid #475569;
+}
+
+.clipboardIcon {
+    font-size: 20px;
+}
+
+.checklistTitle {
+    font-size: 12px;
+    font-weight: 700;
+    color: #ef4444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.checklistItems {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-3);
+    gap: var(--space-3);
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.checklistItem {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+    padding-left: calc(var(--space-3) + 4px);
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid #334155;
+    border-radius: 6px;
+}
+
+/* Red stripe for overdue */
+.checklistItem.overdue::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #ef4444;
+    border-radius: 6px 0 0 6px;
+}
+
+.checklistItem.warning::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #f59e0b;
+    border-radius: 6px 0 0 6px;
+}
+
+.itemStatus {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.itemStatus.overdue {
+    color: #ef4444;
+}
+
+.itemStatus.warning {
+    color: #f59e0b;
+}
+
+.itemDescription {
+    font-size: 12px;
+    color: #e2e8f0;
+    line-height: 1.4;
+}
+
+.itemMeta {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 10px;
+    color: #64748b;
+}
+
+.itemResponsible {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.responsibleAvatar {
+    width: 16px;
+    height: 16px;
+    background: #475569;
+    border-radius: 50%;
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #e2e8f0;
+}
+
+.itemDeadline {
+    margin-left: auto;
+}
+
+.noItems {
+    padding: var(--space-6);
+    text-align: center;
+    color: #10b981;
+    font-size: 13px;
+}
+
+/* =============================================================================
+   AUDIT READINESS FOOTER BAR
+   ============================================================================= */
+
+.auditFooter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-4) var(--space-5);
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.1) 0%, rgba(15, 23, 42, 0.9) 50%, rgba(16, 185, 129, 0.1) 100%);
+    border: 2px solid #10b981;
+    border-radius: 8px;
+}
+
+.auditStatus {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+}
+
+.readyIndicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background: rgba(16, 185, 129, 0.2);
+    border: 2px solid #10b981;
+    border-radius: 50%;
+    animation: readyPulse 2s ease-in-out infinite;
+}
+
+@keyframes readyPulse {
+
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
     }
 
-    .metricsGrid {
-        grid-template-columns: 1fr;
-    }
-
-    .quickActions {
-        flex-direction: column;
+    50% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
     }
 }
 
-/* =========================================================
-   COMPLIANCE DASHBOARD - UI Classes  
-   ========================================================= */
+.readyIndicator svg {
+    width: 16px;
+    height: 16px;
+    color: #10b981;
+}
 
-/* Loading State */
+.statusText {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.statusLabel {
+    font-size: 12px;
+    font-weight: 700;
+    color: #10b981;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.statusTime {
+    font-size: 11px;
+    color: #64748b;
+}
+
+.generateBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-5);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #0f172a;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.generateBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+}
+
+.generateBtn svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* =============================================================================
+   LOADING STATE
+   ============================================================================= */
+
 .loading {
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 300px;
+    height: 400px;
     font-size: 16px;
     color: #64748b;
 }
 
-/* Score Section */
-.scoreSection {
-    display: grid;
-    grid-template-columns: 200px 1fr;
-    gap: var(--space-6);
-    padding: var(--space-6);
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%);
-    border: 1px solid rgba(71, 85, 105, 0.3);
-    border-radius: var(--radius-lg);
-    backdrop-filter: blur(10px);
-}
-
-.mainScore {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.scoreGauge {
-    position: relative;
-    width: 160px;
-    height: 160px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: conic-gradient(var(--color, #10b981) 0% var(--score, 85%),
-            rgba(71, 85, 105, 0.3) var(--score, 85%) 100%);
-}
-
-.scoreGauge::before {
-    content: '';
-    position: absolute;
-    inset: 12px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-}
-
-.scoreGauge .scoreValue {
-    position: relative;
-    z-index: 1;
-    font-family: var(--font-mono);
-    font-size: 32px;
-    font-weight: var(--font-weight-bold);
-    color: #f1f5f9;
-}
-
-.scoreGauge .scoreLabel {
-    position: relative;
-    z-index: 1;
-    margin-top: 4px;
-    font-size: 11px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Risk Breakdown */
-.riskBreakdown {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-    justify-content: center;
-}
-
-.riskCard {
-    display: grid;
-    grid-template-columns: 120px 1fr 60px;
-    gap: var(--space-3);
-    align-items: center;
-    padding: var(--space-3);
-    background: rgba(30, 41, 59, 0.5);
-    border: 1px solid rgba(71, 85, 105, 0.2);
-    border-radius: var(--radius-md);
-}
-
-.riskLabel {
-    font-size: 13px;
-    font-weight: var(--font-weight-medium);
-    color: #cbd5e1;
-}
-
-.riskBar {
-    height: 8px;
-    background: rgba(71, 85, 105, 0.3);
-    border-radius: var(--radius-full);
-    overflow: hidden;
-}
-
-.riskFill {
-    height: 100%;
-    border-radius: var(--radius-full);
-    transition: width 0.5s ease;
-}
-
-.riskValue {
-    font-family: var(--font-mono);
-    font-size: 14px;
-    font-weight: var(--font-weight-semibold);
-    color: #f1f5f9;
-    text-align: right;
-}
-
-/* KPI Section */
-.kpiSection {
-    margin-top: var(--space-2);
-}
-
-.sectionHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-4);
-}
-
-.sectionHeader h2 {
-    margin: 0;
-    font-size: 16px;
-    font-weight: var(--font-weight-semibold);
-    color: #f1f5f9;
-}
-
-.kpiGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--space-4);
-}
-
-.kpiCard {
-    padding: var(--space-4);
-}
-
-.kpiCategory {
-    margin: 0 0 var(--space-3);
-    font-size: 13px;
-    font-weight: var(--font-weight-semibold);
-    color: #60a5fa;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.kpiList {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-}
-
-.kpiItem {
-    padding: var(--space-3);
-    background: rgba(30, 41, 59, 0.5);
-    border-radius: var(--radius-md);
-}
-
-.kpiHeader {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: var(--space-2);
-}
-
-.kpiName {
-    font-size: 13px;
-    font-weight: var(--font-weight-medium);
-    color: #e2e8f0;
-}
-
-.kpiValue {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    color: #94a3b8;
-}
-
-/* Violations Section */
-.violationsSection {
-    margin-top: var(--space-2);
-}
-
-.violationsList {
-    display: flex;
-    flex-direction: column;
-}
-
-.violationItem {
-    display: grid;
-    grid-template-columns: 140px 1fr auto;
-    gap: var(--space-4);
-    align-items: center;
-    padding: var(--space-4);
-    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-    transition: background var(--transition-fast);
-}
-
-.violationItem:last-child {
-    border-bottom: none;
-}
-
-.violationItem:hover {
-    background: rgba(59, 130, 246, 0.05);
-}
-
-.violationTime {
-    font-family: var(--font-mono);
-    font-size: 11px;
-    color: #64748b;
-}
-
-.violationInfo {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.violationPolicy {
-    font-size: 13px;
-    font-weight: var(--font-weight-medium);
-    color: #e2e8f0;
-}
-
-.violationUser {
-    font-size: 11px;
-    color: #94a3b8;
-}
-
-.noViolations {
-    padding: var(--space-6);
-    text-align: center;
-    font-size: 14px;
-    color: #10b981;
-}
-
-/* Audit Info Section */
-.auditInfo {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    padding: var(--space-5);
-    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    border-radius: var(--radius-lg);
-}
-
-.auditIcon {
-    font-size: 32px;
-    flex-shrink: 0;
-}
-
-.auditContent h4 {
-    margin: 0 0 var(--space-1);
-    font-size: 14px;
-    font-weight: var(--font-weight-semibold);
-    color: #10b981;
-}
-
-.auditContent p {
-    margin: 0;
-    font-size: 12px;
-    color: #94a3b8;
-    line-height: 1.5;
-}
-
-/* Severity Breakdown */
-.severityBreakdown {
-    display: flex;
-    gap: var(--space-3);
-    margin-top: var(--space-4);
-    padding-top: var(--space-4);
-    border-top: 1px solid rgba(71, 85, 105, 0.3);
-}
-
-.severityCard {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: var(--space-3);
-    background: rgba(30, 41, 59, 0.5);
-    border-radius: var(--radius-md);
-    border: 1px solid rgba(71, 85, 105, 0.2);
-}
-
-.severityCard.critical {
-    border-color: rgba(239, 68, 68, 0.4);
-    background: rgba(239, 68, 68, 0.1);
-}
-
-.severityCard.high {
-    border-color: rgba(249, 115, 22, 0.4);
-    background: rgba(249, 115, 22, 0.1);
-}
-
-.severityCard.medium {
-    border-color: rgba(234, 179, 8, 0.4);
-    background: rgba(234, 179, 8, 0.1);
-}
-
-.severityCard.low {
-    border-color: rgba(16, 185, 129, 0.4);
-    background: rgba(16, 185, 129, 0.1);
-}
-
-.severityCount {
-    font-family: var(--font-mono);
-    font-size: 24px;
-    font-weight: var(--font-weight-bold);
-    color: #f1f5f9;
-}
-
-.severityCard.critical .severityCount {
-    color: #ef4444;
-}
-
-.severityCard.high .severityCount {
-    color: #f97316;
-}
-
-.severityCard.medium .severityCount {
-    color: #eab308;
-}
-
-.severityCard.low .severityCount {
-    color: #10b981;
-}
-
-.severityLabel {
-    font-size: 11px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Trend Indicators */
-.trendIndicator {
-    margin-left: var(--space-2);
-    font-size: 14px;
-    font-weight: var(--font-weight-bold);
-}
-
-.kpiTrend {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-}
-
-.trendIcon {
-    font-size: 14px;
-    font-weight: var(--font-weight-bold);
-}
-
-/* Enhanced Violation Item */
-.violationItem {
-    display: grid;
-    grid-template-columns: 100px 1fr auto auto;
-    gap: var(--space-4);
-    align-items: center;
-    padding: var(--space-4);
-    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-    transition: background var(--transition-fast);
-}
-
-.violationAction {
-    display: flex;
-    align-items: center;
-}
-
-.actionBadge {
-    font-size: 11px;
-    font-weight: var(--font-weight-semibold);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Audit Trail Section */
-.auditSection {
-    margin-top: var(--space-2);
-}
-
-.auditList {
-    display: flex;
-    flex-direction: column;
-}
-
-.auditItem {
-    display: grid;
-    grid-template-columns: 40px 1fr auto;
-    gap: var(--space-3);
-    align-items: center;
-    padding: var(--space-4);
-    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
-    transition: background var(--transition-fast);
-}
-
-.auditItem:last-child {
-    border-bottom: none;
-}
-
-.auditItem:hover {
-    background: rgba(59, 130, 246, 0.05);
-}
-
-.auditIcon {
-    font-size: 18px;
-    text-align: center;
-}
-
-.auditDetails {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.auditAction {
-    font-size: 13px;
-    font-weight: var(--font-weight-medium);
-    color: #e2e8f0;
-}
-
-.auditMeta {
-    font-size: 11px;
-    color: #64748b;
-}
-
-.signatureVerified {
-    display: flex;
-    align-items: center;
-    gap: var(--space-1);
-    padding: var(--space-1) var(--space-2);
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: var(--radius-sm);
-    font-size: 10px;
-    color: #10b981;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.signatureVerified svg {
-    width: 12px;
-    height: 12px;
-}
-
-.noAudit {
-    padding: var(--space-6);
-    text-align: center;
-    font-size: 14px;
-    color: #64748b;
-}
-
-/* Audit Info Banner */
-.auditBannerIcon {
-    font-size: 32px;
-    flex-shrink: 0;
-}
-
-/* Update scoreSection for 3-column layout */
-.scoreSection {
-    display: grid;
-    grid-template-columns: 180px 1fr auto;
-    gap: var(--space-6);
-    padding: var(--space-6);
-    background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.8) 100%);
-    border: 1px solid rgba(71, 85, 105, 0.3);
-    border-radius: var(--radius-lg);
-    backdrop-filter: blur(10px);
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .scoreSection {
+/* =============================================================================
+   RESPONSIVE
+   ============================================================================= */
+
+@media (max-width: 1024px) {
+    .sealHeader {
         grid-template-columns: 1fr;
+    }
+
+    .mainGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .matrixTable {
+        font-size: 11px;
+    }
+
+    .auditFooter {
+        flex-direction: column;
+        gap: var(--space-4);
         text-align: center;
-    }
-
-    .severityBreakdown {
-        flex-wrap: wrap;
-    }
-
-    .severityCard {
-        flex: 1 1 45%;
-    }
-
-    .riskCard {
-        grid-template-columns: 1fr;
-        gap: var(--space-2);
-    }
-
-    .riskValue {
-        text-align: left;
-    }
-
-    .violationItem {
-        grid-template-columns: 1fr;
-        gap: var(--space-2);
-    }
-
-    .auditItem {
-        grid-template-columns: 1fr;
-        gap: var(--space-2);
-    }
-
-    .kpiGrid {
-        grid-template-columns: 1fr;
     }
 }

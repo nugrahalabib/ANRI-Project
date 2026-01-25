@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layouts';
-import { Card, StatusBadge, Button } from '@/components/ui';
 import styles from './page.module.css';
 
 interface RiskPosture {
@@ -15,24 +14,6 @@ interface RiskPosture {
     mediumCount: number;
     lowCount: number;
     calculatedAt: string;
-}
-
-interface RiskTrends {
-    overall: string;
-    document: string;
-    digital: string;
-    compliance: string;
-}
-
-interface KPIMetric {
-    id: string;
-    category: string;
-    name: string;
-    value: number;
-    target: number | null;
-    trend: string | null;
-    unit: string;
-    period: string;
 }
 
 interface Violation {
@@ -51,38 +32,39 @@ interface AuditLog {
     entityType: string;
     entityId: string;
     timestamp: string;
-    signature: string;
     user: { name: string; role: string } | null;
 }
 
+// Compliance regulations for ANRI
+const regulations = [
+    { id: '1', name: 'Undang-Undang Kearsipan', code: 'UU No. 43 Tahun 2009', category: 'LEGAL' },
+    { id: '2', name: 'Sistem Pemerintahan Berbasis Elektronik', code: 'Perpres No. 95 Tahun 2018', category: 'LEGAL' },
+    { id: '3', name: 'Information Security Management', code: 'ISO/IEC 27001:2022', category: 'STANDARD' },
+    { id: '4', name: 'Manajemen Risiko', code: 'PP No. 60 Tahun 2008', category: 'LEGAL' },
+    { id: '5', name: 'Pengamanan Informasi', code: 'Permen PANRB No. 59/2020', category: 'REGULATION' },
+];
+
 export default function ComplianceDashboard() {
     const [riskPosture, setRiskPosture] = useState<RiskPosture | null>(null);
-    const [riskTrends, setRiskTrends] = useState<RiskTrends | null>(null);
-    const [kpis, setKpis] = useState<KPIMetric[]>([]);
     const [violations, setViolations] = useState<Violation[]>([]);
     const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
     const [loading, setLoading] = useState(true);
+    const [policyAckRate, setPolicyAckRate] = useState(87.5);
 
     useEffect(() => {
         async function fetchData() {
             try {
-                const [riskRes, kpiRes, violationsRes, auditRes] = await Promise.all([
+                const [riskRes, violationsRes, auditRes] = await Promise.all([
                     fetch('/api/risk-posture'),
-                    fetch('/api/kpi'),
                     fetch('/api/violations?limit=10'),
                     fetch('/api/audit?limit=10'),
                 ]);
                 const riskData = await riskRes.json();
-                const kpiData = await kpiRes.json();
                 const violationsData = await violationsRes.json();
                 const auditData = await auditRes.json();
 
                 if (riskData.success && riskData.data.latest) {
                     setRiskPosture(riskData.data.latest);
-                    setRiskTrends(riskData.data.trends);
-                }
-                if (kpiData.success) {
-                    setKpis(kpiData.data);
                 }
                 if (violationsData.success) {
                     setViolations(violationsData.data);
@@ -99,273 +81,239 @@ export default function ComplianceDashboard() {
         fetchData();
     }, []);
 
-    const getComplianceColor = (score: number) => {
-        if (score >= 90) return 'var(--status-normal)';
-        if (score >= 70) return 'var(--status-warning)';
-        return 'var(--status-critical)';
+    // Calculate compliance index (inverse of compliance risk)
+    const complianceIndex = riskPosture ? (100 - riskPosture.complianceRisk).toFixed(1) : '92.4';
+    const openFindings = riskPosture ? (riskPosture.criticalCount + riskPosture.highCount) : 3;
+
+    // Get compliance status for each regulation based on violations
+    const getRegulationStatus = (regId: string) => {
+        const hasViolation = violations.some(v => v.policy?.category === regulations.find(r => r.id === regId)?.category);
+        if (hasViolation && violations.some(v => v.severity === 'CRITICAL')) return 'critical';
+        if (hasViolation) return 'action';
+        return 'compliant';
     };
 
-    const getComplianceStatus = (score: number): 'normal' | 'warning' | 'critical' => {
-        if (score >= 90) return 'normal';
-        if (score >= 70) return 'warning';
-        return 'critical';
+    // Get owner department for regulation
+    const getOwnerDept = (category: string) => {
+        const deptMap: Record<string, { name: string; abbr: string }> = {
+            'LEGAL': { name: 'Unit Hukum', abbr: 'UH' },
+            'STANDARD': { name: 'Unit Keamanan IT', abbr: 'IT' },
+            'REGULATION': { name: 'Unit Kepatuhan', abbr: 'UK' },
+        };
+        return deptMap[category] || { name: 'Unit Umum', abbr: 'UU' };
     };
 
-    const formatDate = (dateStr: string) => {
-        return new Date(dateStr).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    // Get last evidence update time
+    const getLastUpdate = (regId: string) => {
+        const log = auditLogs.find(l => l.entityType.includes('Policy') || l.entityType.includes('Document'));
+        if (log) {
+            const diff = Math.floor((Date.now() - new Date(log.timestamp).getTime()) / 60000);
+            if (diff < 60) return `${diff} menit lalu`;
+            if (diff < 1440) return `${Math.floor(diff / 60)} jam lalu`;
+            return `${Math.floor(diff / 1440)} hari lalu`;
+        }
+        return '2 jam lalu';
     };
 
-    const formatRelativeTime = (dateStr: string) => {
-        const date = new Date(dateStr);
-        const now = new Date();
-        const diffMinutes = Math.floor((now.getTime() - date.getTime()) / 60000);
-        if (diffMinutes < 60) return `${diffMinutes}m ago`;
-        if (diffMinutes < 1440) return `${Math.floor(diffMinutes / 60)}h ago`;
-        return formatDate(dateStr);
-    };
+    // Get overdue action items from violations
+    const actionItems = violations.slice(0, 5).map(v => {
+        const daysAgo = Math.floor((Date.now() - new Date(v.timestamp).getTime()) / 86400000);
+        return {
+            id: v.id,
+            description: v.policy?.name || 'Review kebijakan akses',
+            responsible: v.user?.name || 'Unit IT',
+            department: v.user?.department || 'IT',
+            deadline: daysAgo > 1 ? 'Kemarin' : 'Hari ini',
+            isOverdue: daysAgo > 0,
+            severity: v.severity,
+        };
+    });
 
-    // Calculate compliance score (inverse of risk)
-    const complianceScore = riskPosture ? 100 - riskPosture.complianceRisk : 85;
-
-    // Group KPIs by category
-    const kpiByCategory = kpis.reduce((acc, kpi) => {
-        if (!acc[kpi.category]) acc[kpi.category] = [];
-        acc[kpi.category].push(kpi);
-        return acc;
-    }, {} as Record<string, KPIMetric[]>);
-
-    // Category labels matching schema
-    const categoryLabels: Record<string, string> = {
-        MTTD: 'Mean Time to Detection',
-        MTTR: 'Mean Time to Resolution',
-        COMPLIANCE_RATE: 'Compliance Rate',
-        ANOMALY_ACCURACY: 'Anomaly Detection Accuracy',
-        POLICY_VIOLATIONS: 'Policy Violations',
-        DOCUMENT_RISK: 'Document Risk',
-        SYSTEM_HEALTH: 'System Health',
-    };
-
-    const actionLabels: Record<string, { label: string; color: string }> = {
-        WARNING_ISSUED: { label: 'Warning Issued', color: '#f59e0b' },
-        ACCESS_BLOCKED: { label: 'Access Blocked', color: '#ef4444' },
-        DEVICE_ISOLATED: { label: 'Device Isolated', color: '#ef4444' },
-        MANAGER_NOTIFIED: { label: 'Manager Notified', color: '#3b82f6' },
-        NO_ACTION: { label: 'Pending Review', color: '#64748b' },
-    };
-
-    const getTrendIcon = (trend: string | null) => {
-        if (trend === 'UP') return '↑';
-        if (trend === 'DOWN') return '↓';
-        return '→';
-    };
-
-    const getTrendColor = (trend: string | null, isPositive: boolean) => {
-        if (trend === 'UP') return isPositive ? '#10b981' : '#ef4444';
-        if (trend === 'DOWN') return isPositive ? '#ef4444' : '#10b981';
-        return '#64748b';
+    const formatTime = (dateStr: string) => {
+        const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+        if (diff < 60) return `${diff} menit lalu`;
+        if (diff < 1440) return `${Math.floor(diff / 60)} jam lalu`;
+        return new Date(dateStr).toLocaleDateString('id-ID');
     };
 
     if (loading) {
         return (
-            <DashboardLayout title="Compliance Center" subtitle="Loading...">
-                <div className={styles.container}><div className={styles.loading}>Loading compliance data...</div></div>
+            <DashboardLayout title="Ruang Audit Digital Nasional" subtitle="Loading...">
+                <div className={styles.container}>
+                    <div className={styles.loading}>Memuat data kepatuhan...</div>
+                </div>
             </DashboardLayout>
         );
     }
 
     return (
-        <DashboardLayout title="Compliance Center" subtitle="Regulatory & Policy Compliance Dashboard">
+        <DashboardLayout
+            title="Ruang Audit Digital Nasional"
+            subtitle="Dashboard Kepatuhan Regulasi & Audit Internal"
+        >
             <div className={styles.container}>
-                {/* Overall Compliance Score with Severity Breakdown */}
-                <section className={styles.scoreSection}>
-                    <div className={styles.mainScore}>
-                        <div className={styles.scoreGauge} style={{ '--score': `${complianceScore}%`, '--color': getComplianceColor(complianceScore) } as React.CSSProperties}>
-                            <span className={styles.scoreValue}>{Math.round(complianceScore)}%</span>
-                            <span className={styles.scoreLabel}>Overall Compliance</span>
+                {/* ========== HEADER METRICS - Official Stamped Seals ========== */}
+                <div className={styles.sealHeader}>
+                    {/* Card 1: Indeks Kepatuhan Regulasi */}
+                    <div className={`${styles.sealCard} ${styles.primary}`}>
+                        <div className={styles.sealIcon}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                                <polyline points="9 12 11 14 15 10" />
+                            </svg>
                         </div>
-                    </div>
-                    <div className={styles.riskBreakdown}>
-                        <div className={styles.riskCard}>
-                            <span className={styles.riskLabel}>Document Risk</span>
-                            <div className={styles.riskBar}>
-                                <div className={styles.riskFill} style={{ width: `${riskPosture?.documentRisk || 30}%`, background: getComplianceColor(100 - (riskPosture?.documentRisk || 30)) }}></div>
-                            </div>
-                            <span className={styles.riskValue}>
-                                {riskPosture?.documentRisk || 30}%
-                                {riskTrends && <span className={styles.trendIndicator} style={{ color: getTrendColor(riskTrends.document === 'improving' ? 'DOWN' : 'UP', false) }}>
-                                    {riskTrends.document === 'improving' ? '↓' : '↑'}
-                                </span>}
-                            </span>
-                        </div>
-                        <div className={styles.riskCard}>
-                            <span className={styles.riskLabel}>Digital Risk</span>
-                            <div className={styles.riskBar}>
-                                <div className={styles.riskFill} style={{ width: `${riskPosture?.digitalRisk || 45}%`, background: getComplianceColor(100 - (riskPosture?.digitalRisk || 45)) }}></div>
-                            </div>
-                            <span className={styles.riskValue}>
-                                {riskPosture?.digitalRisk || 45}%
-                                {riskTrends && <span className={styles.trendIndicator} style={{ color: getTrendColor(riskTrends.digital === 'improving' ? 'DOWN' : 'UP', false) }}>
-                                    {riskTrends.digital === 'improving' ? '↓' : '↑'}
-                                </span>}
-                            </span>
-                        </div>
-                        <div className={styles.riskCard}>
-                            <span className={styles.riskLabel}>Compliance Risk</span>
-                            <div className={styles.riskBar}>
-                                <div className={styles.riskFill} style={{ width: `${riskPosture?.complianceRisk || 15}%`, background: getComplianceColor(100 - (riskPosture?.complianceRisk || 15)) }}></div>
-                            </div>
-                            <span className={styles.riskValue}>
-                                {riskPosture?.complianceRisk || 15}%
-                                {riskTrends && <span className={styles.trendIndicator} style={{ color: getTrendColor(riskTrends.compliance === 'improving' ? 'DOWN' : 'UP', false) }}>
-                                    {riskTrends.compliance === 'improving' ? '↓' : '↑'}
-                                </span>}
-                            </span>
-                        </div>
+                        <span className={styles.sealValue}>{complianceIndex}%</span>
+                        <span className={styles.sealLabel}>Indeks Kepatuhan Regulasi</span>
+                        <span className={styles.sealSubtext}>Terakhir dihitung: {formatTime(riskPosture?.calculatedAt || new Date().toISOString())}</span>
                     </div>
 
-                    {/* Severity Breakdown */}
-                    {riskPosture && (
-                        <div className={styles.severityBreakdown}>
-                            <div className={`${styles.severityCard} ${styles.critical}`}>
-                                <span className={styles.severityCount}>{riskPosture.criticalCount}</span>
-                                <span className={styles.severityLabel}>Critical</span>
-                            </div>
-                            <div className={`${styles.severityCard} ${styles.high}`}>
-                                <span className={styles.severityCount}>{riskPosture.highCount}</span>
-                                <span className={styles.severityLabel}>High</span>
-                            </div>
-                            <div className={`${styles.severityCard} ${styles.medium}`}>
-                                <span className={styles.severityCount}>{riskPosture.mediumCount}</span>
-                                <span className={styles.severityLabel}>Medium</span>
-                            </div>
-                            <div className={`${styles.severityCard} ${styles.low}`}>
-                                <span className={styles.severityCount}>{riskPosture.lowCount}</span>
-                                <span className={styles.severityLabel}>Low</span>
-                            </div>
+                    {/* Card 2: Temuan Audit Terbuka */}
+                    <div className={`${styles.sealCard} ${styles.danger}`}>
+                        <div className={styles.sealIcon}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <line x1="12" y1="8" x2="12" y2="12" />
+                                <line x1="12" y1="16" x2="12.01" y2="16" />
+                            </svg>
                         </div>
-                    )}
-                </section>
-
-                {/* KPI Metrics Grid */}
-                <section className={styles.kpiSection}>
-                    <div className={styles.sectionHeader}>
-                        <h2>📊 Compliance KPIs</h2>
+                        <span className={styles.sealValue}>{openFindings}</span>
+                        <span className={styles.sealLabel}>Temuan Audit Terbuka</span>
+                        <span className={styles.sealSubtext}>{riskPosture?.criticalCount || 0} kritis, {riskPosture?.highCount || 0} tinggi</span>
                     </div>
-                    <div className={styles.kpiGrid}>
-                        {Object.entries(kpiByCategory).map(([category, categoryKpis]) => (
-                            <Card key={category} className={styles.kpiCard}>
-                                <h3 className={styles.kpiCategory}>{categoryLabels[category] || category}</h3>
-                                <div className={styles.kpiList}>
-                                    {categoryKpis.slice(0, 2).map((kpi) => {
-                                        const percentage = kpi.target ? (kpi.value / kpi.target) * 100 : kpi.value;
-                                        const isPositive = category === 'MTTD' || category === 'MTTR' ? false : true;
-                                        return (
-                                            <div key={kpi.id} className={styles.kpiItem}>
-                                                <div className={styles.kpiHeader}>
-                                                    <span className={styles.kpiName}>{kpi.name}</span>
-                                                    <div className={styles.kpiTrend}>
-                                                        <span className={styles.trendIcon} style={{ color: getTrendColor(kpi.trend, isPositive) }}>
-                                                            {getTrendIcon(kpi.trend)}
-                                                        </span>
-                                                        <StatusBadge status={getComplianceStatus(percentage)} label={`${Math.round(percentage)}%`} size="sm" />
-                                                    </div>
+
+                    {/* Card 3: Tingkat Acknowledgment Kebijakan */}
+                    <div className={`${styles.sealCard} ${styles.neutral}`}>
+                        <div className={styles.sealIcon}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
+                            </svg>
+                        </div>
+                        <span className={styles.sealValue}>{policyAckRate}%</span>
+                        <span className={styles.sealLabel}>Tingkat Acknowledgment Kebijakan</span>
+                        <span className={styles.sealSubtext}>Pegawai yang telah menandatangani</span>
+                    </div>
+                </div>
+
+                {/* ========== MAIN GRID ========== */}
+                <div className={styles.mainGrid}>
+                    {/* ========== Regulatory Framework Grid ========== */}
+                    <div className={styles.matrixSection}>
+                        <div className={styles.matrixHeader}>
+                            <h2 className={styles.matrixTitle}>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="3" y1="9" x2="21" y2="9" />
+                                    <line x1="9" y1="21" x2="9" y2="9" />
+                                </svg>
+                                Kerangka Regulasi
+                            </h2>
+                        </div>
+                        <table className={styles.matrixTable}>
+                            <thead>
+                                <tr>
+                                    <th>Regulasi</th>
+                                    <th>Status Kepatuhan</th>
+                                    <th>Bukti Terakhir</th>
+                                    <th>Pemilik Proses</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {regulations.map((reg) => {
+                                    const status = getRegulationStatus(reg.id);
+                                    const owner = getOwnerDept(reg.category);
+                                    return (
+                                        <tr key={reg.id}>
+                                            <td>
+                                                <div className={styles.regulationName}>{reg.name}</div>
+                                                <div className={styles.regulationCode}>{reg.code}</div>
+                                            </td>
+                                            <td>
+                                                <span className={`${styles.statusBadge} ${styles[status]}`}>
+                                                    {status === 'compliant' && '✓ MEMENUHI SYARAT'}
+                                                    {status === 'action' && '⚠ BUTUH TINDAKAN'}
+                                                    {status === 'critical' && '✕ TIDAK PATUH'}
+                                                </span>
+                                            </td>
+                                            <td className={styles.timestampCell}>
+                                                {getLastUpdate(reg.id)}
+                                            </td>
+                                            <td>
+                                                <div className={styles.ownerCell}>
+                                                    <span className={styles.ownerAvatar}>{owner.abbr}</span>
+                                                    <span className={styles.ownerName}>{owner.name}</span>
                                                 </div>
-                                                <div className={styles.kpiValue}>
-                                                    {kpi.value}{kpi.target ? ` / ${kpi.target}` : ''} {kpi.period}
-                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* ========== Mandatory Action Checklist ========== */}
+                    <div className={styles.checklistSection}>
+                        <div className={styles.checklistHeader}>
+                            <span className={styles.clipboardIcon}>📋</span>
+                            <h3 className={styles.checklistTitle}>Tindakan Wajib</h3>
+                        </div>
+                        <div className={styles.checklistItems}>
+                            {actionItems.length === 0 ? (
+                                <div className={styles.noItems}>✓ Semua tindakan telah diselesaikan</div>
+                            ) : (
+                                actionItems.map((item) => (
+                                    <div
+                                        key={item.id}
+                                        className={`${styles.checklistItem} ${item.isOverdue ? styles.overdue : styles.warning}`}
+                                    >
+                                        <span className={`${styles.itemStatus} ${item.isOverdue ? styles.overdue : styles.warning}`}>
+                                            {item.isOverdue ? 'TERLAMBAT' : 'MENDESAK'}
+                                        </span>
+                                        <span className={styles.itemDescription}>
+                                            {item.description}
+                                        </span>
+                                        <div className={styles.itemMeta}>
+                                            <div className={styles.itemResponsible}>
+                                                <span className={styles.responsibleAvatar}>
+                                                    {item.responsible.charAt(0)}
+                                                </span>
+                                                <span>{item.department}</span>
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
-                </section>
-
-                {/* Recent Violations with Enhanced Info */}
-                <section className={styles.violationsSection}>
-                    <div className={styles.sectionHeader}>
-                        <h2>⚠️ Recent Compliance Events</h2>
-                        <Button variant="secondary" size="sm" onClick={() => window.location.href = '/violations'}>View All</Button>
-                    </div>
-                    <Card noPadding>
-                        <div className={styles.violationsList}>
-                            {violations.map((v) => (
-                                <div key={v.id} className={styles.violationItem}>
-                                    <div className={styles.violationTime}>{formatRelativeTime(v.timestamp)}</div>
-                                    <div className={styles.violationInfo}>
-                                        <span className={styles.violationPolicy}>{v.policy?.name || 'Unknown Policy'}</span>
-                                        <span className={styles.violationUser}>
-                                            by {v.user?.name || 'Unknown'} • {v.user?.department || 'N/A'}
-                                        </span>
+                                            <span className={styles.itemDeadline}>
+                                                Due: {item.deadline}
+                                            </span>
+                                        </div>
                                     </div>
-                                    <div className={styles.violationAction}>
-                                        <span
-                                            className={styles.actionBadge}
-                                            style={{ color: actionLabels[v.actionTaken]?.color || '#64748b' }}
-                                        >
-                                            {actionLabels[v.actionTaken]?.label || v.actionTaken}
-                                        </span>
-                                    </div>
-                                    <StatusBadge status={v.severity === 'CRITICAL' ? 'critical' : v.severity === 'HIGH' ? 'critical' : 'warning'} label={v.severity} size="sm" />
-                                </div>
-                            ))}
-                            {violations.length === 0 && (
-                                <div className={styles.noViolations}>✅ No recent violations</div>
+                                ))
                             )}
                         </div>
-                    </Card>
-                </section>
-
-                {/* Cryptographic Audit Trail */}
-                <section className={styles.auditSection}>
-                    <div className={styles.sectionHeader}>
-                        <h2>🔐 Cryptographic Audit Trail</h2>
-                        <Button variant="secondary" size="sm" onClick={() => window.location.href = '/audit'}>View Full Log</Button>
                     </div>
-                    <Card noPadding>
-                        <div className={styles.auditList}>
-                            {auditLogs.map((log) => (
-                                <div key={log.id} className={styles.auditItem}>
-                                    <div className={styles.auditIcon}>
-                                        {log.action === 'CREATE' && '➕'}
-                                        {log.action === 'UPDATE' && '✏️'}
-                                        {log.action === 'DELETE' && '🗑️'}
-                                        {log.action === 'ACCESS' && '👁️'}
-                                        {!['CREATE', 'UPDATE', 'DELETE', 'ACCESS'].includes(log.action) && '📝'}
-                                    </div>
-                                    <div className={styles.auditDetails}>
-                                        <span className={styles.auditAction}>
-                                            {log.action} on {log.entityType}
-                                        </span>
-                                        <span className={styles.auditMeta}>
-                                            by {log.user?.name || 'System'} • {formatRelativeTime(log.timestamp)}
-                                        </span>
-                                    </div>
-                                    <div className={styles.signatureVerified}>
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                                            <polyline points="22 4 12 14.01 9 11.01" />
-                                        </svg>
-                                        <span>Verified</span>
-                                    </div>
-                                </div>
-                            ))}
-                            {auditLogs.length === 0 && (
-                                <div className={styles.noAudit}>No recent audit entries</div>
-                            )}
+                </div>
+
+                {/* ========== Audit Readiness Footer Bar ========== */}
+                <footer className={styles.auditFooter}>
+                    <div className={styles.auditStatus}>
+                        <div className={styles.readyIndicator}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
                         </div>
-                    </Card>
-                </section>
-
-                {/* Audit Info Banner */}
-                <section className={styles.auditInfo}>
-                    <div className={styles.auditBannerIcon}>🔐</div>
-                    <div className={styles.auditContent}>
-                        <h4>Tamper-Proof Audit Trail</h4>
-                        <p>All compliance records are cryptographically signed with SHA-256 and chain-linked for tamper-proof regulatory compliance evidence. Each entry includes digital signature verification.</p>
+                        <div className={styles.statusText}>
+                            <span className={styles.statusLabel}>Kesiapan Audit Eksternal: SIAP</span>
+                            <span className={styles.statusTime}>Terakhir diverifikasi: {formatTime(auditLogs[0]?.timestamp || new Date().toISOString())}</span>
+                        </div>
                     </div>
-                </section>
+                    <button className={styles.generateBtn}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        Generate Evidence Package (PDF/A)
+                    </button>
+                </footer>
             </div>
         </DashboardLayout>
     );
