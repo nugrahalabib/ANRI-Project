@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import styles from './page.module.css';
 
 export default function SettingsPage() {
-    const { user, hasPermission } = useAuth();
+    const { user, hasPermission, logout } = useAuth();
     const [isResetting, setIsResetting] = useState(false);
     const [showResetModal, setShowResetModal] = useState(false);
     const [resetConfirmText, setResetConfirmText] = useState('');
@@ -101,6 +101,22 @@ export default function SettingsPage() {
                             <h3>Mode Demo Presiden</h3>
                             <p>Platform ini berjalan dalam mode demo untuk presentasi kepada Presiden Republik Indonesia</p>
                         </div>
+                    </div>
+                </Card>
+
+                {/* Logout Section */}
+                <Card className={styles.section}>
+                    <h2>🚪 Keluar Sistem</h2>
+                    <p className={styles.logoutText}>
+                        Klik tombol di bawah untuk keluar dari sistem dan kembali ke halaman login.
+                    </p>
+                    <div className={styles.logoutActions}>
+                        <Button
+                            variant="danger"
+                            onClick={logout}
+                        >
+                            🚪 Logout
+                        </Button>
                     </div>
                 </Card>
 

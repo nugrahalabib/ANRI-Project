@@ -3,11 +3,11 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 // ============================================================================
@@ -48,11 +48,13 @@ model Session {
   id           String   @id @default(cuid())
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  token        String   @unique
+  token        String   @db.Text
   ipAddress    String?
   userAgent    String?
   expiresAt    DateTime
   createdAt    DateTime @default(now())
+  
+  @@index([userId])
 }
 
 // ============================================================================
@@ -64,6 +66,7 @@ model Zone {
   name            String
   code            String             @unique
   description     String?
+  capacity        Int                @default(0)
   securityLevel   SecurityLevel      @default(STANDARD)
   status          ZoneStatus         @default(ACTIVE)
   
@@ -609,7 +612,7 @@ model ApprovalRequest {
   approvedAt      DateTime?
   notes           String?
   
-  metadata        String?          // JSON for additional context
+  metadata        String?          @db.Text // JSON for additional context
   
   expiresAt       DateTime?
   createdAt       DateTime         @default(now())

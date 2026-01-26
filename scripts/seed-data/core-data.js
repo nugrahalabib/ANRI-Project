@@ -11,24 +11,55 @@ const generateMAC = () => Array(6).fill().map(() => Math.random().toString(16).s
 const generateSignature = (data) => crypto.createHmac('sha256', 'ANRI-AUDIT-KEY-2024').update(data).digest('hex');
 const generateHash = (data) => crypto.createHash('sha256').update(data).digest('hex').substring(0, 16);
 
-// ============= USERS DATA (15 users with specific roles) =============
+// ============= USERS DATA - MATCHES FRONTEND QUICK LOGIN EXACTLY =============
 const usersData = [
-    { email: 'budi.santoso@anri.go.id', name: 'Dr. Ir. Budi Santoso, M.Sc.', role: 'EXECUTIVE', department: 'Direktorat Utama' },
+    // Demo Quick Login Users (MUST MATCH src/app/login/page.tsx DEMO_USERS)
+    { email: 'admin@anri.go.id', name: 'Administrator Sistem', role: 'SYSTEM_ADMIN', department: 'Unit IT' },
+    { email: 'direktur@anri.go.id', name: 'Dr. Ir. Budi Santoso, M.Sc.', role: 'EXECUTIVE', department: 'Direktorat Utama' },
+    { email: 'security@anri.go.id', name: 'Siti Rahmawati, S.T.', role: 'IT_SECURITY', department: 'NSOC' },
+    { email: 'compliance@anri.go.id', name: 'Ahmad Wijaya, S.E., Ak.', role: 'COMPLIANCE_OFFICER', department: 'Audit Internal' },
+    // Executive & Management
     { email: 'siti.nurhaliza@anri.go.id', name: 'Prof. Dr. Siti Nurhaliza, M.A.', role: 'EXECUTIVE', department: 'Manajemen Eksekutif' },
+    { email: 'bambang.susilo@anri.go.id', name: 'Dr. Bambang Susilo, M.Hum.', role: 'EXECUTIVE', department: 'Sekretariat Utama' },
+    // IT Security Team
     { email: 'ahmad.fauzi@anri.go.id', name: 'Ahmad Fauzi, S.Kom.', role: 'IT_SECURITY', department: 'Unit IT' },
     { email: 'maya.kusuma@anri.go.id', name: 'Maya Kusuma, S.Kom., CISSP', role: 'IT_SECURITY', department: 'NSOC' },
     { email: 'agus.setiawan@anri.go.id', name: 'Agus Setiawan, S.Kom.', role: 'IT_SECURITY', department: 'Unit IT' },
     { email: 'rina.wulandari@anri.go.id', name: 'Rina Wulandari, S.T.', role: 'SYSTEM_ADMIN', department: 'Unit IT' },
+    { email: 'joko.santoso@anri.go.id', name: 'Joko Santoso, S.Kom.', role: 'SYSTEM_ADMIN', department: 'Unit IT' },
+    // Compliance & Audit Team
     { email: 'citra.dewi@anri.go.id', name: 'Citra Dewi, S.H., M.H.', role: 'COMPLIANCE_OFFICER', department: 'Kepatuhan & Audit' },
     { email: 'putri.handayani@anri.go.id', name: 'Putri Handayani, S.E., Ak.', role: 'COMPLIANCE_OFFICER', department: 'Audit Internal' },
+    { email: 'rudi.hartono@anri.go.id', name: 'Rudi Hartono, S.E.', role: 'AUDITOR', department: 'Inspektorat' },
+    { email: 'sri.mulyani@anri.go.id', name: 'Sri Mulyani, S.H.', role: 'AUDITOR', department: 'Inspektorat' },
+    { email: 'teguh.prasetyo@anri.go.id', name: 'Teguh Prasetyo, S.E., M.Ak.', role: 'AUDITOR', department: 'Audit Internal' },
+    // Archivists & Preservation
     { email: 'hendra.wijaya@anri.go.id', name: 'Hendra Wijaya, S.Ars.', role: 'ARCHIVIST', department: 'Preservasi Arsip' },
     { email: 'dewi.sartika@anri.go.id', name: 'Dewi Sartika, S.Ars.', role: 'ARCHIVIST', department: 'Preservasi Arsip' },
     { email: 'dimas.pratama@anri.go.id', name: 'Dimas Pratama, A.Md.', role: 'ARCHIVIST', department: 'Kearsipan Dinamis' },
-    { email: 'rudi.hartono@anri.go.id', name: 'Rudi Hartono, S.E.', role: 'AUDITOR', department: 'Inspektorat' },
-    { email: 'sri.mulyani@anri.go.id', name: 'Sri Mulyani, S.H.', role: 'AUDITOR', department: 'Inspektorat' },
-    { email: 'bambang.susanto@anri.go.id', name: 'Bambang Susanto', role: 'ARCHIVIST', department: 'Kearsipan Dinamis' },
-    { email: 'admin@anri.go.id', name: 'Administrator Sistem', role: 'SYSTEM_ADMIN', department: 'Unit IT' },
+    { email: 'siti.nurjanah@anri.go.id', name: 'Siti Nurjanah, S.Ars.', role: 'ARCHIVIST', department: 'Kearsipan Dinamis' },
+    { email: 'eko.prabowo@anri.go.id', name: 'Eko Prabowo, A.Md.', role: 'ARCHIVIST', department: 'Preservasi Arsip' },
+    { email: 'yuni.astuti@anri.go.id', name: 'Yuni Astuti, S.Sos.', role: 'ARCHIVIST', department: 'Pusat Layanan' },
+    // Humas & Communication
+    { email: 'indra.gunawan@anri.go.id', name: 'Indra Gunawan, S.I.Kom.', role: 'ARCHIVIST', department: 'Humas' },
+    { email: 'ratna.sari@anri.go.id', name: 'Ratna Sari, S.Sos.', role: 'ARCHIVIST', department: 'Humas' },
+    { email: 'andi.wijaya@anri.go.id', name: 'Andi Wijaya, S.I.Kom.', role: 'ARCHIVIST', department: 'Humas' },
+    // Keuangan & Finance
+    { email: 'nina.marlina@anri.go.id', name: 'Nina Marlina, S.E.', role: 'ARCHIVIST', department: 'Keuangan' },
+    { email: 'budi.raharjo@anri.go.id', name: 'Budi Raharjo, S.E., M.M.', role: 'ARCHIVIST', department: 'Keuangan' },
+    { email: 'santi.wijaya@anri.go.id', name: 'Santi Wijaya, A.Md.', role: 'ARCHIVIST', department: 'Keuangan' },
+    // General Staff
+    { email: 'fitriani@anri.go.id', name: 'Fitriani, A.Md.', role: 'ARCHIVIST', department: 'Administrasi' },
+    { email: 'wahyu.hidayat@anri.go.id', name: 'Wahyu Hidayat, S.AP.', role: 'ARCHIVIST', department: 'Administrasi' },
+    { email: 'lisa.permata@anri.go.id', name: 'Lisa Permata, S.Hum.', role: 'ARCHIVIST', department: 'Administrasi' },
+    // Research & Education
+    { email: 'dr.susanto@anri.go.id', name: 'Dr. Susanto, M.Si.', role: 'ARCHIVIST', department: 'Pusat Pendidikan' },
+    { email: 'ani.rahayu@anri.go.id', name: 'Ani Rahayu, M.Hum.', role: 'ARCHIVIST', department: 'Pusat Pendidikan' },
+    // International Cooperation
+    { email: 'michael.wijaya@anri.go.id', name: 'Michael Wijaya, M.A.', role: 'AUDITOR', department: 'Kerjasama Internasional' },
+    { email: 'sarah.kristina@anri.go.id', name: 'Sarah Kristina, S.S., M.A.', role: 'AUDITOR', department: 'Kerjasama Internasional' },
 ];
+
 
 // ============= ZONES (8 zones) =============
 const zonesData = [

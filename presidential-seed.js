@@ -3,17 +3,24 @@
 
 require('dotenv/config');
 const path = require('path');
-const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
-const { PrismaClient } = require(path.join(__dirname, '..', 'src', 'generated', 'prisma'));
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const adapter = new PrismaBetterSqlite3({ url: process.env.DATABASE_URL || 'file:./prisma/dev.db' });
-const prisma = new PrismaClient({ adapter });
+// Use relative path from root
+const { PrismaClient } = require('./src/generated/prisma');
 
-// Import data
-const { usersData, zonesData, rfidReadersData, documentsData, randomDate, randomInt, randomChoice, generateMAC, generateSignature, generateHash } = require('./seed-data/core-data');
-const { policyRulesData, devicesData, regulationsData } = require('./seed-data/policy-device-data');
+// DB connection to prisma/dev.db
+const prisma = new PrismaClient({
+    datasources: {
+        db: {
+            url: 'file:./prisma/dev.db'
+        }
+    }
+});
+
+// Import data from scripts/seed-data
+const { usersData, zonesData, rfidReadersData, documentsData, randomDate, randomInt, randomChoice, generateMAC, generateSignature, generateHash } = require('./scripts/seed-data/core-data');
+const { policyRulesData, devicesData, regulationsData } = require('./scripts/seed-data/policy-device-data');
 
 // Violation target sites
 const violationTargets = [
@@ -60,30 +67,34 @@ async function main() {
 
     // ========= 1. CLEAR EXISTING DATA =========
     console.log('\n🗑️  Clearing existing data...');
-    await prisma.approvalStep.deleteMany();
-    await prisma.approvalRequest.deleteMany();
-    await prisma.complianceMetric.deleteMany();
-    await prisma.auditSchedule.deleteMany();
-    await prisma.policyAcknowledgment.deleteMany();
-    await prisma.regulation.deleteMany();
-    await prisma.auditLog.deleteMany();
-    await prisma.notification.deleteMany();
-    await prisma.policyViolation.deleteMany();
-    await prisma.anomalyAlert.deleteMany();
-    await prisma.documentMovement.deleteMany();
-    await prisma.documentBaseline.deleteMany();
-    await prisma.document.deleteMany();
-    await prisma.rFIDReader.deleteMany();
-    await prisma.zoneAccessPermission.deleteMany();
-    await prisma.zone.deleteMany();
-    await prisma.policyRule.deleteMany();
-    await prisma.deviceStatus.deleteMany();
-    await prisma.kPIMetric.deleteMany();
-    await prisma.riskPosture.deleteMany();
-    await prisma.session.deleteMany();
-    await prisma.accessRequest.deleteMany();
-    await prisma.user.deleteMany();
-    console.log('  ✓ All tables cleared');
+    try {
+        console.log(' - Deleting ApprovalStep...'); await prisma.approvalStep.deleteMany();
+        console.log(' - Deleting ApprovalRequest...'); await prisma.approvalRequest.deleteMany();
+        console.log(' - Deleting ComplianceMetric...'); await prisma.complianceMetric.deleteMany();
+        console.log(' - Deleting AuditSchedule...'); await prisma.auditSchedule.deleteMany();
+        console.log(' - Deleting PolicyAcknowledgment...'); await prisma.policyAcknowledgment.deleteMany();
+        console.log(' - Deleting Regulation...'); await prisma.regulation.deleteMany();
+        console.log(' - Deleting AuditLog...'); await prisma.auditLog.deleteMany();
+        console.log(' - Deleting Notification...'); await prisma.notification.deleteMany();
+        console.log(' - Deleting PolicyViolation...'); await prisma.policyViolation.deleteMany();
+        console.log(' - Deleting AnomalyAlert...'); await prisma.anomalyAlert.deleteMany();
+        console.log(' - Deleting DocumentMovement...'); await prisma.documentMovement.deleteMany();
+        console.log(' - Deleting DocumentBaseline...'); await prisma.documentBaseline.deleteMany();
+        console.log(' - Deleting Document...'); await prisma.document.deleteMany();
+        console.log(' - Deleting RFIDReader...'); await prisma.rFIDReader.deleteMany();
+        console.log(' - Deleting ZoneAccessPermission...'); await prisma.zoneAccessPermission.deleteMany();
+        console.log(' - Deleting Zone...'); await prisma.zone.deleteMany();
+        console.log(' - Deleting PolicyRule...'); await prisma.policyRule.deleteMany();
+        console.log(' - Deleting DeviceStatus...'); await prisma.deviceStatus.deleteMany();
+        console.log(' - Deleting KPIMetric...'); await prisma.kPIMetric.deleteMany();
+        console.log(' - Deleting RiskPosture...'); await prisma.riskPosture.deleteMany();
+        console.log(' - Deleting Session...'); await prisma.session.deleteMany();
+        console.log(' - Deleting AccessRequest...'); await prisma.accessRequest.deleteMany();
+        console.log(' - Deleting User...'); await prisma.user.deleteMany();
+        console.log('  ✓ All tables cleared successfully');
+    } catch (error) {
+        console.warn('⚠️  Warning during cleanup (some tables might be empty or constrained):', error.message);
+    }
 
     // ========= 2. CREATE USERS =========
     console.log('\n👥 Creating users (15)...');

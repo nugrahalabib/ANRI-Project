@@ -123,20 +123,11 @@ export function getPermissions(role: UserRole): Permission[] {
 
 /**
  * Get the default dashboard path for a role
+ * All roles redirect to executive dashboard after login
  */
 export function getDefaultDashboard(role: UserRole): string {
-    switch (role) {
-        case 'EXECUTIVE':
-            return '/dashboard/executive';
-        case 'IT_SECURITY':
-            return '/dashboard/security';
-        case 'COMPLIANCE_OFFICER':
-            return '/dashboard/compliance';
-        case 'SYSTEM_ADMIN':
-            return '/dashboard/admin';
-        default:
-            return '/dashboard';
-    }
+    // All roles redirect to executive dashboard
+    return '/dashboard/executive';
 }
 
 /**

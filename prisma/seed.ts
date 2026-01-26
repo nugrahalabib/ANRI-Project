@@ -83,61 +83,143 @@ const rfidReadersData = [
 // DOCUMENTS DATA
 // ============================================================================
 const documentsData = [
-    // SECRET (10)
-    { rfidTag: 'ANRI-X8K9M2', title: 'Arsip Rahasia Kepegawaian 2024-001', classification: 'SECRET', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-P3Q7R1', title: 'Dokumen Intelijen Keamanan Negara Vol. XII', classification: 'SECRET', orgUnit: 'BIN', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-K2L4W9', title: 'SK Presiden No. 45/2024 - Pengangkatan Menteri', classification: 'SECRET', orgUnit: 'Sekretariat Negara', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-M5N8V4', title: 'Perjanjian Bilateral Pertahanan Indonesia-Australia', classification: 'SECRET', orgUnit: 'Kemenhan', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-J7H2F6', title: 'Laporan Audit BPK Khusus 2024', classification: 'SECRET', orgUnit: 'BPK', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-T9Y3B5', title: 'Dokumen Strategi Nasional Cybersecurity', classification: 'SECRET', orgUnit: 'BSSN', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-R4S8D2', title: 'Arsip Rapat Kabinet Terbatas Jan 2024', classification: 'SECRET', orgUnit: 'Sekretariat Kabinet', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-G6E1C7', title: 'Dokumen Investigasi KPK-X2024', classification: 'SECRET', orgUnit: 'KPK', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-U8I5O3', title: 'Rencana Operasi Militer Perbatasan 2024', classification: 'SECRET', orgUnit: 'TNI', zoneCode: 'ZONA-A1' },
-    { rfidTag: 'ANRI-Z1A4Q9', title: 'Dokumen Negosiasi Perdagangan FTA ASEAN', classification: 'SECRET', orgUnit: 'Kemendag', zoneCode: 'ZONA-A1' },
+    // ===== CATEGORY 1: HISTORICAL & PRESIDENTIAL (30 docs) =====
+    // Proklamasi & Independence Era
+    { rfidTag: 'ANRI-P1945-001', title: 'Naskah Asli Proklamasi Kemerdekaan RI 17 Agustus 1945', classification: 'SECRET', orgUnit: 'Arsip Sejarah Nasional', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-P1945-002', title: 'Catatan Rapat BPUPKI - Perumusan Dasar Negara', classification: 'SECRET', orgUnit: 'Arsip Sejarah Nasional', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-P1945-003', title: 'Dokumen Pembentukan PPKI 18 Agustus 1945', classification: 'RESTRICTED', orgUnit: 'Arsip Sejarah Nasional', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-P1949-001', title: 'Perjanjian Roem-Royen 7 Mei 1949', classification: 'RESTRICTED', orgUnit: 'Arsip Sejarah Nasional', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-P1955-001', title: 'Dokumen Konferensi Asia-Afrika Bandung 1955', classification: 'PUBLIC', orgUnit: 'Kemlu', zoneCode: 'ZONA-R1' },
 
-    // RESTRICTED (20)
-    { rfidTag: 'ANRI-B2C5D8', title: 'SK Pengangkatan Pejabat Eselon III No. 123/2024', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-E3F6G9', title: 'Laporan Keuangan Triwulan IV 2024', classification: 'RESTRICTED', orgUnit: 'Biro Keuangan', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-H4I7J1', title: 'Perjanjian Kerjasama dengan UNESCO', classification: 'RESTRICTED', orgUnit: 'Humas', zoneCode: 'ZONA-A2' },
-    { rfidTag: 'ANRI-K5L8M2', title: 'Dokumen Tender Renovasi Gedung C', classification: 'RESTRICTED', orgUnit: 'Bagian Umum', zoneCode: 'ZONA-C1' },
-    { rfidTag: 'ANRI-N6O9P3', title: 'Arsip Rapat Koordinasi Eselon I', classification: 'RESTRICTED', orgUnit: 'Sekretariat', zoneCode: 'ZONA-B2' },
-    { rfidTag: 'ANRI-Q7R1S4', title: 'Laporan Evaluasi Kinerja 2024', classification: 'RESTRICTED', orgUnit: 'Inspektorat', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-T8U2V5', title: 'Dokumen Standar Operasional Prosedur', classification: 'RESTRICTED', orgUnit: 'Bagian Organisasi', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-W9X3Y6', title: 'Arsip Sengketa Kepegawaian 2024', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-A1B4C7', title: 'Laporan Inventarisasi Aset 2024', classification: 'RESTRICTED', orgUnit: 'Biro Keuangan', zoneCode: 'ZONA-C1' },
-    { rfidTag: 'ANRI-D2E5F8', title: 'Dokumen Perencanaan Strategis 2025-2029', classification: 'RESTRICTED', orgUnit: 'Biro Perencanaan', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-G3H6I9', title: 'SK Mutasi Pegawai Batch Januari 2024', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-J4K7L1', title: 'Kontrak Pengadaan Server 2024', classification: 'RESTRICTED', orgUnit: 'Unit IT', zoneCode: 'ZONA-S1' },
-    { rfidTag: 'ANRI-M5N8O2', title: 'Laporan Audit Internal Q4 2024', classification: 'RESTRICTED', orgUnit: 'Inspektorat', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-P6Q9R3', title: 'Dokumen Akreditasi Laboratorium', classification: 'RESTRICTED', orgUnit: 'Lab Preservasi', zoneCode: 'ZONA-A2' },
-    { rfidTag: 'ANRI-S7T1U4', title: 'Arsip Pengaduan Whistleblower 2024', classification: 'RESTRICTED', orgUnit: 'Inspektorat', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-V8W2X5', title: 'MoU dengan Arsip Nasional Belanda', classification: 'RESTRICTED', orgUnit: 'Kerjasama Internasional', zoneCode: 'ZONA-A2' },
-    { rfidTag: 'ANRI-Y9Z3A6', title: 'Laporan Pengembangan SDM 2024', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-B1C4D7', title: 'Dokumen Sertifikasi ISO 27001', classification: 'RESTRICTED', orgUnit: 'Unit IT', zoneCode: 'ZONA-S1' },
-    { rfidTag: 'ANRI-E2F5G8', title: 'SK Penetapan Tunjangan Kinerja 2024', classification: 'RESTRICTED', orgUnit: 'Biro Keuangan', zoneCode: 'ZONA-B1' },
-    { rfidTag: 'ANRI-H3I6J9', title: 'Arsip Perjanjian Hibah dari Pemerintah Jepang', classification: 'RESTRICTED', orgUnit: 'Kerjasama Internasional', zoneCode: 'ZONA-A2' },
+    // Presidential SK & Decrees (2024)
+    { rfidTag: 'ANRI-SK2024-001', title: 'SK Presiden No. 12/2024 - Pengangkatan Duta Besar LBBP Australia', classification: 'SECRET', orgUnit: 'Sekretariat Negara', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-SK2024-002', title: 'SK Presiden No. 34/2024 - Pemberhentian Menteri Kabinet', classification: 'SECRET', orgUnit: 'Sekretariat Negara', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-SK2024-003', title: 'SK Presiden No. 45/2024 - Pengangkatan Panglima TNI', classification: 'SECRET', orgUnit: 'Sekretariat Negara', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-PERPRES-001', title: 'Perpres No. 15/2024 - Percepatan Pembangunan IKN Nusantara', classification: 'RESTRICTED', orgUnit: 'Sekretariat Negara', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-PERPRES-002', title: 'Perpres No. 28/2024 - Tata Kelola Keuangan Negara 2025', classification: 'RESTRICTED', orgUnit: 'Sekretariat Negara', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-PERPRES-003', title: 'Perpres No. 42/2024 - Pembentukan Badan Otorita IKN', classification: 'RESTRICTED', orgUnit: 'Sekretariat Negara', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-KEPPRES-001', title: 'Keppres No. 45/2024 - Penetapan Hari Libur Nasional 2025', classification: 'PUBLIC', orgUnit: 'Sekretariat Negara', zoneCode: 'ZONA-R1' },
 
-    // PUBLIC (20)
-    { rfidTag: 'ANRI-K4L7M1', title: 'Pengumuman Penerimaan CPNS 2024', classification: 'PUBLIC', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-N5O8P2', title: 'Surat Edaran No. 01/SE/2024', classification: 'PUBLIC', orgUnit: 'Sekretariat', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-Q6R9S3', title: 'Laporan Tahunan ANRI 2023', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-T7U1V4', title: 'Buku Pedoman Kearsipan untuk K/L', classification: 'PUBLIC', orgUnit: 'Pusat Pembinaan', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-W8X2Y5', title: 'Katalog Arsip Periode Kolonial', classification: 'PUBLIC', orgUnit: 'Pusat Preservasi', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-Z9A3B6', title: 'Majalah Arsip Nasional Edisi 54', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-C1D4E7', title: 'Prosiding Konferensi Kearsipan 2024', classification: 'PUBLIC', orgUnit: 'Pusat Pendidikan', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-F2G5H8', title: 'Brosur Layanan ANRI 2024', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-L1' },
-    { rfidTag: 'ANRI-I3J6K9', title: 'Peraturan ANRI No. 5 Tahun 2024', classification: 'PUBLIC', orgUnit: 'Hukum', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-L4M7N1', title: 'Standar Deskripsi Arsip Indonesia', classification: 'PUBLIC', orgUnit: 'Pusat Pembinaan', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-O5P8Q2', title: 'Panduan Digitalisasi Arsip', classification: 'PUBLIC', orgUnit: 'Pusat Preservasi', zoneCode: 'ZONA-A2' },
-    { rfidTag: 'ANRI-R6S9T3', title: 'Katalog Pameran Arsip Kemerdekaan', classification: 'PUBLIC', orgUnit: 'Pusat Layanan', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-U7V1W4', title: 'Laporan Survei Kepuasan Masyarakat 2024', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-X8Y2Z5', title: 'Direktori Lembaga Kearsipan Daerah', classification: 'PUBLIC', orgUnit: 'Pusat Pembinaan', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-A9B3C6', title: 'Modul Pelatihan Arsiparis Dasar', classification: 'PUBLIC', orgUnit: 'Pusat Pendidikan', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-D1E4F7', title: 'Jurnal Kearsipan Vol. 19 No. 1', classification: 'PUBLIC', orgUnit: 'Pusat Kajian', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-G2H5I8', title: 'Daftar Arsip Statis yang Diakuisisi 2024', classification: 'PUBLIC', orgUnit: 'Pusat Akuisisi', zoneCode: 'ZONA-R1' },
-    { rfidTag: 'ANRI-J3K6L9', title: 'Formulir Permohonan Akses Arsip', classification: 'PUBLIC', orgUnit: 'Pusat Layanan', zoneCode: 'ZONA-L1' },
-    { rfidTag: 'ANRI-M4N7O1', title: 'Kalender Event ANRI 2024', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-L1' },
-    { rfidTag: 'ANRI-P5Q8R2', title: 'Infografis Statistik Kearsipan Nasional', classification: 'PUBLIC', orgUnit: 'Pusat Data', zoneCode: 'ZONA-R1' },
+    // Cabinet Transcripts
+    { rfidTag: 'ANRI-RK2024-101', title: 'Risalah Rapat Kabinet Terbatas - Penanganan Inflasi Q4 2024', classification: 'SECRET', orgUnit: 'Sekretariat Kabinet', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-RK2024-102', title: 'Risalah Rapat Kabinet Paripurna - Evaluasi APBN 2024', classification: 'SECRET', orgUnit: 'Sekretariat Kabinet', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-RK2024-103', title: 'Risalah Sidang Kabinet - Strategi Pangan Nasional 2025-2029', classification: 'RESTRICTED', orgUnit: 'Sekretariat Kabinet', zoneCode: 'ZONA-B2' },
+    { rfidTag: 'ANRI-RK2024-104', title: 'Risalah Rapat Kabinet - Pembahasan RUU Cipta Kerja', classification: 'RESTRICTED', orgUnit: 'Sekretariat Kabinet', zoneCode: 'ZONA-B2' },
+
+    // ===== CATEGORY 2: INTELLIGENCE & SECURITY (30 docs - SECRET) =====
+    { rfidTag: 'ANRI-BIN2024-001', title: 'Laporan Intelijen Strategis Q4 2024 - Stabilitas Kawasan ASEAN', classification: 'SECRET', orgUnit: 'Badan Intelijen Negara', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-BIN2024-002', title: 'Analisis Ancaman Terorisme Transnasional Asia Tenggara', classification: 'SECRET', orgUnit: 'Badan Intelijen Negara', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-BIN2024-003', title: 'Intelligence Brief - Cyber Threats Against Critical Infrastructure', classification: 'SECRET', orgUnit: 'Badan Intelijen Negara', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-BIN2024-004', title: 'Laporan Monitoring Radikalisme di Kampus-Kampus Indonesia', classification: 'SECRET', orgUnit: 'Badan Intelijen Negara', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-BIN2024-005', title: 'Analisis Geopolitik Laut China Selatan 2024', classification: 'SECRET', orgUnit: 'Badan Intelijen Negara', zoneCode: 'ZONA-A1' },
+
+    { rfidTag: 'ANRI-BSSN2024-001', title: 'Laporan Insiden Siber Nasional Semester II 2024', classification: 'SECRET', orgUnit: 'BSSN', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-BSSN2024-002', title: 'Strategi Pertahanan Siber Indonesia 2025-2029', classification: 'SECRET', orgUnit: 'BSSN', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-BSSN2024-003', title: 'Penilaian Risiko Keamanan Siber Sektor Keuangan', classification: 'RESTRICTED', orgUnit: 'BSSN', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-BSSN2024-004', title: 'Dokumen Respons Insiden Ransomware Sektor Kesehatan', classification: 'SECRET', orgUnit: 'BSSN', zoneCode: 'ZONA-A1' },
+
+    { rfidTag: 'ANRI-KPK2024-001', title: 'Laporan Investigasi OTT Kasus Suap Pengadaan Alkes', classification: 'SECRET', orgUnit: 'KPK', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-KPK2024-002', title: 'Hasil Penyelidikan Kasus Gratifikasi BUMN PT XYZ', classification: 'SECRET', orgUnit: 'KPK', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-KPK2024-003', title: 'Analisis Pola Korupsi Pengadaan Barang dan Jasa 2024', classification: 'RESTRICTED', orgUnit: 'KPK', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-KPK2024-004', title: 'Dokumen Penyitaan Aset Korupsi Proyek Infrastruktur', classification: 'SECRET', orgUnit: 'KPK', zoneCode: 'ZONA-A1' },
+
+    { rfidTag: 'ANRI-TNI2024-001', title: 'Rencana Operasi Pengamanan Perbatasan Laut 2025', classification: 'SECRET', orgUnit: 'TNI', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-TNI2024-002', title: 'Laporan Latihan Gabungan Garuda Shield 2024', classification: 'RESTRICTED', orgUnit: 'TNI', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-TNI2024-003', title: 'Dokumen Strategi Pertahanan Udara Nasional', classification: 'SECRET', orgUnit: 'TNI AU', zoneCode: 'ZONA-A1' },
+
+    { rfidTag: 'ANRI-POLRI2024-001', title: 'Strategi Penanggulangan Narkoba Nasional 2025', classification: 'RESTRICTED', orgUnit: 'Polri', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-POLRI2024-002', title: 'Laporan Operasi Pemberantasan Jaringan Narkoba Internasional', classification: 'SECRET', orgUnit: 'Polri', zoneCode: 'ZONA-A1' },
+
+    // ===== CATEGORY 3: MINISTRY DOCS - FINANCE & ECONOMY (20 docs) =====
+    { rfidTag: 'ANRI-KEU2024-001', title: 'Nota Keuangan RAPBN 2025', classification: 'RESTRICTED', orgUnit: 'Kemenkeu', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-KEU2024-002', title: 'Laporan Realisasi APBN Semester II 2024', classification: 'RESTRICTED', orgUnit: 'Kemenkeu', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-KEU2024-003', title: 'Analisis Kebijakan Fiskal dan Proyeksi Ekonomi 2025', classification: 'RESTRICTED', orgUnit: 'Kemenkeu', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-KEU2024-004', title: 'Dokumen Strategi Pengelolaan Utang Negara 2025', classification: 'RESTRICTED', orgUnit: 'Kemenkeu', zoneCode: 'ZONA-B1' },
+
+    { rfidTag: 'ANRI-BPK2024-001', title: 'Laporan Hasil Pemeriksaan LKPP Tahun Anggaran 2023', classification: 'RESTRICTED', orgUnit: 'BPK', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-BPK2024-002', title: 'Audit Eksternal Pengelolaan Aset Negara 2024', classification: 'SECRET', orgUnit: 'BPK', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-BPK2024-003', title: 'Laporan Investigasi Kerugian Negara BUMN Sektor Energi', classification: 'SECRET', orgUnit: 'BPK', zoneCode: 'ZONA-A1' },
+
+    { rfidTag: 'ANRI-BI2024-001', title: 'Laporan Kebijakan Moneter dan Stabilitas Keuangan Q4 2024', classification: 'RESTRICTED', orgUnit: 'Bank Indonesia', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-BI2024-002', title: 'Analisis Proyeksi Inflasi dan Nilai Tukar Rupiah 2025', classification: 'RESTRICTED', orgUnit: 'Bank Indonesia', zoneCode: 'ZONA-B1' },
+
+    { rfidTag: 'ANRI-OJK2024-001', title: 'Laporan Triwulanan Industri Perbankan Indonesia', classification: 'PUBLIC', orgUnit: 'OJK', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-OJK2024-002', title: 'Kajian Stabilitas Sistem Keuangan Indonesia 2024', classification: 'RESTRICTED', orgUnit: 'OJK', zoneCode: 'ZONA-B1' },
+
+    { rfidTag: 'ANRI-BAPPENAS-001', title: 'Rencana Pembangunan Jangka Menengah Nasional 2025-2029', classification: 'RESTRICTED', orgUnit: 'Bappenas', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-BAPPENAS-002', title: 'Dokumen Perencanaan Pembangunan IKN Nusantara', classification: 'RESTRICTED', orgUnit: 'Bappenas', zoneCode: 'ZONA-B1' },
+
+    // ===== CATEGORY 4: INTERNATIONAL RELATIONS & DEFENSE (15 docs) =====
+    { rfidTag: 'ANRI-LN2024-001', title: 'Perjanjian Kerjasama RI-Australia di Bidang Pertahanan', classification: 'SECRET', orgUnit: 'Kemenlu', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-LN2024-002', title: 'MoU Kerjasama Ekonomi ASEAN-China Free Trade Agreement', classification: 'RESTRICTED', orgUnit: 'Kemenlu', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-LN2024-003', title: 'Laporan Pertemuan ASEAN Foreign Ministers Meeting Brunei 2024', classification: 'RESTRICTED', orgUnit: 'Kemenlu', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-LN2024-004', title: 'Nota Diplomatik - Perundingan Batas Maritim ZEE Indonesia-Vietnam', classification: 'SECRET', orgUnit: 'Kemenlu', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-LN2024-005', title: 'Dokumen Kerjasama G20 Indonesia Presidency 2022', classification: 'PUBLIC', orgUnit: 'Kemenlu', zoneCode: 'ZONA-R1' },
+
+    { rfidTag: 'ANRI-HAN2024-001', title: 'Rencana Strategis Modernisasi Alutsista TNI 2025-2029', classification: 'SECRET', orgUnit: 'Kemenhan', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-HAN2024-002', title: 'Dokumen Pengadaan Jet Tempur Rafale dari Perancis', classification: 'SECRET', orgUnit: 'Kemenhan', zoneCode: 'ZONA-A1' },
+    { rfidTag: 'ANRI-HAN2024-003', title: 'Kerjasama Industri Pertahanan dengan Korea Selatan - KF-21', classification: 'RESTRICTED', orgUnit: 'Kemenhan', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-HAN2024-004', title: 'Perjanjian Bilateral Pertahanan Indonesia-Australia', classification: 'SECRET', orgUnit: 'Kemenhan', zoneCode: 'ZONA-A1' },
+
+    // ===== CATEGORY 5: CULTURAL HERITAGE & UNESCO (20 docs - PUBLIC) =====
+    { rfidTag: 'ANRI-UNESCO-001', title: 'Nominasi Borobudur untuk World Heritage Site (1991)', classification: 'PUBLIC', orgUnit: 'Kemendikbud', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-UNESCO-002', title: 'Dokumentasi Situs Sangiran - World Heritage', classification: 'PUBLIC', orgUnit: 'Kemendikbud', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-UNESCO-003', title: 'Arsip Wayang Kulit UNESCO Memory of the World', classification: 'PUBLIC', orgUnit: 'Kemendikbud', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-UNESCO-004', title: 'Dokumentasi Batik Indonesia - UNESCO Intangible Heritage', classification: 'PUBLIC', orgUnit: 'Kemendikbud', zoneCode: 'ZONA-R1' },
+
+    { rfidTag: 'ANRI-BUDAYA-001', title: 'Katalog Koleksi Naskah Kuno Keraton Yogyakarta', classification: 'PUBLIC', orgUnit: 'Pusat Preservasi', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-BUDAYA-002', title: 'Dokumentasi Kesenian Tradisional Nusantara', classification: 'PUBLIC', orgUnit: 'Kemendikbud', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-BUDAYA-003', title: 'Koleksi Foto Sejarah Kemerdekaan Indonesia 1945-1950', classification: 'PUBLIC', orgUnit: 'Pusat Dokumentasi', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-BUDAYA-004', title: 'Arsip Musik Tradisional Gamelan Jawa', classification: 'PUBLIC', orgUnit: 'Pusat Preservasi', zoneCode: 'ZONA-R1' },
+
+    { rfidTag: 'ANRI-KOLONIAL-001', title: 'Arsip VOC - Perjanjian Dagang Hindia Belanda 1700-an', classification: 'PUBLIC', orgUnit: 'Arsip Kolonial', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-KOLONIAL-002', title: 'Dokumen Cultuurstelsel - Tanam Paksa Era Kolonial', classification: 'PUBLIC', orgUnit: 'Arsip Kolonial', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-KOLONIAL-003', title: 'Peta Hindia Belanda Era Gubernur Jenderal Daendels', classification: 'PUBLIC', orgUnit: 'Arsip Kolonial', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-KOLONIAL-004', title: 'Arsip Perlawanan Diponegoro 1825-1830', classification: 'PUBLIC', orgUnit: 'Arsip Sejarah', zoneCode: 'ZONA-R1' },
+
+    { rfidTag: 'ANRI-PAMERAN-001', title: 'Katalog Pameran Arsip Kemerdekaan', classification: 'PUBLIC', orgUnit: 'Pusat Layanan', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PAMERAN-002', title: 'Dokumentasi Pameran Indonesia Kaya 2024', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-R1' },
+
+    // ===== CATEGORY 6: ADMINISTRATIVE & INTERNAL ANRI (25 docs) =====
+    { rfidTag: 'ANRI-ADM2024-001', title: 'SK Kepala ANRI No. 12/2024 - Pengangkatan Eselon II', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-ADM2024-002', title: 'Laporan Kinerja ANRI Tahun 2024', classification: 'RESTRICTED', orgUnit: 'Sekretariat', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-ADM2024-003', title: 'Rencana Kerja dan Anggaran ANRI Tahun 2025', classification: 'RESTRICTED', orgUnit: 'Biro Perencanaan', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-ADM2024-004', title: 'Laporan Akuisisi Arsip Statis Kementerian/Lembaga 2024', classification: 'RESTRICTED', orgUnit: 'Pusat Akuisisi', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-ADM2024-005', title: 'SOP Pengelolaan Arsip Elektronik ANRI Versi 2.0', classification: 'RESTRICTED', orgUnit: 'Bagian Organisasi', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-ADM2024-006', title: 'Kontrak Pengadaan Sistem RFID Tracking 2024', classification: 'RESTRICTED', orgUnit: 'Unit IT', zoneCode: 'ZONA-S1' },
+    { rfidTag: 'ANRI-ADM2024-007', title: 'Laporan Hasil Sertifikasi ISO 27001:2022', classification: 'RESTRICTED', orgUnit: 'Unit IT', zoneCode: 'ZONA-S1' },
+    { rfidTag: 'ANRI-ADM2024-008', title: 'Dokumen Tender Renovasi Gedung Arsip Pusat', classification: 'RESTRICTED', orgUnit: 'Bagian Umum', zoneCode: 'ZONA-C1' },
+    { rfidTag: 'ANRI-ADM2024-009', title: 'SK Mutasi Pegawai Batch Januari 2024', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-ADM2024-010', title: 'Laporan Inventarisasi Aset ANRI 2024', classification: 'RESTRICTED', orgUnit: 'Biro Keuangan', zoneCode: 'ZONA-C1' },
+
+    { rfidTag: 'ANRI-KEP2024-001', title: 'SK Pengangkatan Pejabat Eselon III No. 123/2024', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-KEP2024-002', title: 'Arsip Sengketa Kepegawaian 2024', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-KEP2024-003', title: 'Laporan Pengembangan SDM ANRI 2024', classification: 'RESTRICTED', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-KEP2024-004', title: 'SK Penetapan Tunjangan Kinerja 2024', classification: 'RESTRICTED', orgUnit: 'Biro Keuangan', zoneCode: 'ZONA-B1' },
+
+    { rfidTag: 'ANRI-AUDIT-001', title: 'Laporan Audit Internal Q4 2024', classification: 'RESTRICTED', orgUnit: 'Inspektorat', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-AUDIT-002', title: 'Laporan Evaluasi Kinerja ANRI 2024', classification: 'RESTRICTED', orgUnit: 'Inspektorat', zoneCode: 'ZONA-B1' },
+    { rfidTag: 'ANRI-AUDIT-003', title: 'Arsip Pengaduan Whistleblower 2024', classification: 'RESTRICTED', orgUnit: 'Inspektorat', zoneCode: 'ZONA-B1' },
+
+    { rfidTag: 'ANRI-IT2024-001', title: 'Dokumen Sertifikasi ISO 27001', classification: 'RESTRICTED', orgUnit: 'Unit IT', zoneCode: 'ZONA-S1' },
+    { rfidTag: 'ANRI-IT2024-002', title: 'Kontrak Pengadaan Server 2024', classification: 'RESTRICTED', orgUnit: 'Unit IT', zoneCode: 'ZONA-S1' },
+
+    // ===== CATEGORY 7: PUBLIC SERVICES & PUBLICATIONS (15 docs) =====
+    { rfidTag: 'ANRI-PUB2024-001', title: 'Pengumuman Penerimaan CPNS 2024', classification: 'PUBLIC', orgUnit: 'Biro Kepegawaian', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-002', title: 'Surat Edaran No. 01/SE/2024', classification: 'PUBLIC', orgUnit: 'Sekretariat', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-003', title: 'Laporan Tahunan ANRI 2023', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-004', title: 'Buku Pedoman Kearsipan untuk K/L', classification: 'PUBLIC', orgUnit: 'Pusat Pembinaan', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-005', title: 'Standar Deskripsi Arsip Indonesia', classification: 'PUBLIC', orgUnit: 'Pusat Pembinaan', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-006', title: 'Panduan Digitalisasi Arsip', classification: 'PUBLIC', orgUnit: 'Pusat Preservasi', zoneCode: 'ZONA-A2' },
+    { rfidTag: 'ANRI-PUB2024-007', title: 'Majalah Arsip Nasional Edisi 54', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-008', title: 'Prosiding Konferensi Kearsipan 2024', classification: 'PUBLIC', orgUnit: 'Pusat Pendidikan', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-009', title: 'Brosur Layanan ANRI 2024', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-L1' },
+    { rfidTag: 'ANRI-PUB2024-010', title: 'Peraturan ANRI No. 5 Tahun 2024', classification: 'PUBLIC', orgUnit: 'Hukum', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-011', title: 'Laporan Survei Kepuasan Masyarakat 2024', classification: 'PUBLIC', orgUnit: 'Humas', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-012', title: 'Direktori Lembaga Kearsipan Daerah', classification: 'PUBLIC', orgUnit: 'Pusat Pembinaan', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-013', title: 'Modul Pelatihan Arsiparis Dasar', classification: 'PUBLIC', orgUnit: 'Pusat Pendidikan', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-014', title: 'Jurnal Kearsipan Vol. 19 No. 1', classification: 'PUBLIC', orgUnit: 'Pusat Kajian', zoneCode: 'ZONA-R1' },
+    { rfidTag: 'ANRI-PUB2024-015', title: 'Infografis Statistik Kearsipan Nasional', classification: 'PUBLIC', orgUnit: 'Pusat Data', zoneCode: 'ZONA-R1' },
 ];
 
 // ============================================================================
@@ -162,6 +244,42 @@ const policyRulesData = [
 ];
 
 // ============================================================================
+// REGULATIONS DATA (for Compliance Dashboard)
+// ============================================================================
+const regulationsData = [
+    { code: 'UU-43/2009', name: 'Undang-Undang Kearsipan', category: 'LAW', issuingBody: 'DPR RI', effectiveDate: new Date('2009-10-23'), status: 'COMPLIANT', ownerDepartment: 'Sekretariat', lastReviewDate: new Date('2024-11-15'), nextReviewDate: new Date('2025-05-15'), notes: 'Compliance penuh terhadap UU Kearsipan' },
+    { code: 'PP-28/2012', name: 'Pelaksanaan UU Kearsipan', category: 'GOVERNMENT', issuingBody: 'Presiden RI', effectiveDate: new Date('2012-04-17'), status: 'COMPLIANT', ownerDepartment: 'Sekretariat', lastReviewDate: new Date('2024-10-20'), nextReviewDate: new Date('2025-04-20') },
+    { code: 'PERPRES-82/2023', name: 'Sistem Pemerintahan Berbasis Elektronik', category: 'PRESIDENTIAL', issuingBody: 'Presiden RI', effectiveDate: new Date('2023-08-01'), status: 'COMPLIANT', ownerDepartment: 'Unit IT', lastReviewDate: new Date('2024-12-01'), nextReviewDate: new Date('2025-06-01') },
+    { code: 'UU-27/2022', name: 'Pelindungan Data Pribadi', category: 'LAW', issuingBody: 'DPR RI', effectiveDate: new Date('2022-10-17'), status: 'PARTIAL', ownerDepartment: 'Kepatuhan & Audit', lastReviewDate: new Date('2024-11-10'), nextReviewDate: new Date('2025-02-10'), notes: 'Implementasi DPIA sedang dalam proses finalisasi' },
+    { code: 'ISO-27001:2022', name: 'Information Security Management System', category: 'INTERNATIONAL', issuingBody: 'ISO/IEC', effectiveDate: new Date('2022-10-25'), status: 'COMPLIANT', ownerDepartment: 'Unit IT', lastReviewDate: new Date('2024-09-20'), nextReviewDate: new Date('2025-09-20'), evidenceUrl: '/compliance/iso27001-certificate.pdf' },
+    { code: 'ISO-15489', name: 'Records Management International Standard', category: 'INTERNATIONAL', issuingBody: 'ISO', effectiveDate: new Date('2016-04-15'), status: 'COMPLIANT', ownerDepartment: 'Preservasi Arsip', lastReviewDate: new Date('2024-08-15'), nextReviewDate: new Date('2025-08-15') },
+    { code: 'PERPRES-95/2018', name: 'Sistem Pemerintahan Berbasis Elektronik', category: 'PRESIDENTIAL', issuingBody: 'Presiden RI', effectiveDate: new Date('2018-09-28'), status: 'COMPLIANT', ownerDepartment: 'Unit IT', lastReviewDate: new Date('2024-07-10'), nextReviewDate: new Date('2025-01-10') },
+    { code: 'SE-MENPANRB-06/2023', name: 'Kebijakan Penggunaan Internet ASN', category: 'INTERNAL', issuingBody: 'Kementerian PANRB', effectiveDate: new Date('2023-06-15'), status: 'COMPLIANT', ownerDepartment: 'Unit IT', lastReviewDate: new Date('2024-12-05'), nextReviewDate: new Date('2025-06-05') },
+];
+
+// ============================================================================
+// AUDIT SCHEDULE DATA (for Compliance Dashboard)
+// ============================================================================
+const auditScheduleData = [
+    // Past Audits
+    { name: 'Audit Internal Semester II 2023', type: 'INTERNAL', scheduledDate: new Date('2023-11-15'), completedDate: new Date('2023-11-20'), status: 'COMPLETED', auditorName: 'Citra Dewi, S.H., M.H.', auditorOrg: 'Internal Audit ANRI', findings: 3, criticalFindings: 0, reportUrl: '/audits/2023-H2-internal.pdf' },
+    { name: 'Audit Eksternal BPK 2024', type: 'EXTERNAL', scheduledDate: new Date('2024-03-10'), completedDate: new Date('2024-03-25'), status: 'COMPLETED', auditorName: 'Tim Auditor BPK', auditorOrg: 'Badan Pemeriksa Keuangan RI', findings: 7, criticalFindings: 1, reportUrl: '/audits/2024-BPK-external.pdf' },
+    { name: 'Surveillance Audit ISO 27001', type: 'SURVEILLANCE', scheduledDate: new Date('2024-09-20'), completedDate: new Date('2024-09-22'), status: 'COMPLETED', auditorName: 'John Smith, Lead Auditor', auditorOrg: 'British Standards Institution', findings: 2, criticalFindings: 0, reportUrl: '/audits/2024-ISO27001-surveillance.pdf' },
+    { name: 'Audit Kepatuhan Kearsipan Q3 2024', type: 'INTERNAL', scheduledDate: new Date('2024-08-05'), completedDate: new Date('2024-08-10'), status: 'COMPLETED', auditorName: 'Putri Handayani, S.E., Ak.', auditorOrg: 'Internal Audit ANRI', findings: 4, criticalFindings: 0 },
+    { name: 'Audit Sistem Informasi 2024', type: 'SPECIAL', scheduledDate: new Date('2024-06-12'), completedDate: new Date('2024-06-18'), status: 'COMPLETED', auditorName: 'Ahmad Fauzi, S.Kom.', auditorOrg: 'Unit IT', findings: 5, criticalFindings: 1 },
+
+    // Upcoming Audits
+    { name: 'Audit Internal Q1 2025', type: 'INTERNAL', scheduledDate: new Date('2025-03-15'), status: 'SCHEDULED', auditorName: 'Citra Dewi, S.H., M.H.', auditorOrg: 'Internal Audit ANRI', findings: 0, criticalFindings: 0 },
+    { name: 'Sertifikasi Ulang ISO 27001', type: 'CERTIFICATION', scheduledDate: new Date('2025-06-10'), status: 'SCHEDULED', auditorOrg: 'British Standards Institution', findings: 0, criticalFindings: 0 },
+    { name: 'Audit Kepatuhan Data Pribadi', type: 'SPECIAL', scheduledDate: new Date('2025-04-20'), status: 'SCHEDULED', auditorName: 'Tim Kominfo', auditorOrg: 'Kementerian Komunikasi dan Informatika', findings: 0, criticalFindings: 0 },
+    { name: 'Audit Eksternal BPK 2025', type: 'EXTERNAL', scheduledDate: new Date('2025-03-05'), status: 'SCHEDULED', auditorOrg: 'Badan Pemeriksa Keuangan RI', findings: 0, criticalFindings: 0 },
+    { name: 'Audit Preservasi Arsip Digital', type: 'INTERNAL', scheduledDate: new Date('2025-05-18'), status: 'SCHEDULED', auditorName: 'Hendra Wijaya, S.Ars.', auditorOrg: 'Preservasi Arsip', findings: 0, criticalFindings: 0 },
+    { name: 'Surveillance Audit ISO 15489', type: 'SURVEILLANCE', scheduledDate: new Date('2025-07-22'), status: 'SCHEDULED', auditorOrg: 'SGS Indonesia', findings: 0, criticalFindings: 0 },
+    { name: 'Audit Keamanan Siber', type: 'SPECIAL', scheduledDate: new Date('2025-08-10'), status: 'SCHEDULED', auditorName: 'Maya Kusuma, S.Kom., CISSP', auditorOrg: 'NSOC', findings: 0, criticalFindings: 0 },
+];
+
+
+// ============================================================================
 // MAIN SEED FUNCTION
 // ============================================================================
 async function main() {
@@ -169,6 +287,12 @@ async function main() {
 
     // Clear existing data
     console.log('🗑️  Clearing existing data...');
+    await prisma.complianceMetric.deleteMany();
+    await prisma.auditSchedule.deleteMany();
+    await prisma.regulation.deleteMany();
+    await prisma.approvalStep.deleteMany();
+    await prisma.approvalRequest.deleteMany();
+    await prisma.policyAcknowledgment.deleteMany();
     await prisma.auditLog.deleteMany();
     await prisma.policyViolation.deleteMany();
     await prisma.notification.deleteMany();
@@ -583,7 +707,200 @@ async function main() {
     console.log(`  ✓ Created 30 risk posture snapshots`);
 
     // ========================================================================
-    // 12. CREATE AUDIT LOGS (500+)
+    // 12. CREATE REGULATIONS (for Compliance Dashboard)
+    // ========================================================================
+    console.log('\n📜 Creating regulations...');
+    for (const regData of regulationsData) {
+        await prisma.regulation.create({
+            data: {
+                code: regData.code,
+                name: regData.name,
+                category: regData.category as any,
+                issuingBody: regData.issuingBody,
+                effectiveDate: regData.effectiveDate,
+                status: regData.status as any,
+                ownerDepartment: regData.ownerDepartment,
+                lastReviewDate: regData.lastReviewDate,
+                nextReviewDate: regData.nextReviewDate,
+                evidenceUrl: regData.evidenceUrl || null,
+                notes: regData.notes || null,
+                isActive: true,
+            },
+        });
+    }
+    console.log(`  ✓ Created ${regulationsData.length} regulations`);
+
+    // ========================================================================
+    // 13. CREATE AUDIT SCHEDULES (for Compliance Dashboard)
+    // ========================================================================
+    console.log('\n📅 Creating audit schedules...');
+    for (const auditData of auditScheduleData) {
+        await prisma.auditSchedule.create({
+            data: {
+                name: auditData.name,
+                type: auditData.type as any,
+                scheduledDate: auditData.scheduledDate,
+                completedDate: auditData.completedDate || null,
+                status: auditData.status as any,
+                auditorName: auditData.auditorName || null,
+                auditorOrg: auditData.auditorOrg,
+                findings: auditData.findings,
+                criticalFindings: auditData.criticalFindings,
+                reportUrl: auditData.reportUrl || null,
+            },
+        });
+    }
+    console.log(`  ✓ Created ${auditScheduleData.length} audit schedules`);
+
+    // ========================================================================
+    // 14. CREATE COMPLIANCE METRICS (36 records - 12 months trends)
+    // ========================================================================
+    console.log('\n📈 Creating compliance metrics...');
+    const complianceCategories = ['POLICY_ACK', 'AUDIT_READY', 'REGULATION'];
+    const baseComplianceValues: { [key: string]: number } = {
+        POLICY_ACK: 82,      // Policy Acknowledgment Rate (%)
+        AUDIT_READY: 75,     // Audit Readiness Score (%)
+        REGULATION: 88,      // Regulation Compliance Rate (%)
+    };
+
+    for (let month = 0; month < 12; month++) {
+        const period = `2024-${String(month + 1).padStart(2, '0')}`;
+
+        for (const category of complianceCategories) {
+            const improvement = month * 1.2; // Progressive improvement
+            const baseValue = baseComplianceValues[category];
+            const value = Math.min(baseValue + improvement, 98) + (Math.random() - 0.5) * 2;
+
+            await prisma.complianceMetric.create({
+                data: {
+                    name: `${category} - ${period}`,
+                    category,
+                    value,
+                    target: 95,
+                    unit: '%',
+                    trend: month > 0 ? (['UP', 'STABLE'][Math.floor(Math.random() * 2)] as any) : null,
+                    period,
+                    calculatedAt: new Date(2024, month, 28),
+                },
+            });
+        }
+    }
+    console.log(`  ✓ Created 36 compliance metrics (12 months × 3 categories)`);
+
+    // ========================================================================
+    // 15. CREATE APPROVAL REQUESTS (30+ with multi-level workflow)
+    // ========================================================================
+    console.log('\n📋 Creating approval requests...');
+
+    const approvalRequestsData = [
+        // ===== APPROVED REQUESTS (20) =====
+        { reqNum: 'REQ-2024-0101', type: 'DOCUMENT_MOVEMENT', subject: 'Perpindahan Dokumen SECRET ke Ruang Rapat VIP', description: 'Dokumen SK Presiden 45/2024 diperlukan untuk rapat dengan Menteri', priority: 'URGENT', status: 'APPROVED', requester: 'hendra.wijaya@anri.go.id', currentLevel: 2, requiredLevel: 2, metadata: JSON.stringify({ documentId: 'doc-001', fromZone: 'ZONA-A1', toZone: 'ZONA-B2' }) },
+        { reqNum: 'REQ-2024-0102', type: 'DATA_EXPORT', subject: 'Export Compliance Report untuk BPK', description: 'Export data compliance untuk audit eksternal BPK', priority: 'HIGH', status: 'APPROVED', requester: 'citra.dewi@anri.go.id', currentLevel: 2, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0103', type: 'DOCUMENT_MOVEMENT', subject: 'Transfer Arsip Historis ke Digitalisasi', description: 'Perlu digitalisasi dokumen arsip kemerdekaan', priority: 'NORMAL', status: 'APPROVED', requester: 'hendra.wijaya@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0104', type: 'ZONE_ACCESS', subject: 'Akses Sementara ke ZONA-A1 untuk Auditor BPK', description: 'Tim BPK memerlukan akses untuk audit', priority: 'HIGH', status: 'APPROVED', requester: 'citra.dewi@anri.go.id', currentLevel: 2, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0105', type: 'DOCUMENT_MOVEMENT', subject: 'Pindah Dokumen Perjanjian Internasional', description: 'Untuk keperluan rapat kerjasama ASEAN', priority: 'NORMAL', status: 'APPROVED', requester: 'dimas.pratama@anri.go.id', currentLevel: 2, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0106', type: 'DOCUMENT_MOVEMENT', subject: 'Transfer Arsip BIN ke Ruang Vault', description: 'Perlu penyimpanan jangka panjang dokumen classified', priority: 'HIGH', status: 'APPROVED', requester: 'hendra.wijaya@anri.go.id', currentLevel: 2, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0107', type: 'DATA_EXPORT', subject: 'Export Historical Data untuk Penelitian', description: 'Universitas Indonesia request data arsip kolonial', priority: 'NORMAL', status: 'APPROVED', requester: 'sri.rahayu@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0108', type: 'ZONE_ACCESS', subject: 'Akses ZONA-A2 untuk Tim Preservasi', description: 'Perlu melakukan preservasi dokumen naskah kuno', priority: 'NORMAL', status: 'APPROVED', requester: 'hendra.wijaya@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0109', type: 'DOCUMENT_MOVEMENT', subject: 'Pindah Dokumen UNESCO ke Ruang Pameran', description: 'Untuk pameran arsip nasional bulan depan', priority: 'NORMAL', status: 'APPROVED', requester: 'sri.rahayu@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0112', type: 'DOCUMENT_MOVEMENT', subject: 'Transfer 25 Dokumen Keuangan ke Arsip Statis', description: 'Masa ret ensi sudah habis, perlu dipindah ke cold storage', priority: 'LOW', status: 'APPROVED', requester: 'dimas.pratama@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0113', type: 'ZONE_ACCESS', subject: 'Temporary Access ZONA-S1 untuk Teknisi', description: 'Instalasi upgrade sistem RFID', priority: 'HIGH', status: 'APPROVED', requester: 'agus.setiawan@anri.go.id', currentLevel: 2, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0114', type: 'DATA_EXPORT', subject: 'Export Audit Trail untuk Eksternal Auditor', description: 'Required by BSI untuk ISO 27001 certification', priority: 'HIGH', status: 'APPROVED', requester: 'citra.dewi@anri.go.id', currentLevel: 2, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0115', type: 'DOCUMENT_MOVEMENT', subject: 'Pindah Dokumen KPK ke ZONA-A1', description: 'Security upgrade classification dari RESTRICTED ke SECRET', priority: 'URGENT', status: 'APPROVED', requester: 'hendra.wijaya@anri.go.id', currentLevel: 2, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0116', type: 'ZONE_ACCESS', subject: 'Akses Ruang Baca untuk Peneliti Asing', description: 'Peneliti dari Belanda untuk arsip VOC', priority: 'NORMAL', status: 'APPROVED', requester: 'sri.rahayu@anri.go.id', currentLevel: 2, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0117', type: 'DOCUMENT_MOVEMENT', subject: 'Transfer Dokumen dari ZONA-C1 ke ZONA-B1', description: 'Dokumen IT infrastructure perlu security upgrade', priority: 'NORMAL', status: 'APPROVED', requester: 'agus.setiawan@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0118', type: 'DATA_EXPORT', subject: 'Export Violation Records Q4 2024', description: 'Untuk laporan kinerja keamanan tahunan', priority: 'NORMAL', status: 'APPROVED', requester: 'maya.kusuma@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0119', type: 'DOCUMENT_MOVEMENT', subject: 'Pindah Ar sip Pameran ke ZONA-R1', description: 'Post-exhibition return to public reading room', priority: 'LOW', status: 'APPROVED', requester: 'sri.rahayu@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+
+        // ===== PENDING REQUESTS (10) =====
+        { reqNum: 'REQ-2024-0120', type: 'ZONE_ACCESS', subject: 'Request Temporary Access ZONA-S1 untuk Maintenance', description: 'Maintenance server room perlu akses full 2 jam', priority: 'URGENT', status: 'PENDING', requester: 'agus.setiawan@anri.go.id', currentLevel: 1, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0121', type: 'DOCUMENT_MOVEMENT', subject: 'Transfer 15 Dokumen ke Preservasi', description: 'Dokumen arsip lama perlu preservasi khusus', priority: 'NORMAL', status: 'PENDING', requester: 'hendra.wijaya@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0122', type: 'DATA_EXPORT', subject: 'Export Data Violation untuk Analisis', description: 'Keperluan analisis trend violation Q4 2024', priority: 'NORMAL', status: 'PENDING', requester: 'maya.kusuma@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0123', type: 'USER_CREATION', subject: 'Create User Account untuk Auditor ISO', description: 'Perlu akses untuk surveillance audit ISO 27001', priority: 'HIGH', status: 'PENDING', requester: 'rina.wulandari@anri.go.id', currentLevel: 1, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0124', type: 'DOCUMENT_MOVEMENT', subject: 'Pindah Dokumen BPK dari ZONA-B1 ke ZONA-A1', description: 'Reklasifikasi dokumen audit menjadi SECRET', priority: 'HIGH', status: 'PENDING', requester: 'hendra.wijaya@anri.go.id', currentLevel: 1, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0125', type: 'ZONE_ACCESS', subject: 'Request Akses ZONA-A2 untuk Fotografer', description: 'Dokumentasi arsip untuk majalah internal', priority: 'NORMAL', status: 'PENDING', requester: 'sri.rahayu@anri.go.id', currentLevel: 0, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0126', type: 'DATA_EXPORT', subject: 'Export Document Metadata untuk Integrasi Sistem', description: 'Need CSV export untuk sync dengan sistem DMS baru', priority: 'NORMAL', status: 'PENDING', requester: 'agus.setiawan@anri.go.id', currentLevel: 0, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0127', type: 'DOCUMENT_MOVEMENT', subject: 'Transfer Bulk 50 Dokumen ke Digitalisasi', description: 'Batch digitalisasi arsip tahun 1950-an', priority: 'LOW', status: 'PENDING', requester: 'dimas.pratama@anri.go.id', currentLevel: 0, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0128', type: 'POLICY_EXCEPTION', subject: 'Temporary Firewall Exception untuk Update', description: 'Perlu akses Windows Update server external', priority: 'URGENT', status: 'PENDING', requester: 'agus.setiawan@anri.go.id', currentLevel: 1, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0129', type: 'ZONE_ACCESS', subject: 'Extended Access ZONA-R1 untuk Mahasiswa', description: 'Penelitian skripsi tentang arsip kemerdekaan', priority: 'LOW', status: 'PENDING', requester: 'sri.rahayu@anri.go.id', currentLevel: 0, requiredLevel: 1 },
+
+        // ===== REJECTED REQUESTS (8) =====
+        { reqNum: 'REQ-2024-0110', type: 'POLICY_EXCEPTION', subject: 'Request Akses YouTube untuk Training', description: 'Tim IT butuh akses YouTube untuk tutorial teknis', priority: 'NORMAL', status: 'REJECTED', requester: 'maya.kusuma@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0111', type: 'DOCUMENT_MOVEMENT', subject: 'Pinjam Dokumen SECRET untuk Penelitian Personal', description: 'Untuk keperluan penelitian akademis', priority: 'LOW', status: 'REJECTED', requester: 'dimas.pratama@anri.go.id', currentLevel: 1, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0130', type: 'ZONE_ACCESS', subject: 'Request Access ZONA-A1 tanpa Approval Atasan', description: 'Butuh lihat dokumen untuk tugas', priority: 'NORMAL', status: 'REJECTED', requester: 'dimas.pratama@anri.go.id', currentLevel: 1, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0131', type: 'DATA_EXPORT', subject: 'Export Semua Data User untuk Keperluan Personal', description: 'Backup personal data', priority: 'LOW', status: 'REJECTED', requester: 'dimas.pratama@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0132', type: 'POLICY_EXCEPTION', subject: 'Whitelist Instagram untuk Official Account', description: 'ANRI official Instagram perlu akses', priority: 'NORMAL', status: 'REJECTED', requester: 'sri.rahayu@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0133', type: 'DOCUMENT_MOVEMENT', subject: 'Pindah Dokumen ke Rumah untuk WFH', description: 'Work from home butuh bawa dokumen', priority: 'NORMAL', status: 'REJECTED', requester: 'dimas.pratama@anri.go.id', currentLevel: 1, requiredLevel: 1 },
+        { reqNum: 'REQ-2024-0134', type: 'ZONE_ACCESS', subject: 'Permanent Access All Zones untuk Convenience', description: 'Biar tidak perlu request terus-menerus', priority: 'LOW', status: 'REJECTED', requester: 'dimas.pratama@anri.go.id', currentLevel: 1, requiredLevel: 2 },
+        { reqNum: 'REQ-2024-0135', type: 'POLICY_EXCEPTION', subject: 'Bypass Internet Filtering untuk Power User', description: 'IT staff need unrestricted access', priority: 'HIGH', status: 'REJECTED', requester: 'agus.setiawan@anri.go.id', currentLevel: 1, requiredLevel: 2 },
+    ];
+
+    for (const reqData of approvalRequestsData) {
+        const requesterUser = users[reqData.requester];
+        const createdDate = randomDate(reqData.status === 'APPROVED' ? 15 : 5);
+
+        const approval = await prisma.approvalRequest.create({
+            data: {
+                requestNumber: reqData.reqNum,
+                type: reqData.type as any,
+                subject: reqData.subject,
+                description: reqData.description,
+                priority: reqData.priority as any,
+                status: reqData.status as any,
+                currentLevel: reqData.currentLevel,
+                requiredLevel: reqData.requiredLevel,
+                requesterId: requesterUser.id,
+                metadata: reqData.metadata || null,
+                expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+                createdAt: createdDate,
+            },
+        });
+
+        // Create approval steps based on required levels
+        for (let level = 1; level <= reqData.requiredLevel; level++) {
+            let stepStatus: 'PENDING' | 'APPROVED' | 'REJECTED' = 'PENDING';
+            let approverId: string | null = null;
+            let decidedAt: Date | null = null;
+            let notes: string | null = null;
+
+            if (reqData.status === 'APPROVED' && level <= reqData.currentLevel) {
+                stepStatus = 'APPROVED';
+                // Assign different approvers based on level
+                approverId = level === 1 ? users['ahmad.fauzi@anri.go.id'].id : users['budi.santoso@anri.go.id'].id;
+                decidedAt = new Date(createdDate.getTime() + level * 60 * 60 * 1000); // 1 hour apart
+                notes = `Approved - ${level === 1 ? 'Security check passed' : 'Executive approval granted'}`;
+            } else if (reqData.status === 'REJECTED' && level === 1) {
+                stepStatus = 'REJECTED';
+                approverId = users['ahmad.fauzi@anri.go.id'].id;
+                decidedAt = new Date(createdDate.getTime() + 30 * 60 * 1000);
+                notes = reqData.reqNum === 'REQ-2024-0110' ? 'Gunakan platform internal untuk training' : 'Tidak sesuai dengan kebijakan keamanan ANRI';
+            } else if (reqData.status === 'PENDING' && level === 1) {
+                // Level 1 approved for pending requests awaiting level 2
+                if (reqData.currentLevel >= 1 && reqData.requiredLevel > 1) {
+                    stepStatus = 'APPROVED';
+                    approverId = users['ahmad.fauzi@anri.go.id'].id;
+                    decidedAt = new Date(createdDate.getTime() + 60 * 60 * 1000);
+                    notes = 'Security review completed';
+                }
+            }
+
+            await prisma.approvalStep.create({
+                data: {
+                    requestId: approval.id,
+                    level,
+                    roleRequired: level === 1 ? 'IT_SECURITY' : 'EXECUTIVE',
+                    approverId,
+                    status: stepStatus,
+                    notes,
+                    decidedAt,
+                },
+            });
+        }
+    }
+    console.log(`  ✓ Created ${approvalRequestsData.length} approval requests with multi-level workflow`);
+
+    // ========================================================================
+    // 16. CREATE AUDIT LOGS (500+)
     // ========================================================================
     console.log('\n🔐 Creating cryptographic audit logs...');
     const actions = ['CREATE', 'UPDATE', 'ACCESS', 'MOVE', 'ALERT', 'LOGIN', 'LOGOUT', 'POLICY_TRIGGER'];

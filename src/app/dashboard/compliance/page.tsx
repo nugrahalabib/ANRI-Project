@@ -104,22 +104,35 @@ export default function ComplianceDashboard() {
         );
     }
 
-    // Calculate KPI values from real data
-    const complianceIndex = data.regulations.filter(r => r.status === 'COMPLIANT').length / data.regulations.length * 100;
+    // Safe calculation helpers to prevent NaN
+    const safePercentage = (numerator: number, denominator: number): number => {
+        if (!denominator || denominator === 0) return 0;
+        return Math.round((numerator / denominator) * 100);
+    };
+
+    const safeRound = (value: number | null | undefined): number => {
+        if (value === null || value === undefined || isNaN(value)) return 0;
+        return Math.round(value);
+    };
+
+    // Calculate KPI values from real data with safe defaults
+    const complianceIndex = data.regulations.length > 0
+        ? safePercentage(data.regulations.filter(r => r.status === 'COMPLIANT').length, data.regulations.length)
+        : 0;
     const openFindings = data.audits.list.reduce((acc, a) => acc + (a.status !== 'COMPLETED' ? 0 : a.criticalFindings), 0);
-    const policyAck = data.acknowledgments.rate;
-    const auditReady = data.metrics.latest?.AUDIT_READY?.value || 91;
-    const regulationsCovered = data.metrics.latest?.REGULATION_COMPLIANCE?.value || 87;
+    const policyAck = safeRound(data.acknowledgments.rate);
+    const auditReady = safeRound(data.metrics.latest?.AUDIT_READY?.value) || 91;
+    const regulationsCovered = safeRound(data.metrics.latest?.REGULATION_COMPLIANCE?.value) || 87;
     const daysSinceAudit = data.audits.daysSinceLastAudit ?? 12;
 
     // Build KPI data from real metrics
     const kpiData = {
         complianceIndex: {
-            value: Math.round(complianceIndex),
+            value: complianceIndex,
             unit: '%',
             trend: { direction: 'up' as const, value: '2%', period: 'vs last month' },
             description: 'Regulatory Compliance Index',
-            sparkline: [82, 84, 85, 86, 87, 88, Math.round(complianceIndex)],
+            sparkline: [82, 84, 85, 86, 87, 88, complianceIndex],
         },
         openFindings: {
             value: openFindings,
@@ -129,25 +142,25 @@ export default function ComplianceDashboard() {
             sparkline: [5, 4, 4, 3, 2, 1, openFindings],
         },
         policyAck: {
-            value: Math.round(policyAck),
+            value: policyAck,
             unit: '%',
             trend: { direction: 'up' as const, value: '4%', period: 'vs last month' },
             description: 'Staff Policy Acknowledgment',
-            sparkline: [88, 90, 91, 93, 94, 95, Math.round(policyAck)],
+            sparkline: [88, 90, 91, 93, 94, 95, policyAck],
         },
         auditReadiness: {
-            value: Math.round(auditReady),
+            value: auditReady,
             unit: '%',
             trend: { direction: 'up' as const, value: '3%', period: 'vs last month' },
             description: 'External Audit Readiness',
-            sparkline: [85, 87, 89, 91, 92, 93, Math.round(auditReady)],
+            sparkline: [85, 87, 89, 91, 92, 93, auditReady],
         },
         regulationsCovered: {
-            value: Math.round(regulationsCovered),
+            value: regulationsCovered,
             unit: '%',
             trend: { direction: 'stable' as const, value: '0%', period: 'no change' },
             description: 'Regulations Fully Covered',
-            sparkline: [85, 85, 86, 86, 87, 87, Math.round(regulationsCovered)],
+            sparkline: [85, 85, 86, 86, 87, 87, regulationsCovered],
         },
         lastAudit: {
             value: daysSinceAudit,

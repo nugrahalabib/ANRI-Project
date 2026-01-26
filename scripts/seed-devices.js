@@ -2,15 +2,10 @@
 // Using same Prisma 7 pattern as main app
 
 require('dotenv/config');
-const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
-const { PrismaClient } = require('../src/generated/prisma');
+const { PrismaClient } = require('@prisma/client');
 
-// Create adapter and client like main app
-const adapter = new PrismaBetterSqlite3({
-    url: process.env.DATABASE_URL || 'file:./dev.db'
-});
-
-const prisma = new PrismaClient({ adapter });
+// Create client like main app
+const prisma = new PrismaClient();
 
 function randomDate(daysAgo) {
     const now = new Date();

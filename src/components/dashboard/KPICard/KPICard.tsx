@@ -31,6 +31,14 @@ export function KPICard({
     icon,
     sparkline,
 }: KPICardProps) {
+    // Safe value formatting - handle NaN, null, undefined
+    const formatValue = (val: string | number): string => {
+        if (val === null || val === undefined) return '—';
+        if (typeof val === 'string') return val;
+        if (isNaN(val) || !isFinite(val)) return '—';
+        return val.toLocaleString();
+    };
+
     const getTrendIcon = (direction: TrendDirection) => {
         switch (direction) {
             case 'up':
@@ -94,7 +102,7 @@ export function KPICard({
 
             <div className={styles.body}>
                 <div className={styles.valueSection}>
-                    <span className={styles.value}>{value}</span>
+                    <span className={styles.value}>{formatValue(value)}</span>
                     {unit && <span className={styles.unit}>{unit}</span>}
                 </div>
 

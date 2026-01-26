@@ -114,6 +114,19 @@
     gap: 1rem;
 }
 
+/* Logout Section */
+.logoutText {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.logoutActions {
+    display: flex;
+    gap: 1rem;
+}
+
+
 /* Access Table */
 .accessTable {
     overflow-x: auto;

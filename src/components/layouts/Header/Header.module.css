@@ -163,3 +163,114 @@
     padding-left: var(--space-4);
     border-left: 1px solid var(--navy-700);
 }
+
+/* User Menu Container */
+.userMenuContainer {
+    position: relative;
+}
+
+.chevronUp {
+    transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.userDropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: var(--navy-800);
+    border: 1px solid var(--navy-600);
+    border-radius: var(--radius-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    z-index: 1000;
+    overflow: hidden;
+    animation: dropdownFadeIn 0.15s ease;
+}
+
+@keyframes dropdownFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownHeader {
+    padding: var(--space-4);
+    border-bottom: 1px solid var(--navy-700);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dropdownName {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    color: var(--grey-100);
+}
+
+.dropdownEmail {
+    font-size: var(--font-size-xs);
+    color: var(--grey-500);
+}
+
+.dropdownDivider {
+    height: 1px;
+    background: var(--navy-700);
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    color: var(--grey-300);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+}
+
+.dropdownItem:hover {
+    background: var(--navy-700);
+    color: var(--grey-100);
+}
+
+.dropdownItem svg {
+    width: 16px;
+    height: 16px;
+    color: var(--grey-500);
+}
+
+.dropdownItem:hover svg {
+    color: var(--grey-300);
+}
+
+.dropdownItemLogout {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    width: 100%;
+    padding: var(--space-3) var(--space-4);
+    background: transparent;
+    border: none;
+    color: var(--status-critical);
+    font-size: var(--font-size-sm);
+    transition: all var(--transition-fast);
+    cursor: pointer;
+    text-align: left;
+}
+
+.dropdownItemLogout:hover {
+    background: rgba(239, 68, 68, 0.1);
+}
+
+.dropdownItemLogout svg {
+    width: 16px;
+    height: 16px;
+}

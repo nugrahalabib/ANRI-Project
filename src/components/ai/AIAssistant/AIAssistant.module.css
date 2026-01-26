@@ -18,6 +18,7 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     font-weight: 600;
+    position: relative;
 }
 
 .fab:hover {
@@ -39,13 +40,43 @@
     font-size: 15px;
 }
 
+.fabPulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    animation: pulse 2s infinite;
+    z-index: -1;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0;
+    }
+}
+
 /* Chat Window */
 .chatWindow {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 380px;
-    height: 500px;
+    width: 420px;
+    height: 600px;
     background: var(--navy-900);
     border: 1px solid var(--navy-700);
     border-radius: 16px;
@@ -80,10 +111,80 @@
 .headerTitle {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
     color: white;
+}
+
+.aiIcon {
+    font-size: 28px;
+}
+
+.headerText {
+    display: flex;
+    flex-direction: column;
+}
+
+.headerName {
     font-weight: 600;
     font-size: 15px;
+}
+
+.headerStatus {
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.statusDot {
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+    animation: blink 2s infinite;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.headerActions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.clearButton {
+    background: rgba(255, 255, 255, 0.1);
+    border: none;
+    color: rgba(255, 255, 255, 0.7);
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.clearButton:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.clearButton svg {
+    width: 16px;
+    height: 16px;
 }
 
 .closeButton {
@@ -100,6 +201,31 @@
     color: white;
 }
 
+/* User Badge */
+.userBadge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--navy-800);
+    border-bottom: 1px solid var(--navy-700);
+    font-size: 12px;
+    color: var(--grey-300);
+}
+
+.userIcon {
+    font-size: 14px;
+}
+
+.userRole {
+    margin-left: auto;
+    padding: 2px 8px;
+    background: var(--navy-700);
+    border-radius: 4px;
+    font-size: 10px;
+    color: var(--grey-400);
+}
+
 .messagesArea {
     flex: 1;
     padding: 16px;
@@ -111,10 +237,9 @@
 }
 
 .message {
-    max-width: 85%;
+    max-width: 90%;
     display: flex;
-    flex-direction: column;
-    gap: 4px;
+    gap: 8px;
 }
 
 .message.ai {
@@ -123,19 +248,43 @@
 
 .message.user {
     align-self: flex-end;
+    flex-direction: row-reverse;
+}
+
+.aiAvatar {
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.messageWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
 .messageContent {
-    padding: 10px 14px;
+    padding: 12px 16px;
     border-radius: 12px;
     font-size: 14px;
-    line-height: 1.5;
+    line-height: 1.6;
 }
 
 .message.ai .messageContent {
     background: var(--navy-800);
     color: var(--grey-100);
     border-top-left-radius: 2px;
+}
+
+.message.ai .messageContent strong {
+    color: #60a5fa;
+    font-weight: 600;
 }
 
 .message.user .messageContent {
@@ -158,7 +307,7 @@
 .typingIndicator {
     display: flex;
     gap: 4px;
-    padding: 8px 12px;
+    padding: 12px 16px;
     background: var(--navy-800);
     border-radius: 12px;
     border-top-left-radius: 2px;
@@ -166,8 +315,8 @@
 }
 
 .typingIndicator span {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: var(--grey-400);
     border-radius: 50%;
     animation: bounce 1.4s infinite ease-in-out both;
@@ -194,18 +343,33 @@
     }
 }
 
+.errorMessage {
+    padding: 8px 12px;
+    background: rgba(239, 68, 68, 0.1);
+    color: #f87171;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: center;
+}
+
 .inputArea {
-    padding: 16px;
+    padding: 12px 16px 16px;
     border-top: 1px solid var(--navy-800);
     display: flex;
+    flex-direction: column;
     gap: 8px;
     background: var(--navy-900);
 }
 
+.inputWrapper {
+    display: flex;
+    gap: 8px;
+}
+
 .input {
     flex: 1;
-    padding: 10px 14px;
-    border-radius: 20px;
+    padding: 12px 16px;
+    border-radius: 24px;
     border: 1px solid var(--navy-600);
     background: var(--navy-950);
     color: var(--grey-100);
@@ -215,11 +379,21 @@
 
 .input:focus {
     border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.input:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.input::placeholder {
+    color: var(--grey-500);
 }
 
 .sendButton {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
     background: #2563eb;
     color: white;
@@ -228,14 +402,51 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s;
+    flex-shrink: 0;
 }
 
-.sendButton:hover {
+.sendButton:hover:not(:disabled) {
     background: #1d4ed8;
+    transform: scale(1.05);
+}
+
+.sendButton:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .sendButton svg {
     width: 18px;
     height: 18px;
+}
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.inputHint {
+    font-size: 10px;
+    color: var(--grey-500);
+    text-align: center;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .chatWindow {
+        width: calc(100vw - 48px);
+        height: calc(100vh - 100px);
+        max-height: 600px;
+    }
 }

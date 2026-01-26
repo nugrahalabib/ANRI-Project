@@ -1,15 +1,10 @@
 // Check and restore all data
 require('dotenv/config');
-const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
-const { PrismaClient } = require('../src/generated/prisma');
+const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const adapter = new PrismaBetterSqlite3({
-    url: process.env.DATABASE_URL || 'file:./dev.db'
-});
-
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient();
 
 // Users data
 const usersData = [
