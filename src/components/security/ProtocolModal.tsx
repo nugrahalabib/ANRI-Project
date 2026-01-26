@@ -14,8 +14,8 @@ interface Zone {
 interface Alert {
     id: string;
     alertType: string;
-    document?: { title: string; rfidTag: string };
-    movement?: { toZone?: { id: string; name: string } };
+    document?: { title: string; rfidTag: string; classification?: string };
+    movement?: { toZone?: { id: string; name: string }; fromZone?: { name: string } };
 }
 
 interface ProtocolModalProps {

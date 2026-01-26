@@ -23,7 +23,7 @@ interface Alert {
     };
     movement?: {
         fromZone?: { name: string };
-        toZone?: { name: string };
+        toZone?: { id: string; name: string };
     };
 }
 
@@ -463,7 +463,7 @@ export default function NSOCTacticalTerminal() {
                 {showProtocolModal && (
                     <ProtocolModal
                         onClose={() => setShowProtocolModal(false)}
-                        selectedAlert={selectedAlert ? alerts.find(a => a.id === selectedAlert) : null}
+                        selectedAlert={selectedAlert ? alerts.find(a => a.id === selectedAlert) || undefined : undefined}
                     />
                 )}
             </div>
