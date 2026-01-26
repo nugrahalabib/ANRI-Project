@@ -5,7 +5,16 @@ import { DashboardLayout } from '@/components/layouts';
 import { Card, StatusBadge, Button } from '@/components/ui';
 import styles from './page.module.css';
 
-// Approval request type matching backend response
+interface ApprovalStep {
+    id: string;
+    level: number;
+    roleRequired: string | null;
+    approverId: string | null;
+    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'SKIPPED';
+    notes: string | null;
+    decidedAt: string | null;
+}
+
 interface ApprovalRequest {
     id: string;
     requestNumber: string;
@@ -14,7 +23,9 @@ interface ApprovalRequest {
     subject: string;
     description: string;
     priority: 'URGENT' | 'NORMAL' | 'LOW';
-    status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'ESCALATED';
+    status: 'PENDING' | 'APPROVED' | 'REJECTED';
+    currentLevel: number;
+    requiredLevel: number;
     createdAt: string;
     approvedAt?: string;
     notes?: string;
@@ -27,6 +38,7 @@ interface ApprovalRequest {
         id: string;
         name: string;
     };
+    steps: ApprovalStep[];
     metadata: {
         documentId: string;
         documentTitle: string;
@@ -43,39 +55,29 @@ const classificationColors: Record<string, 'normal' | 'warning' | 'critical'> = 
     SECRET: 'critical',
 };
 
-const statusColors: Record<string, 'normal' | 'warning' | 'critical'> = {
-    PENDING: 'warning',
-    APPROVED: 'normal',
-    REJECTED: 'critical',
-    ESCALATED: 'warning',
-};
-
-
-const priorityLabels: Record<string, { label: string; color: string }> = {
-    URGENT: { label: 'URGENT', color: '#dc2626' },
-    NORMAL: { label: 'Normal', color: '#3d7ab8' },
-    LOW: { label: 'Low', color: '#6b7280' },
-};
+const ITEMS_PER_PAGE = 10;
 
 export default function ApprovalsPage() {
-    const [filter, setFilter] = useState<'pending' | 'all' | 'my'>('pending');
-    const [selectedRequest, setSelectedRequest] = useState<ApprovalRequest | null>(null);
-    const [showApprovalModal, setShowApprovalModal] = useState(false);
-    const [approvalNotes, setApprovalNotes] = useState('');
     const [requests, setRequests] = useState<ApprovalRequest[]>([]);
     const [loading, setLoading] = useState(true);
-    const [actionResult, setActionResult] = useState<{ type: 'approved' | 'rejected' | 'escalated'; id: string } | null>(null);
-    const [isClient, setIsClient] = useState(false);
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [priorityFilter, setPriorityFilter] = useState('all');
+    const [selectedRequest, setSelectedRequest] = useState<ApprovalRequest | null>(null);
+    const [showModal, setShowModal] = useState(false);
+    const [approvalNotes, setApprovalNotes] = useState('');
+    const [actionLoading, setActionLoading] = useState(false);
+    const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
-        setIsClient(true);
         fetchRequests();
     }, []);
 
     const fetchRequests = async () => {
         setLoading(true);
         try {
-            const res = await fetch('/api/approvals?limit=50');
+            const res = await fetch('/api/approvals?limit=100');
             const json = await res.json();
             if (json.success) {
                 setRequests(json.data);
@@ -87,32 +89,88 @@ export default function ApprovalsPage() {
         }
     };
 
-    const pendingForMe = requests.filter(r => r.status === 'PENDING');
+    // Filter requests
+    const filteredRequests = requests.filter(r => {
+        const matchSearch = search === '' ||
+            r.requestNumber.toLowerCase().includes(search.toLowerCase()) ||
+            r.metadata?.documentTitle?.toLowerCase().includes(search.toLowerCase()) ||
+            r.metadata?.rfidTag?.toLowerCase().includes(search.toLowerCase()) ||
+            r.requester.name.toLowerCase().includes(search.toLowerCase());
 
-    // For demo purposes, we assume "My Requests" are requests made by the current user
-    // In a real app we'd compare with session user ID, but the API returns all for now.
-    // We can filter where requester.name contains "Demo" or just show all for now.
-    const myRequestsFiltered = requests; // TODO: Filter by current user ID if available
+        const matchStatus = statusFilter === 'all' || r.status === statusFilter;
+        const matchPriority = priorityFilter === 'all' || r.priority === priorityFilter;
 
-    const filteredRequests = filter === 'pending'
-        ? pendingForMe
-        : filter === 'my'
-            ? myRequestsFiltered
-            : requests;
+        return matchSearch && matchStatus && matchPriority;
+    });
+
+    // Reset page when filter changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, statusFilter, priorityFilter]);
+
+    // Pagination
+    const totalPages = Math.ceil(filteredRequests.length / ITEMS_PER_PAGE);
+    const paginatedRequests = filteredRequests.slice(
+        (currentPage - 1) * ITEMS_PER_PAGE,
+        currentPage * ITEMS_PER_PAGE
+    );
+
+    const getPageNumbers = () => {
+        const pages: (number | string)[] = [];
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            pages.push(1);
+            if (currentPage > 3) pages.push('...');
+            for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                pages.push(i);
+            }
+            if (currentPage < totalPages - 2) pages.push('...');
+            pages.push(totalPages);
+        }
+        return pages;
+    };
+
+    // Stats
+    const stats = {
+        total: requests.length,
+        pending: requests.filter(r => r.status === 'PENDING').length,
+        approved: requests.filter(r => r.status === 'APPROVED').length,
+        rejected: requests.filter(r => r.status === 'REJECTED').length,
+    };
+
+    const formatDate = (dateStr: string) => {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+    };
 
     const formatTime = (dateStr: string) => {
-        if (!isClient) return '...';
         const date = new Date(dateStr);
-        const now = new Date();
-        const diff = Math.floor((now.getTime() - date.getTime()) / 60000);
-        if (diff < 60) return `${diff} menit lalu`;
-        if (diff < 1440) return `${Math.floor(diff / 60)} jam lalu`;
-        return date.toLocaleDateString('id-ID');
+        return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    };
+
+    const getTimeAgo = (dateStr: string) => {
+        const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+        if (diff < 60) return `${diff}m ago`;
+        if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+        return `${Math.floor(diff / 1440)}d ago`;
+    };
+
+    const handleRowClick = (request: ApprovalRequest) => {
+        setSelectedRequest(request);
+        setApprovalNotes('');
+        setShowModal(true);
     };
 
     const handleAction = async (action: 'APPROVED' | 'REJECTED') => {
         if (!selectedRequest) return;
+        if (action === 'REJECTED' && !approvalNotes) {
+            setToast({ type: 'error', message: 'Catatan wajib diisi untuk penolakan' });
+            setTimeout(() => setToast(null), 3000);
+            return;
+        }
 
+        setActionLoading(true);
         try {
             const res = await fetch('/api/approvals', {
                 method: 'PATCH',
@@ -123,316 +181,393 @@ export default function ApprovalsPage() {
                     notes: approvalNotes
                 })
             });
-
             const json = await res.json();
 
             if (json.success) {
-                setActionResult({
-                    type: action === 'APPROVED' ? 'approved' : 'rejected',
-                    id: selectedRequest.requestNumber
+                setToast({
+                    type: 'success',
+                    message: `${selectedRequest.requestNumber} ${action === 'APPROVED' ? 'disetujui' : 'ditolak'}`
                 });
-
-                // Refresh list
-                await fetchRequests();
-
-                setShowApprovalModal(false);
+                setShowModal(false);
                 setSelectedRequest(null);
-                setApprovalNotes('');
-
-                setTimeout(() => setActionResult(null), 3000);
+                await fetchRequests();
             } else {
-                alert(json.error || 'Gagal memproses permintaan');
+                setToast({ type: 'error', message: json.error || 'Gagal memproses' });
             }
         } catch (error) {
-            console.error('Action error:', error);
-            alert('Terjadi kesalahan sistem');
+            setToast({ type: 'error', message: 'Terjadi kesalahan sistem' });
+        } finally {
+            setActionLoading(false);
+            setTimeout(() => setToast(null), 3000);
         }
     };
 
-    const handleApprove = () => handleAction('APPROVED');
-    const handleReject = () => {
-        if (!approvalNotes) return alert('Mohon isi catatan untuk penolakan');
-        handleAction('REJECTED');
-    };
-
-    const handleEscalate = () => {
-        alert('Fitur eskalasi belum tersedia untuk demo ini.');
-    };
+    if (loading) {
+        return (
+            <DashboardLayout title="Document Approvals" subtitle="Loading...">
+                <div className={styles.container}>
+                    <div className={styles.loading}>Loading approval requests...</div>
+                </div>
+            </DashboardLayout>
+        );
+    }
 
     return (
-        <DashboardLayout
-            title="Document Movement Approvals"
-            subtitle="Persetujuan Berjenjang untuk Pemindahan Dokumen"
-        >
+        <DashboardLayout title="Document Approvals" subtitle="Movement Approval Requests">
             <div className={styles.container}>
-                {/* Success Toast */}
-                {actionResult && (
-                    <div className={`${styles.toast} ${styles[actionResult.type]}`}>
-                        <span className={styles.toastIcon}>
-                            {actionResult.type === 'approved' ? '✓' : actionResult.type === 'rejected' ? '✕' : '↗'}
-                        </span>
-                        <span>
-                            Request {actionResult.id} {
-                                actionResult.type === 'approved' ? 'telah DISETUJUI' :
-                                    actionResult.type === 'rejected' ? 'telah DITOLAK' :
-                                        'telah DIESKALASI ke Security Officer'
-                            }
-                        </span>
+                {/* Toast */}
+                {toast && (
+                    <div className={`${styles.toast} ${styles[toast.type]}`}>
+                        {toast.message}
                     </div>
                 )}
 
-                {/* Stats Bar */}
-                <section className={styles.statsBar}>
-                    <div className={styles.statCard}>
-                        <span className={styles.statValue}>{pendingForMe.length}</span>
-                        <span className={styles.statLabel}>Pending Approval</span>
+                {/* Controls */}
+                <section className={styles.controls}>
+                    <div className={styles.searchBox}>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input
+                            type="text"
+                            placeholder="Search by request ID, document, or requester..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className={styles.searchInput}
+                        />
                     </div>
-                    <div className={styles.statCard}>
-                        <span className={styles.statValue}>{requests.filter(r => r.status === 'APPROVED').length}</span>
-                        <span className={styles.statLabel}>Approved Today</span>
+                    <div className={styles.filters}>
+                        <select
+                            value={statusFilter}
+                            onChange={(e) => setStatusFilter(e.target.value)}
+                            className={styles.filterSelect}
+                        >
+                            <option value="all">All Status</option>
+                            <option value="PENDING">Pending</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="REJECTED">Rejected</option>
+                        </select>
+                        <select
+                            value={priorityFilter}
+                            onChange={(e) => setPriorityFilter(e.target.value)}
+                            className={styles.filterSelect}
+                        >
+                            <option value="all">All Priority</option>
+                            <option value="URGENT">Urgent</option>
+                            <option value="NORMAL">Normal</option>
+                            <option value="LOW">Low</option>
+                        </select>
                     </div>
+                </section>
+
+                {/* Stats */}
+                <section className={styles.statsRow}>
                     <div className={styles.statCard}>
-                        <span className={styles.statValue}>{requests.filter(r => r.status === 'REJECTED').length}</span>
+                        <span className={styles.statValue}>{stats.total}</span>
+                        <span className={styles.statLabel}>Total Requests</span>
+                    </div>
+                    <div className={`${styles.statCard} ${styles.pending}`}>
+                        <span className={styles.statValue}>{stats.pending}</span>
+                        <span className={styles.statLabel}>Pending</span>
+                    </div>
+                    <div className={`${styles.statCard} ${styles.approved}`}>
+                        <span className={styles.statValue}>{stats.approved}</span>
+                        <span className={styles.statLabel}>Approved</span>
+                    </div>
+                    <div className={`${styles.statCard} ${styles.rejected}`}>
+                        <span className={styles.statValue}>{stats.rejected}</span>
                         <span className={styles.statLabel}>Rejected</span>
                     </div>
-                    <div className={styles.statCard}>
-                        <span className={styles.statValue}>{requests.filter(r => r.priority === 'URGENT').length}</span>
-                        <span className={styles.statLabel}>Urgent Requests</span>
+                </section>
+
+                {/* Table */}
+                <Card noPadding>
+                    <div className={styles.tableContainer}>
+                        <table className={styles.table}>
+                            <thead>
+                                <tr>
+                                    <th>Request ID</th>
+                                    <th>Document</th>
+                                    <th>Movement</th>
+                                    <th>Requester</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedRequests.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={8} className={styles.emptyRow}>
+                                            No approval requests found
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    paginatedRequests.map((request) => (
+                                        <tr
+                                            key={request.id}
+                                            className={`${styles.row} ${request.status === 'PENDING' && request.priority === 'URGENT' ? styles.urgentRow : ''}`}
+                                            onClick={() => handleRowClick(request)}
+                                        >
+                                            <td>
+                                                <span className={styles.requestId}>{request.requestNumber}</span>
+                                            </td>
+                                            <td>
+                                                <div className={styles.docInfo}>
+                                                    <span className={styles.docTitle}>{request.metadata?.documentTitle || request.subject}</span>
+                                                    <div className={styles.docMeta}>
+                                                        <code className={styles.rfidTag}>{request.metadata?.rfidTag}</code>
+                                                        <StatusBadge
+                                                            status={classificationColors[request.metadata?.classification || 'PUBLIC']}
+                                                            label={request.metadata?.classification || 'PUBLIC'}
+                                                            size="sm"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className={styles.movement}>
+                                                    <span className={styles.zone}>{request.metadata?.fromZoneName || '?'}</span>
+                                                    <span className={styles.arrow}>→</span>
+                                                    <span className={styles.zone}>{request.metadata?.toZoneName || '?'}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div className={styles.requester}>
+                                                    <span className={styles.requesterName}>{request.requester.name}</span>
+                                                    <span className={styles.requesterDept}>{request.requester.department}</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className={`${styles.priorityBadge} ${styles[request.priority.toLowerCase()]}`}>
+                                                    {request.priority}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span className={`${styles.statusBadge} ${styles[`status${request.status}`]}`}>
+                                                    {request.status}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div className={styles.dateInfo}>
+                                                    <span className={styles.date}>{formatDate(request.createdAt)}</span>
+                                                    <span className={styles.time}>{getTimeAgo(request.createdAt)}</span>
+                                                </div>
+                                            </td>
+                                            <td onClick={(e) => e.stopPropagation()}>
+                                                {request.status === 'PENDING' ? (
+                                                    <div className={styles.actions}>
+                                                        <button
+                                                            className={styles.approveBtn}
+                                                            onClick={() => { setSelectedRequest(request); handleAction('APPROVED'); }}
+                                                            title="Approve"
+                                                        >
+                                                            ✓
+                                                        </button>
+                                                        <button
+                                                            className={styles.rejectBtn}
+                                                            onClick={() => handleRowClick(request)}
+                                                            title="Review & Reject"
+                                                        >
+                                                            ✗
+                                                        </button>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        className={styles.viewBtn}
+                                                        onClick={() => handleRowClick(request)}
+                                                    >
+                                                        View
+                                                    </button>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
                     </div>
-                </section>
+                </Card>
 
-                {/* Filter Tabs */}
-                <section className={styles.filterTabs}>
-                    <button
-                        className={`${styles.filterTab} ${filter === 'pending' ? styles.active : ''}`}
-                        onClick={() => setFilter('pending')}
-                    >
-                        Pending for Me ({pendingForMe.length})
-                    </button>
-                    <button
-                        className={`${styles.filterTab} ${filter === 'all' ? styles.active : ''}`}
-                        onClick={() => setFilter('all')}
-                    >
-                        All Requests
-                    </button>
-                    <button
-                        className={`${styles.filterTab} ${filter === 'my' ? styles.active : ''}`}
-                        onClick={() => setFilter('my')}
-                    >
-                        My Requests
-                    </button>
-                </section>
-
-                {/* Requests List */}
-                <section className={styles.requestsList}>
-                    {filteredRequests.length === 0 ? (
-                        <Card>
-                            <div className={styles.emptyState}>
-                                <span className={styles.emptyIcon}>📋</span>
-                                <p>Tidak ada permintaan yang perlu ditinjau</p>
-                            </div>
-                        </Card>
-                    ) : (
-                        filteredRequests.map(request => (
-                            <Card
-                                key={request.id}
-                                noPadding
-                                variant={request.priority === 'URGENT' && request.status === 'PENDING' ? 'status-warning' : 'default'}
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <div className={styles.pagination}>
+                        <div className={styles.paginationInfo}>
+                            Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} - {Math.min(currentPage * ITEMS_PER_PAGE, filteredRequests.length)} of {filteredRequests.length} requests
+                        </div>
+                        <div className={styles.paginationControls}>
+                            <button
+                                className={styles.pageBtn}
+                                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                disabled={currentPage === 1}
                             >
-                                <div
-                                    className={styles.requestCard}
-                                    onClick={() => { setSelectedRequest(request); setShowApprovalModal(true); }}
-                                >
-                                    {/* Header */}
-                                    <div className={styles.requestHeader}>
-                                        <div className={styles.headerLeft}>
-                                            <code className={styles.requestId}>{request.requestNumber}</code>
-                                            <StatusBadge status={classificationColors[request.metadata?.classification || 'PUBLIC']} label={request.metadata?.classification || 'PUBLIC'} />
-                                            <StatusBadge status={statusColors[request.status]} label={request.status} />
-                                            {request.priority === 'URGENT' && (
-                                                <span className={styles.urgentBadge}>⚡ URGENT</span>
-                                            )}
-                                        </div>
-                                        <span className={styles.requestTime}>{formatTime(request.createdAt)}</span>
-                                    </div>
+                                ‹ Prev
+                            </button>
+                            {getPageNumbers().map((page, idx) => (
+                                typeof page === 'number' ? (
+                                    <button
+                                        key={idx}
+                                        className={`${styles.pageBtn} ${currentPage === page ? styles.active : ''}`}
+                                        onClick={() => setCurrentPage(page)}
+                                    >
+                                        {page}
+                                    </button>
+                                ) : (
+                                    <span key={idx} className={styles.pageEllipsis}>{page}</span>
+                                )
+                            ))}
+                            <button
+                                className={styles.pageBtn}
+                                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                disabled={currentPage === totalPages}
+                            >
+                                Next ›
+                            </button>
+                        </div>
+                    </div>
+                )}
 
-                                    {/* Document Info */}
-                                    <div className={styles.documentInfo}>
-                                        <h3 className={styles.documentTitle}>{request.metadata?.documentTitle || request.subject}</h3>
-                                        <code className={styles.rfidTag}>{request.metadata?.rfidTag}</code>
-                                    </div>
-
-                                    {/* Movement Path */}
-                                    <div className={styles.movementPath}>
-                                        <span className={styles.fromZone}>{request.metadata?.fromZoneName || '?'}</span>
-                                        <span className={styles.arrow}>→</span>
-                                        <span className={styles.toZone}>{request.metadata?.toZoneName || '?'}</span>
-                                    </div>
-
-                                    {/* Requester Info */}
-                                    <div className={styles.requesterInfo}>
-                                        <span>👤 {request.requester.name}</span>
-                                        <span>{request.requester.department}</span>
-                                    </div>
-
-                                    {/* Approval Chain Progress - Simplified */}
-                                    {/* <div className={styles.approvalChain}>
-                                        <span className={styles.chainLabel}>Status:</span>
-                                        <span className={styles.statusText}>{request.status}</span>
-                                     </div> */}
-                                </div>
-                            </Card>
-                        ))
-                    )}
-                </section>
-
-                {/* Approval Modal */}
-                {showApprovalModal && selectedRequest && (
-                    <div className={styles.modalOverlay} onClick={() => setShowApprovalModal(false)}>
-                        <div className={styles.approvalModal} onClick={e => e.stopPropagation()}>
+                {/* Detail Modal */}
+                {showModal && selectedRequest && (
+                    <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
+                        <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
                             <div className={styles.modalHeader}>
-                                <h2>Review Permintaan Pemindahan</h2>
-                                <button className={styles.closeBtn} onClick={() => setShowApprovalModal(false)}>×</button>
+                                <div className={styles.modalTitle}>
+                                    <h2>Request Details</h2>
+                                    <span className={styles.modalRequestId}>{selectedRequest.requestNumber}</span>
+                                </div>
+                                <button className={styles.closeBtn} onClick={() => setShowModal(false)}>×</button>
                             </div>
 
                             <div className={styles.modalBody}>
                                 {/* Document Section */}
-                                <div className={styles.modalSection}>
-                                    <h3>📄 Dokumen</h3>
-                                    <div className={styles.detailGrid}>
-                                        <div className={styles.detailItem}>
-                                            <span className={styles.detailLabel}>RFID Tag</span>
-                                            <code>{selectedRequest.metadata?.rfidTag}</code>
+                                <div className={styles.section}>
+                                    <h3 className={styles.sectionTitle}>Document</h3>
+                                    <div className={styles.sectionContent}>
+                                        <div className={styles.fieldRow}>
+                                            <span className={styles.fieldLabel}>Title</span>
+                                            <span className={styles.fieldValue}>{selectedRequest.metadata?.documentTitle}</span>
                                         </div>
-                                        <div className={styles.detailItem}>
-                                            <span className={styles.detailLabel}>Classification</span>
-                                            <StatusBadge status={classificationColors[selectedRequest.metadata?.classification || 'PUBLIC']} label={selectedRequest.metadata?.classification || 'PUBLIC'} />
+                                        <div className={styles.fieldRow}>
+                                            <span className={styles.fieldLabel}>RFID Tag</span>
+                                            <code className={styles.fieldCode}>{selectedRequest.metadata?.rfidTag}</code>
+                                        </div>
+                                        <div className={styles.fieldRow}>
+                                            <span className={styles.fieldLabel}>Classification</span>
+                                            <StatusBadge
+                                                status={classificationColors[selectedRequest.metadata?.classification || 'PUBLIC']}
+                                                label={selectedRequest.metadata?.classification || 'PUBLIC'}
+                                            />
                                         </div>
                                     </div>
-                                    <p className={styles.docTitle}>{selectedRequest.metadata?.documentTitle || selectedRequest.subject}</p>
                                 </div>
 
                                 {/* Movement Section */}
-                                <div className={styles.modalSection}>
-                                    <h3>📍 Pemindahan</h3>
-                                    <div className={styles.movementDetail}>
-                                        <div className={styles.zoneBox}>
-                                            <span className={styles.zoneLabel}>Dari</span>
-                                            <span className={styles.zoneName}>{selectedRequest.metadata?.fromZoneName || '-'}</span>
+                                <div className={styles.section}>
+                                    <h3 className={styles.sectionTitle}>Movement Request</h3>
+                                    <div className={styles.movementBox}>
+                                        <div className={styles.zoneCard}>
+                                            <span className={styles.zoneLabel}>From</span>
+                                            <span className={styles.zoneName}>{selectedRequest.metadata?.fromZoneName}</span>
                                         </div>
-                                        <span className={styles.movementArrow}>→</span>
-                                        <div className={styles.zoneBox}>
-                                            <span className={styles.zoneLabel}>Ke</span>
-                                            <span className={styles.zoneName}>{selectedRequest.metadata?.toZoneName || '-'}</span>
+                                        <div className={styles.movementArrow}>→</div>
+                                        <div className={styles.zoneCard}>
+                                            <span className={styles.zoneLabel}>To</span>
+                                            <span className={styles.zoneName}>{selectedRequest.metadata?.toZoneName}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Requester Section */}
-                                <div className={styles.modalSection}>
-                                    <h3>👤 Pemohon</h3>
-                                    <div className={styles.detailGrid}>
-                                        <div className={styles.detailItem}>
-                                            <span className={styles.detailLabel}>Nama</span>
-                                            <span>{selectedRequest.requester.name}</span>
+                                <div className={styles.section}>
+                                    <h3 className={styles.sectionTitle}>Requester</h3>
+                                    <div className={styles.sectionContent}>
+                                        <div className={styles.fieldRow}>
+                                            <span className={styles.fieldLabel}>Name</span>
+                                            <span className={styles.fieldValue}>{selectedRequest.requester.name}</span>
                                         </div>
-                                        <div className={styles.detailItem}>
-                                            <span className={styles.detailLabel}>Unit</span>
-                                            <span>{selectedRequest.requester.department}</span>
+                                        <div className={styles.fieldRow}>
+                                            <span className={styles.fieldLabel}>Department</span>
+                                            <span className={styles.fieldValue}>{selectedRequest.requester.department}</span>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Justification */}
-                                <div className={styles.modalSection}>
-                                    <h3>📝 Justifikasi</h3>
+                                <div className={styles.section}>
+                                    <h3 className={styles.sectionTitle}>Justification</h3>
                                     <p className={styles.justification}>{selectedRequest.description}</p>
                                 </div>
 
-                                {/* Approval Chain - Simplified for API */}
-                                <div className={styles.modalSection}>
-                                    <h3>🔗 Status Persetujuan</h3>
-                                    <div className={styles.chainTimeline}>
-                                        <div className={`${styles.timelineStep} ${styles.approved}`}>
-                                            <div className={styles.stepIndicator}>
-                                                ✓
+                                {/* Status Info */}
+                                {selectedRequest.status !== 'PENDING' && (
+                                    <div className={styles.section}>
+                                        <h3 className={styles.sectionTitle}>Decision</h3>
+                                        <div className={styles.sectionContent}>
+                                            <div className={styles.fieldRow}>
+                                                <span className={styles.fieldLabel}>Status</span>
+                                                <span className={`${styles.statusBadge} ${styles[`status${selectedRequest.status}`]}`}>
+                                                    {selectedRequest.status}
+                                                </span>
                                             </div>
-                                            <div className={styles.stepContent}>
-                                                <strong>Pemohon</strong>
-                                                <span>{selectedRequest.requester.name}</span>
-                                                <span className={styles.stepTime}>{formatTime(selectedRequest.createdAt)}</span>
-                                            </div>
+                                            {selectedRequest.approvedBy && (
+                                                <div className={styles.fieldRow}>
+                                                    <span className={styles.fieldLabel}>By</span>
+                                                    <span className={styles.fieldValue}>{selectedRequest.approvedBy.name}</span>
+                                                </div>
+                                            )}
+                                            {selectedRequest.approvedAt && (
+                                                <div className={styles.fieldRow}>
+                                                    <span className={styles.fieldLabel}>Date</span>
+                                                    <span className={styles.fieldValue}>{formatDate(selectedRequest.approvedAt)} {formatTime(selectedRequest.approvedAt)}</span>
+                                                </div>
+                                            )}
+                                            {selectedRequest.notes && (
+                                                <div className={styles.fieldRow}>
+                                                    <span className={styles.fieldLabel}>Notes</span>
+                                                    <span className={styles.fieldValue}>{selectedRequest.notes}</span>
+                                                </div>
+                                            )}
                                         </div>
-
-                                        {selectedRequest.status !== 'PENDING' && selectedRequest.approvedBy && (
-                                            <div className={`${styles.timelineStep} ${styles[selectedRequest.status.toLowerCase()]}`}>
-                                                <div className={styles.stepIndicator}>
-                                                    {selectedRequest.status === 'APPROVED' ? '✓' : '✗'}
-                                                </div>
-                                                <div className={styles.stepContent}>
-                                                    <strong>{selectedRequest.approvedBy.name}</strong>
-                                                    <span>Approver</span>
-                                                    {selectedRequest.approvedAt && (
-                                                        <span className={styles.stepTime}>
-                                                            {formatTime(selectedRequest.approvedAt)}
-                                                        </span>
-                                                    )}
-                                                    {selectedRequest.notes && (
-                                                        <p className={styles.stepNotes}>&quot;{selectedRequest.notes}&quot;</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {selectedRequest.status === 'PENDING' && (
-                                            <div className={`${styles.timelineStep} ${styles.pending}`}>
-                                                <div className={styles.stepIndicator}>○</div>
-                                                <div className={styles.stepContent}>
-                                                    <strong>Menunggu Persetujuan</strong>
-                                                    <span>Security Officer / Executive</span>
-                                                </div>
-                                            </div>
-                                        )}
                                     </div>
-                                </div>
+                                )}
 
-                                {/* Approval Notes (only for pending) */}
+                                {/* Notes for pending */}
                                 {selectedRequest.status === 'PENDING' && (
-                                    <div className={styles.modalSection}>
-                                        <h3>💬 Catatan Keputusan</h3>
+                                    <div className={styles.section}>
+                                        <h3 className={styles.sectionTitle}>Decision Notes</h3>
                                         <textarea
                                             className={styles.notesInput}
-                                            placeholder="Tambahkan catatan (wajib untuk penolakan)..."
+                                            placeholder="Add notes (required for rejection)..."
                                             value={approvalNotes}
-                                            onChange={e => setApprovalNotes(e.target.value)}
+                                            onChange={(e) => setApprovalNotes(e.target.value)}
                                             rows={3}
                                         />
                                     </div>
                                 )}
                             </div>
 
-                            {/* Action Buttons */}
-                            {selectedRequest.status === 'PENDING' && (
-                                <div className={styles.modalFooter}>
-                                    <Button variant="danger" onClick={handleReject}>
-                                        ✗ Tolak
+                            <div className={styles.modalFooter}>
+                                {selectedRequest.status === 'PENDING' ? (
+                                    <>
+                                        <Button variant="secondary" onClick={() => setShowModal(false)} disabled={actionLoading}>
+                                            Cancel
+                                        </Button>
+                                        <Button variant="danger" onClick={() => handleAction('REJECTED')} disabled={actionLoading}>
+                                            Reject
+                                        </Button>
+                                        <Button variant="primary" onClick={() => handleAction('APPROVED')} disabled={actionLoading}>
+                                            {actionLoading ? 'Processing...' : 'Approve'}
+                                        </Button>
+                                    </>
+                                ) : (
+                                    <Button variant="secondary" onClick={() => setShowModal(false)}>
+                                        Close
                                     </Button>
-                                    <Button variant="secondary" onClick={handleEscalate}>
-                                        ↑ Eskalasi
-                                    </Button>
-                                    <Button variant="primary" onClick={handleApprove}>
-                                        ✓ Setujui
-                                    </Button>
-                                </div>
-                            )}
-
-                            {selectedRequest.status !== 'PENDING' && (
-                                <div className={styles.modalFooter}>
-                                    <Button variant="secondary" onClick={() => setShowApprovalModal(false)}>
-                                        Tutup
-                                    </Button>
-                                </div>
-                            )}
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}

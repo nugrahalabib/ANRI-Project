@@ -339,19 +339,41 @@ enum NotificationType {
 }
 
 model DeviceStatus {
-  id              String         @id @default(cuid())
-  deviceId        String         @unique
+  id              String           @id @default(cuid())
+  deviceId        String           @unique
   hostname        String?
   ipAddress       String
   macAddress      String?
+  
+  // Enhanced device info
+  deviceType      DeviceType       @default(DESKTOP)
+  manufacturer    String?
+  model           String?
+  osName          String?
+  osVersion       String?
+  agentVersion    String?
+  
+  // User assignment
+  userId          String?
+  userName        String?
+  userDepartment  String?
   
   status          DeviceStatusType @default(ACTIVE)
   isolatedAt      DateTime?
   isolationReason String?
   
-  lastSeen        DateTime       @default(now())
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
+  lastSeen        DateTime         @default(now())
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+enum DeviceType {
+  DESKTOP
+  LAPTOP
+  MOBILE
+  TABLET
+  SERVER
+  VIRTUAL
 }
 
 enum DeviceStatusType {
@@ -574,9 +596,14 @@ model ApprovalRequest {
   priority        ApprovalPriority @default(NORMAL)
   status          ApprovalStatus   @default(PENDING)
   
+  // Multi-level approval
+  currentLevel    Int              @default(1)
+  requiredLevel   Int              @default(1)
+  
   requesterId     String
   requester       User             @relation("ApprovalRequester", fields: [requesterId], references: [id])
   
+  // Final approver (for backwards compatibility)
   approvedById    String?
   approvedBy      User?            @relation("ApprovalApprover", fields: [approvedById], references: [id])
   approvedAt      DateTime?
@@ -588,8 +615,36 @@ model ApprovalRequest {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
   
+  // Approval chain
+  steps           ApprovalStep[]
+  
   @@index([status, priority])
   @@index([requesterId])
+}
+
+model ApprovalStep {
+  id              String           @id @default(cuid())
+  requestId       String
+  request         ApprovalRequest  @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  
+  level           Int              // 1, 2, 3...
+  roleRequired    String?          // e.g., "IT_SECURITY", "EXECUTIVE"
+  
+  approverId      String?
+  status          ApprovalStepStatus @default(PENDING)
+  notes           String?
+  decidedAt       DateTime?
+  
+  createdAt       DateTime         @default(now())
+  
+  @@index([requestId, level])
+}
+
+enum ApprovalStepStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SKIPPED
 }
 
 enum ApprovalType {
@@ -614,3 +669,4 @@ enum ApprovalStatus {
   EXPIRED
   CANCELLED
 }
+

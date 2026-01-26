@@ -291,8 +291,19 @@ export default function UsersPage() {
                                                     <span className={styles.statValue}>{user.activityCount}</span>
                                                 </div>
                                                 <div className={styles.userStat}>
-                                                    <span className={styles.statLabel}>Last Login</span>
-                                                    <span className={styles.statValue}>{formatDate(user.lastLogin)}</span>
+                                                    <span className={styles.statLabel}>Compliance</span>
+                                                    <div className={styles.complianceScore}>
+                                                        <div
+                                                            className={styles.complianceBar}
+                                                            style={{
+                                                                width: `${Math.max(0, 100 - Math.min(user.violationCount * 5, 100))}%`,
+                                                                background: user.violationCount <= 5 ? '#4ade80' : user.violationCount <= 10 ? '#fbbf24' : '#ef4444'
+                                                            }}
+                                                        />
+                                                        <span className={styles.complianceValue}>
+                                                            {Math.max(0, 100 - Math.min(user.violationCount * 5, 100))}%
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </Card>

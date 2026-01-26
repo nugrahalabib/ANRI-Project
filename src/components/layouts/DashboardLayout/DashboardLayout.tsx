@@ -14,12 +14,20 @@ interface DashboardLayoutProps {
 }
 
 export function DashboardLayout({ title, subtitle, actions, children }: DashboardLayoutProps) {
-    const [clock, setClock] = useState(new Date());
+    const [isClient, setIsClient] = useState(false);
+    const [clock, setClock] = useState<Date | null>(null);
 
     useEffect(() => {
+        setIsClient(true);
+        setClock(new Date());
         const timer = setInterval(() => setClock(new Date()), 1000);
         return () => clearInterval(timer);
     }, []);
+
+    const formatTime = (date: Date | null) => {
+        if (!date) return '--:--:--';
+        return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    };
 
     return (
         <div className={styles.layout}>
@@ -31,7 +39,7 @@ export function DashboardLayout({ title, subtitle, actions, children }: Dashboar
                     <span className={styles.demoText}>DEMO MODE</span>
                     <span className={styles.demoDivider}>|</span>
                     <span className={styles.demoClock}>
-                        {clock.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                        {isClient ? formatTime(clock) : '--:--:--'}
                     </span>
                     <span className={styles.demoDivider}>|</span>
                     <span className={styles.demoNote}>Simulated Data • Not Production</span>
@@ -47,3 +55,4 @@ export function DashboardLayout({ title, subtitle, actions, children }: Dashboar
 }
 
 export default DashboardLayout;
+

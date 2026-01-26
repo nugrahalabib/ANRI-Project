@@ -1248,3 +1248,26 @@
 .deleteBtn:hover {
     background: rgba(239, 68, 68, 0.1) !important;
 }
+
+/* Compliance Score */
+.complianceScore {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.complianceBar {
+    height: 6px;
+    border-radius: 3px;
+    flex: 1;
+    transition: width 0.3s ease;
+}
+
+.complianceValue {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--grey-300);
+    min-width: 35px;
+    text-align: right;
+}
