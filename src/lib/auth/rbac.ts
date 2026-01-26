@@ -90,6 +90,29 @@ const rolePermissions: Record<UserRole, Permission[]> = {
         // System admins have all permissions
         ...Object.values(Permission),
     ],
+
+    AUDITOR: [
+        Permission.DOCUMENT_VIEW,
+        Permission.DOCUMENT_VIEW_RESTRICTED,
+        Permission.DOCUMENT_TRACK,
+        Permission.ALERT_VIEW,
+        Permission.POLICY_VIEW,
+        Permission.DASHBOARD_COMPLIANCE,
+        Permission.AUDIT_VIEW,
+        Permission.AUDIT_EXPORT,
+        Permission.SYSTEM_REPORTS,
+    ],
+
+    ARCHIVIST: [
+        Permission.DOCUMENT_VIEW,
+        Permission.DOCUMENT_VIEW_RESTRICTED,
+        Permission.DOCUMENT_TRACK,
+        Permission.DOCUMENT_MANAGE,
+        Permission.ALERT_VIEW,
+        Permission.POLICY_VIEW,
+        Permission.DASHBOARD_COMPLIANCE,
+        Permission.AUDIT_VIEW,
+    ],
 };
 
 /**
