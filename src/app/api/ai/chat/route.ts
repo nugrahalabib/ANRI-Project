@@ -7,7 +7,7 @@ import prisma from '@/lib/db/prisma';
 import { getSession } from '@/lib/auth/session';
 
 // Initialize Gemini AI client
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || 'REMOVED_GEMINI_KEY' });
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Fetch platform context from database
 async function getPlatformContext() {
