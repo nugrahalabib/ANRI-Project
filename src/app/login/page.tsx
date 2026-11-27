@@ -152,7 +152,7 @@ export default function LoginPage() {
                 </form>
 
                 <div className={styles.quickLogin}>
-                    <p>Quick Login (Demo):</p>
+                    <p>Quick Login (demo accounts, simulated data):</p>
                     <div className={styles.roleCards}>
                         {DEMO_USERS.map((user) => (
                             <button
@@ -173,8 +173,8 @@ export default function LoginPage() {
                 </div>
 
                 <div className={styles.footer}>
-                    <p>© 2025 Arsip Nasional Republik Indonesia</p>
-                    <p>Secure Access Portal v1.0</p>
+                    <p>Prototype by Spead AI for an ANRI procurement process</p>
+                    <p>Simulated data · not an official ANRI system</p>
                 </div>
             </div>
         </main>
